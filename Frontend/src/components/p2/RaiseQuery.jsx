@@ -35,6 +35,16 @@ export default function RaiseQuery({ user }) {
     return () => clearInterval(draftTimerRef.current);
   }, [title, category, tags, notifyEmail]);
 
+  // 2-second debounced draft save after typing stops
+  useEffect(() => {
+    const t = setTimeout(() => {
+      if (!title && !category && !tags) return;
+      api2.put('/drafts/mine', { title, category: category || null, tags: tags.split(',').map((t) => t.trim()).filter(Boolean), notifyEmail })
+        .catch(() => {});
+    }, 2000);
+    return () => clearTimeout(t);
+  }, [title, category, tags, notifyEmail]);
+
   // Real-time similarity scan (debounced 600ms)
   useEffect(() => {
     if (title.trim().length < 5) { setSimilarity({ loading: false, selfDuplicate: null, communityMatches: [], faqMatches: [] }); return; }
