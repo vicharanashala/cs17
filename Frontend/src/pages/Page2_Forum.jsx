@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TopNavBar from '../components/TopNavBar';
-import Sidebar from '../components/Sidebar';
 import Genie from '../components/p2/Genie';
 import RaiseQuery from '../components/p2/RaiseQuery';
 import SolveQuery from '../components/p2/SolveQuery';
@@ -80,12 +79,8 @@ export default function Page2_Forum() {
         </div>
       )}
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
-        <Sidebar active="forum" />
-
-        {/* Main content */}
-        <main className="flex-1 overflow-y-auto">
+      {/* Main content */}
+      <main className="flex-1 overflow-y-auto">
           <div className="max-w-content-max-width mx-auto px-4 md:px-8 py-8 pb-24">
 
             {/* Page header */}
@@ -133,8 +128,7 @@ export default function Page2_Forum() {
               <SolveQuery user={user} />
             )}
           </div>
-        </main>
-      </div>
+      </main>
     </div>
   );
 }
