@@ -62,7 +62,7 @@ export default function Page2_Forum() {
 
   return (
     <div className="min-h-screen bg-surface-bright flex flex-col">
-      <TopNavBar active="forum" />
+      <TopNavBar active="forum" user={user} />
 
       {/* Inactivity warning banner */}
       {showInactivityWarning && (
