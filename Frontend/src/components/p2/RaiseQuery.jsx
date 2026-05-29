@@ -145,7 +145,7 @@ export default function RaiseQuery({ user }) {
             className="w-full px-3 py-2.5 bg-surface border border-ink-200 rounded-xl font-body-md text-body-md text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-colors resize-none"
           />
           <div className="flex items-center justify-between mt-1">
-            <p className="font-label-mono text-label-mono text-ink-400">{title.length}/500</p>
+            <p className={`font-label-mono text-label-mono ${title.length >= 470 ? 'text-error' : title.length >= 400 ? 'text-amber-500' : 'text-conf-high'}`}>{title.length}/500</p>
             {similarity.loading && (
               <p className="font-label-mono text-label-mono text-ink-400 flex items-center gap-1">
                 <span className="material-symbols-outlined text-xs animate-spin">refresh</span> Checking…
