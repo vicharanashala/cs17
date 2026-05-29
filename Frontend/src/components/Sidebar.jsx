@@ -16,10 +16,6 @@ export default function Sidebar({ active, isAdmin = false }) {
           <span className="material-symbols-outlined text-lg">forum</span>
           <span className="font-body-sm text-body-sm">Discussion Forum</span>
         </Link>
-        <Link to="/escalate" className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${active === 'escalate' ? 'bg-ink-100 dark:bg-admin-surface text-primary dark:text-primary-fixed-dim font-bold border-l-2 border-primary-container' : 'text-ink-700 dark:text-ink-200 hover:bg-ink-50 dark:hover:bg-admin-surface'}`}>
-          <span className="material-symbols-outlined text-lg">emergency_home</span>
-          <span className="font-body-sm text-body-sm">Escalations</span>
-        </Link>
         {isAdmin && (
           <Link to="/admin" className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${active === 'admin' ? 'bg-ink-100 dark:bg-admin-surface text-primary dark:text-primary-fixed-dim font-bold border-l-2 border-primary-container' : 'text-ink-700 dark:text-ink-200 hover:bg-ink-50 dark:hover:bg-admin-surface'}`}>
             <span className="material-symbols-outlined text-lg">dashboard</span>
