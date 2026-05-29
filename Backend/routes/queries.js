@@ -3,6 +3,7 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const Query = require('../models/Query');
 const QueryCache = require('../models/QueryCache');
+const { generateEmbedding } = require('../services/similarity');
 const QueryVote = require('../models/QueryVote');
 const Draft = require('../models/Draft');
 const authStudent = require('../middleware/authStudent');
@@ -124,6 +125,16 @@ router.post('/', authStudent, async (req, res) => {
         createdAt: newQuery.createdAt,
       },
     });
+
+    // Generate and store MiniLM embedding after response sent (non-blocking)
+    generateEmbedding(trimmedTitle)
+      .then((embedding) => {
+        if (embedding) {
+          newQuery.embedding = embedding;
+          newQuery.save().catch((err) => console.error('Failed to save embedding:', err.message));
+        }
+      })
+      .catch((err) => console.error('Embedding generation failed:', err.message));
   } catch (err) {
     console.error('Submit query error:', err);
     res.status(500).json({ error: 'Failed to submit query.' });
