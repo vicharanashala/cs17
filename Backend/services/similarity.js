@@ -5,11 +5,44 @@
  * Layer 2: Levenshtein (edit distance)       threshold ≥ 0.75
  * Layer 3: MiniLM cosine (semantic)          threshold ≥ 0.88
  *
- * MiniLM is marked TODO — replace with actual embedding call when the
- * Python FastAPI microservice is running. For now it returns 0 (no match).
+ * Embedding model: Xenova/all-MiniLM-L6-v2 (384-dim)
+ * Loaded via @xenova/transformers (Transformers.js) — runs locally in Node.js
+ * No GPU required; CPU-only with thread limit set for reasonableness.
  */
 
 const { distance: levenshteinDistance } = require('fastest-levenshtein');
+const { env, pipeline } = require('@xenova/transformers');
+
+// Limit CPU threads to avoid saturating the process
+env.backends.onnx.wasm.numThreads = 2;
+
+// ─── Singleton embedding model ─────────────────────────────────────────────
+// Loaded once; all calls reuse the same pipeline instance.
+let embeddingPipeline = null;
+
+async function getEmbeddingPipeline() {
+  if (embeddingPipeline) return embeddingPipeline;
+  embeddingPipeline = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2', {
+    quantized: false,
+  });
+  return embeddingPipeline;
+}
+
+/**
+ * generateEmbedding(text) — returns number[] (384-dim MiniLM embedding)
+ * First call is slow (model download ~90MB, cached locally).
+ * Failures return null (non-fatal; callers fall back to Jaccard+Levenshtein).
+ */
+async function generateEmbedding(text) {
+  try {
+    const extractor = await getEmbeddingPipeline();
+    const result = await extractor(text, { pooling: 'mean', normalize: true });
+    return Array.from(result.data);
+  } catch (err) {
+    console.error('Embedding generation failed:', err.message);
+    return null;
+  }
+}
 
 // ─── Layer 1: Jaccard ───────────────────────────────────────────────────────
 function tokenize(text) {
@@ -40,8 +73,6 @@ function levenshteinSimilarity(a, b) {
 }
 
 // ─── Layer 3: MiniLM cosine ─────────────────────────────────────────────────
-// TODO: Call the FastAPI microservice at process.env.MINIML_API_URL
-// For now returns 0 so it never falsely triggers.
 function cosineSimilarity(embA, embB) {
   if (!embA || !embB || embA.length !== embB.length) return 0;
   let dot = 0, normA = 0, normB = 0;
@@ -72,4 +103,4 @@ function isSimilar(titleA, titleB, embA = null, embB = null) {
   return { similar: false, method: null, score: Math.max(j, l, c) };
 }
 
-module.exports = { isSimilar, jaccardSimilarity, levenshteinSimilarity, cosineSimilarity };
+module.exports = { isSimilar, jaccardSimilarity, levenshteinSimilarity, cosineSimilarity, generateEmbedding };
