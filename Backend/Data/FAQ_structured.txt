@@ -1,0 +1,1389 @@
+================================================================================
+VICHARANASHALA INTERNSHIP PROGRAMME — FULL FAQ
+================================================================================
+Source: samagama.in | For questions not covered here, log in and ask Yaksha.
+================================================================================
+
+
+================================================================================
+MODULE 1 | ABOUT THE INTERNSHIP
+================================================================================
+
+--- 1.1 | What is the Vicharanashala internship? ---
+A two-month internship run by Vicharanashala, a research lab at IIT Ropar. You
+will work on a real open-source project under a mentor, after a short training
+phase tailored to where you already are. The internship is free — we do not
+charge, and the work is real.
+
+--- 1.2 | What is VINS? ---
+VINS is the Vicharanashala Internship — an online programme open to anyone who
+clears our interview. The work is real open-source contribution under a mentor,
+the certificate is from the Vicharanashala Lab for Education Design at IIT
+Ropar, and the programme itself is free (we charge nothing). There is no
+stipend.
+
+If you are seeing a yellow VINS panel on your result page, you are selected.
+
+--- 1.3 | What are the phases of VINS, and what do the badges mean? ---
+VINS is structured as four phases. Each one is marked by a badge.
+
+  BRONZE (Phase 1): A short training period at the start, planned around what
+  you already know. If you arrive already comfortable with the basics, your
+  mentor may skip Bronze and put you straight on to the project.
+
+  SILVER (Phase 2): The main work. You contribute to a real open-source project
+  under a Vicharanashala mentor. Finishing Bronze and Silver completes your
+  internship and earns the certificate.
+
+  GOLD (Phase 3): A recognition awarded during Silver if your contribution
+  stands on its own as a meaningful feature, not just a small fix.
+
+  PLATINUM (Phase 4): A standing invitation to visit the lab any time during
+  the year after your internship ends. We help with travel through a small
+  visit stipend.
+
+Most interns finish at Bronze + Silver — that is exactly what the certificate
+is for. Gold and Platinum are extras you can pick up if your work makes the
+case for them.
+
+--- 1.4 | Who is the internship for? Are alumni eligible? ---
+The internship is for currently-enrolled students at any college or university
+— undergraduate, postgraduate, or doctoral. The NOC requirement reflects this:
+we ask for institutional consent that you can commit your time to this
+internship.
+
+Candidates who have already graduated and are not currently enrolled in any
+programme are NOT eligible for this cycle. If you re-enrol later (higher
+studies, etc.), you are welcome to apply again in a future cycle.
+
+--- 1.5 | Is this the same as IIT Ropar's official Summer Research Internship? ---
+No. Summership 2026 is a VLED Lab initiative. The certificate is issued by the
+Vicharanashala Lab for Education Design, NOT centrally by the institute. IIT
+Ropar runs a separate institutional summer research internship through its own
+office. Do not represent Summership 2026 as equivalent to that programme.
+
+--- 1.6 | I have classes/exams during the internship period. Can I take leave? ---
+Leave is NOT permitted. If you are also attending classes or exams, you will be
+relieved from the internship immediately and will need to join the next batch
+when it starts.
+
+================================================================================
+END OF MODULE 1
+================================================================================
+
+
+================================================================================
+MODULE 2 | TIMING AND DATES
+================================================================================
+
+--- 2.1 | When can I start? ---
+You can start any time in 2026 — VINS is flexible on the start date — but two
+rules apply:
+
+  HARD RULE: Your internship must finish by 31 December 2026. That date is
+  non-negotiable. Whatever start you pick, your end date (start + 2 months,
+  with up to 1 month grace) must land on or before 31 December 2026.
+
+  STRONG RECOMMENDATION: Start as soon as possible. The earlier you join, the
+  more of the May–July main cohort you catch. Three things make starting earlier
+  materially better:
+    - Cohort networking: peer discussions and connections happen during this
+      window; later starters are largely solo.
+    - TA support is concentrated in May–July; after this, TAs return to their
+      own college work and bandwidth is thinner.
+    - Training rolls out with the cohort, not piecemeal.
+
+If starting now is genuinely impossible (exams, unavoidable commitments), you
+can begin later and still complete — but the cohort effect and support will be
+lighter, and the December cap means a late start leaves no room for slippage.
+
+--- 2.2 | How long is the internship? ---
+Two months from your chosen start date, with an optional one-month grace
+period if you need it. End must land on or before 31 December 2026.
+
+--- 2.3 | Can I start in July, August, or later if I have exams now? ---
+Yes — but only if your exams genuinely make an earlier start impossible. Wait
+until your exams are done, then opt in and start. Do not attempt to juggle this
+internship with ongoing exams. Make sure your chosen start date plus 2 months
+(or 3 with grace) lands on or before 31 December 2026.
+
+--- 2.4 | Can I start with the cohort and take a break during my exam window? ---
+No. This arrangement is not offered.
+
+VINS is a full-attention internship — six to ten hours a day, sometimes more.
+Splitting that with college exams damages both sides: the project loses momentum,
+the exams suffer, and the mentor invests in someone who can only half-engage.
+
+If your exams fall inside the cohort duration, defer your start to after your
+exams end, opt in then, and run the internship at full attention.
+
+WARNING: If we later learn that a candidate was sitting college exams during
+their internship period, we reserve the right to terminate the internship or
+withhold the certificate — including after the internship has otherwise been
+completed.
+
+--- 2.5 | Can I get an exemption for an exam scheduled during the internship? ---
+No. The 55-day continuous window is non-negotiable. We cannot offer an
+exemption for an exam during this period. Split attention genuinely damages
+both your exam preparation and your internship work.
+
+--- 2.6 | Are orientation session recordings shared with interns? ---
+Recordings of the sessions will NOT be provided. We may provide access to an
+abridged version of a talk or session if we consider it important, but this is
+not guaranteed for every session. Project or group assignments cannot be changed
+after watching them.
+
+================================================================================
+END OF MODULE 2
+================================================================================
+
+
+================================================================================
+MODULE 3 | NOC (NO OBJECTION CERTIFICATE)
+================================================================================
+
+--- 3.1 | What dates do I put on the NOC? ---
+Default: your chosen start date → your start + 2 months (with up to 1 month
+grace), ensuring the end date is on or before 31 December 2026. Pick the
+earliest start date you can realistically make — the May–July summer window is
+the main cohort.
+
+If the NOC will be signed on a specific later date, pick a start date after
+the signature date.
+
+--- 3.2 | Who can sign the NOC? ---
+Any authorised signatory at your college: HOD, Acting HOD (during holidays),
+Principal, Dean, Director, or Training & Placement Officer.
+
+For dual-degree students: either institution can sign — pick whichever is easier.
+For IITM BS Online Degree (standalone) students: any officer from the BS office
+can sign.
+
+--- 3.3 | When do I submit the NOC? Is the deadline hard? ---
+The deadline is NOT hard — there is no specific cut-off date. But for the
+internship to begin properly, submit it as early as possible and join the
+current summer cohort.
+
+IMPORTANT: Late submission means you miss the cohort window, your mentor may
+already be busy, and you lose the cohort + TA support that make this internship
+genuinely good. Submit early.
+
+--- 3.4 | What format should I use? Do I need to design the NOC myself? ---
+No — we provide a printable NOC format. Steps:
+  1. Log in to samagama.in after your result is out.
+  2. Click "Download blank NOC" on your dashboard.
+  3. Take a printout and get it physically signed and stamped.
+  4. Scan it and upload the signed PDF using "Upload signed NOC" on the dashboard.
+
+You do not need to draft anything yourself, and you do not need college
+letterhead — the format we provide is the canonical layout.
+
+--- 3.5 | What if my college gives me an NOC in their own format? ---
+A college's own NOC format is acceptable, as long as all four required entries
+are present:
+  1. The signing authority's HANDWRITTEN SIGNATURE (most important item).
+  2. The signing authority's OFFICIAL EMAIL ADDRESS (we cross-check to verify).
+  3. Your FULL NAME.
+  4. YOUR SIGNATURE.
+
+If your college's format does not include a place for your signature, sign
+clearly and prominently anywhere on the document before uploading.
+
+--- 3.6 | Does the NOC need to be signed by hand? ---
+Yes. Three things are required on the NOC:
+  1. The authorised signatory's HANDWRITTEN SIGNATURE.
+  2. The institutional RUBBER STAMP / SEAL in the designated area.
+  3. The signatory's EMAIL ADDRESS filled in the designated field (we
+     automatically cross-check with that person to verify the signature).
+
+Digital signatures are NOT accepted on the PDF path. If a physically-signed
+printout is impractical for your HOD, use the email-forward path in section 3.7
+— it is fully equivalent.
+
+--- 3.7 | Can my HOD email the NOC instead of signing a printout? ---
+Yes — there is a fully-equivalent email-forward path. Use whichever is easier;
+you do not need to do both.
+
+HOW IT WORKS:
+  1. Download the text NOC from your dashboard
+     ("Download text NOC (email path)" button).
+  2. Fill in the student-side fields, then email the file to your HOD and ask
+     them to forward it.
+  3. Your HOD forwards the email to sudarshan@iitrpr.ac.in from their OFFICIAL
+     INSTITUTIONAL EMAIL ADDRESS, with the subject line:
+     "NOC for my student <Your Full Name>"
+
+The forward itself counts as the signature — the HOD's official institutional
+email address is the verification.
+
+TWO NON-NEGOTIABLE CONDITIONS:
+  - The forward must come from the HOD's OFFICIAL INSTITUTIONAL EMAIL ADDRESS
+    (a college/university domain) — NOT a personal Gmail or Outlook account.
+  - The subject line MUST start with "NOC for my student" or it may be missed.
+
+After the forward arrives, confirmation and offer-letter issuance follow the
+normal timeline (about 24 to 48 hours). Candidates who use this path do NOT
+also need to upload a signed PDF.
+
+--- 3.8 | How do I download and upload the NOC? ---
+Both happen on your dashboard at samagama.in once your result is out. You will
+see a NOC section with two buttons:
+
+  - "Download blank NOC" — saves the printable NOC format PDF.
+  - "Upload signed NOC (PDF)" — opens a file picker; file must be a PDF of
+    at most 1 MB.
+
+The NOC section appears in three places on the dashboard (all backed by the
+same endpoints — use whichever is convenient):
+  - A compact pill in the dark header bar at the top of every screen.
+  - A standalone NOC card on the dashboard, between the Results card and the
+    Talk-to-Yaksha button.
+  - A NOC section at the bottom of your full Result message.
+
+The chat surface no longer carries any NOC affordance — please use the
+dashboard buttons. If you cannot see the buttons, make sure you are logged in
+as the email that received the result, and that your result has been released.
+
+--- 3.9 | What if my NOC is not formally verified yet? ---
+NOC verification takes time — typically anywhere between an hour and one full
+working day from the moment you upload.
+
+If you need your offer letter sooner, use the TENTATIVE ROUTE:
+  - Upload a self-declaration on your profile.
+  - A tentative offer letter will be issued to you immediately.
+  - The formal offer letter follows once your NOC clears verification.
+
+--- 3.10 | My online course (Masai, NPTEL, Coursera, etc.) won't issue an NOC. ---
+The internship is open ONLY to candidates currently enrolled in a full-time
+degree programme at a recognised college or university. Online-only courses —
+Masai Institute, NPTEL/MOOC, Coursera, Udacity, bootcamps — do NOT by
+themselves make a candidate eligible.
+
+  - If you are CONCURRENTLY ENROLLED in a full-time degree programme: obtain an
+    NOC from that college and upload it via the dashboard.
+  - If your ONLY academic engagement is the online course: the internship is not
+    open to you in this cycle. Apply again in a future cycle once enrolled in a
+    full-time programme.
+
+--- 3.11 | My HOD wants written confirmation before signing my NOC. What do I show them? ---
+Your selection is confirmed the moment your yellow VINS result panel appears on
+samagama.in — that is the official confirmation. There is no separate written
+letter issued before the NOC step by default.
+
+If your HOD insists on a document in hand, use the TENTATIVE OFFER LETTER ROUTE:
+  1. Log in to samagama.in and open your profile.
+  2. Upload a brief self-declaration (short statement that you intend to start
+     and will submit your signed NOC once approved).
+  3. A tentative offer letter on Vicharanashala letterhead is issued immediately.
+  4. Hand the tentative offer letter to your HOD — it serves as the written
+     confirmation they need to sign your NOC.
+  5. Once your HOD signs the NOC and you upload it, the formal offer letter is
+     issued automatically (see sections 4.3 and 3.9).
+
+--- 3.12 | Can Prof. Sudarshan Iyengar or an IIT Ropar faculty member sign my NOC? ---
+No. Your NOC must be signed by an authorised signatory at the institution where
+YOU are enrolled — HOD, Dean, Principal, or T&P Officer. Prof. Sudarshan
+Iyengar is a faculty member at IIT Ropar and cannot sign your NOC in a personal
+capacity.
+
+REGARDING ELIGIBILITY: The IIT Ropar/Masai online AIML programme is an
+online-only certification course. Even if offered jointly with an IIT, it does
+NOT meet the full-time degree enrolment requirement on its own.
+
+  - If you are concurrently enrolled in a full-time degree elsewhere: obtain the
+    NOC from that institution.
+  - If your only enrolment is the IIT Ropar/Masai online programme: you are NOT
+    eligible for this internship cycle.
+
+================================================================================
+END OF MODULE 3
+================================================================================
+
+
+================================================================================
+MODULE 4 | SELECTION, OFFER LETTER, AND CERTIFICATE
+================================================================================
+
+--- 4.1 | How do I know I am selected? ---
+If you can see your YELLOW VINS result panel on samagama.in, you are selected.
+There is no separate selection step or confirmation email.
+
+--- 4.2 | How do I opt into VINS? ---
+Tell Yaksha in the chat: "I want to take up the online internship without
+stipend." Yaksha will confirm. Opting in is the selection — no separate
+confirmation email is sent at that stage.
+
+--- 4.3 | When do I get the offer letter? ---
+There are two paths:
+
+  PATH 1 — FORMAL OFFER LETTER (default). Issued once BOTH of these are done:
+    1. Your signed NOC has been verified (typically 1 hour to 1 working day
+       after upload).
+    2. You have confirmed your internship start and end dates on the dashboard
+       (see section 4.5).
+  Once both are done, the formal offer letter is issued automatically — usually
+  within an hour of the second step completing.
+
+  PATH 2 — TENTATIVE OFFER LETTER (faster). Upload a self-declaration on your
+  profile instead. A tentative offer letter is issued immediately, and the
+  formal letter follows once your NOC clears verification.
+
+Either letter is on Vicharanashala letterhead and serves as your official
+document for college/employer records.
+
+The offer letter lives on your dashboard at samagama.in, NOT in your email.
+When issued, you will receive a notification email from no-reply@vicharanashala.ai
+with the subject: "Your Vicharanashala Offer Letter is ready — please log in to
+download." The actual letter is downloaded from the Offer Letter card on your
+dashboard. If you do not see the notification email, check spam/promotions — but
+always log in to samagama.in and click "Download Offer Letter" as the primary path.
+
+--- 4.4 | Will I get a certificate? ---
+Yes — every intern who completes the internship gets a certificate from
+Vicharanashala, IIT Ropar. The internship is genuinely demanding; candidates
+who drop out mid-way do NOT get a certificate.
+
+--- 4.5 | How do I confirm my internship dates? ---
+After opting into VINS via Yaksha (see section 4.2):
+  1. Log in to samagama.in.
+  2. Find the yellow card titled "Confirm your internship dates" on the dashboard.
+  3. The two date pickers pre-fill with sensible defaults for the current cohort.
+  4. If those work for you, hit "Save dates". Otherwise edit them.
+  5. A green confirmation appears once saved.
+
+Your end date must be on or before 31 December 2026. You can edit any time from
+the same card. Dates must match what your HOD signed off on in your NOC.
+
+--- 4.6 | I am a Minor/Major in AI student from IIT Ropar. Do I need an NOC? ---
+The Minor/Major in AI course from IIT Ropar is a certification course — there
+will be a DIFFERENT TRACK of internship equivalent for these students. Write
+to us separately. To be part of THIS internship programme you must be a
+registered student in a UG/PG programme with a university. This internship is
+exclusively for students, not working professionals.
+
+--- 4.7 | How do I accept the offer letter? ---
+Once your formal offer letter arrives, use this EXACT FORM — it is the first
+attention-to-detail check of the internship:
+
+  1. Reply All on the offer-letter email thread (sudarshan@iitrpr.ac.in is
+     already CC'd — keep that address on your reply).
+
+  2. In the body, paste the following acceptance statement EXACTLY as printed,
+     with your full name inserted and a date added:
+
+     > I, [Full Name], confirm that I have read, understood, and accepted all
+     > terms, conditions, and obligations set out in this offer letter and in
+     > the program FAQ at samagama.in. I formally accept the offer of Summer
+     > Internship 2026.
+
+  RULES:
+    - Copy-paste this sentence as-is.
+    - Do NOT paraphrase, shorten, or rearrange the words.
+    - The reply must reach us within 5 DAYS of the offer letter being sent.
+    - Do not change the recipient fields.
+
+  ALTERNATIVE: Download the offer letter PDF, fill in your name and date in the
+  acceptance block, sign and scan as a PDF, and attach to your reply.
+
+--- 4.8 | What if I reply without using the exact acceptance format? ---
+The offer is WITHDRAWN, effective immediately, with no further correspondence.
+The withdrawal is final.
+
+What counts as NON-COMPLIANT:
+  - Paraphrasing ("I happily accept", "I gladly confirm", etc.)
+  - Sending only "I accept" or "Yes, accepted"
+  - Missing the date
+  - Missing the FAQ-reference clause
+  - An attached photo or scan of an unfilled or undated offer letter
+
+What does NOT count as non-compliant (minor leniency):
+  - Single-word slips ("the offer letter" vs. "this offer letter")
+  - Obvious typing mistakes in an otherwise complete attestation
+
+--- 4.9 | I received a withdrawal email because I didn't accept correctly. Can it be reversed? ---
+There is an appeal path, with conditions. The withdrawal stands by default.
+
+  DO NOT reply to the withdrawal email itself — replies are not read.
+
+  TO APPEAL: Send a fresh email to: sudarshansudarshan@gmail.com
+
+  The subject line MUST be exactly:
+  "Request to Reconsider: Confirmation Reply Error"
+
+  Copy-paste this subject line as-is. Any typo, extra word, missing colon, or
+  change in capitalisation/punctuation will cause the appeal to be missed.
+
+  In the body: state an apology and the reason. If genuine, we will respond
+  within 24 hours.
+
+  NOTE: A granted appeal does NOT restore the offer on the standard track — it
+  places you on a separate track with an additional assignment (a short course
+  on attention to detail) that you must complete before the internship proceeds.
+
+--- 4.10 | I sent my acceptance but my dashboard doesn't update. Is that normal? ---
+Yes. The dashboard tracks NOC, internship dates, and offer letter — it does NOT
+track the acceptance email. After sending your acceptance reply, you will not
+see a new green tick or status change. This is normal and expected.
+
+Acceptance emails are processed manually. If your reply was compliant, no
+further action is needed — you are accepted and the internship will proceed.
+
+If several working days pass with no response, log in to samagama.in and type
+#escalate in the Yaksha chat.
+
+--- 4.11 | How do I change my internship dates before the offer letter is issued? ---
+Until your formal offer letter has been generated, you can change your start
+and end dates yourself from the dashboard at any time — open the "Confirm
+Internship Dates" card under "My Journey" and edit the dates. End date must
+still be on or before 31 December 2026.
+
+This self-edit path is ONLY available until the offer letter is generated. Once
+the offer letter has been sent, the dates are locked — see section 4.16 to
+change them after the offer letter is issued.
+
+--- 4.12 | When and how do I get the Zoom link for the kickoff meeting? ---
+The kickoff orientation is held for the MAIN SUMMER COHORT ONLY (candidates
+starting at the opening of the May–July window). The Zoom link is delivered via:
+  - Email to your registered samagama.in address.
+  - Your Yaksha chat portal on samagama.in.
+
+If your start date is later, there is no separate kickoff event for you.
+
+If you cannot register with the Zoom link or have not received it, type
+#escalate in the Yaksha chat on samagama.in.
+
+--- 4.13 | My start date is approaching and I don't have my NOC or selection letter yet. ---
+Do not wait for the selection confirmation letter. Use the self-declaration form
+to obtain your provisional offer letter. You have a 15-DAY WINDOW to submit the
+proper NOC and get an actual offer letter. Failure to submit the NOC within this
+window may affect your internship.
+
+--- 4.14 | When does my internship actually begin? Will I receive a notification? ---
+Your internship begins on the start date you confirmed on the dashboard — the
+same date printed on your offer letter. There is NO separate "your internship
+has begun" email, chat message, or dashboard notification on the day itself.
+
+On the morning of your start date, log in to samagama.in. Yaksha will guide you
+through the Day-1 steps of the Bronze phase.
+
+If your dashboard appears unchanged, do a hard refresh and re-login. If it still
+looks the same, type #escalate in the chat.
+
+--- 4.15 | Can I switch from VINS (online) to VISE (offline) after being selected? ---
+No. The two tracks are finalised at the interview stage. We do not move
+candidates between them. VISE has a fixed on-campus capacity planned around
+mentor bandwidth, hostel availability, and stipend allocation.
+
+VINS is NOT a consolation track. The project, mentor, and certificate are the
+same as VISE — what differs is the mode (online) and the absence of a
+fellowship. Confirm your VINS start dates and get your NOC uploaded — you are
+already in a strong position.
+
+--- 4.16 | Can I change my internship dates after the offer letter has been issued? ---
+Yes — but the dashboard self-edit path (section 4.11) is no longer available.
+Once the offer letter is generated, the Confirm Internship Dates card is locked.
+
+HOW TO REQUEST THE CHANGE:
+The official from your institution who signed your NOC must send an email:
+  - To: harshdeep.r@vicharanashala.ai
+  - CC: sudarshan@iitrpr.ac.in
+  - Subject: "Date change request — <Your Full Name> — Vicharanashala Summership 2026"
+  - Body: the reason for the date change, plus the new proposed start and end dates.
+  - Attachment: a justification letter written by you (the student), signed by
+    your NOC approver to endorse the reasoning.
+
+The email must originate from the NOC approver's own institutional address — a
+forward by the student is NOT accepted.
+
+Once we receive that email, we will unlock the Confirm Internship Dates card on
+your dashboard so you can re-save the new dates, and we will re-issue the
+formal offer letter. The earlier letter ceases to be valid the moment the new
+one is issued.
+
+--- 4.17 | How do I get the link for daily Zoom standups? Are they mandatory? ---
+Daily Zoom standup links are posted in the ANNOUNCEMENTS SECTION on your
+samagama.in dashboard — look for the announcement bell at the top of the page.
+Check it daily before the session.
+
+We do NOT send separate emails for daily standups.
+
+Attending daily standups is MANDATORY for all interns. Missing standups is
+treated as missing work.
+
+ABOUT THE KICKOFF ORIENTATION: Session recordings are not shared with interns
+who join late (see section 2.6). If you joined late, you are expected to
+complete the orientation through a special proctored catch-up path on ViBe,
+which includes quizzes. This catch-up is mandatory for late starters before
+participating in regular standups.
+
+================================================================================
+END OF MODULE 4
+================================================================================
+
+
+================================================================================
+MODULE 5 | WORK, MENTORSHIP, AND PROJECTS
+================================================================================
+
+--- 5.1 | What will I work on? ---
+A real open-source project from Vicharanashala's portfolio — assigned based on
+your background and the lab's current needs. Areas include: AI/ML, web
+development, NLP, computer vision, agriculture-tech (Annam.AI), education-tech
+(ViBe), and open-source infrastructure.
+
+We do not pre-publish the exact problem; you choose to join knowing the lab will
+assign the project.
+
+--- 5.2 | How many hours per day? ---
+Plan for 6 to 10 hours a day, sometimes more during the build phase. This is a
+full-time internship for the two-month window. Most candidates who drop out are
+juggling something else — VINS expects your FULL ATTENTION.
+
+--- 5.3 | Who is my mentor? ---
+You will work with the lab's research and engineering team. The exact mentor
+depends on the project. The model is fluid — you will get help from a senior
+researcher one day, a peer the next, and someone else for a different question.
+That is how real open-source work happens.
+
+--- 5.4 | Is there a stipend? ---
+No. The internship is UNPAID. Stellar performers may be recognised with a
+discretionary stipend at the lab's option, but this is not promised or expected.
+
+--- 5.5 | Do I need my own laptop? Should I preload any software? ---
+Yes — a personal laptop is required. We prefer Linux or macOS. If you use
+Windows, please install a terminal that can SSH and run Unix-style commands (WSL
+is a clean choice; PuTTY also works). You will be SSH-ing into machines and
+using the command line as part of the work.
+
+We do not maintain a fixed software-preload list — your mentor will guide you
+on specific tools once your project is assigned.
+
+--- 5.6 | I am using a different email on GitHub / Zoom / the learning platform. Is that okay? ---
+No. Your REGISTERED EMAIL is your sole identifier across all programme
+platforms. Progress tracking, mentor assignment, and certificate issuance are
+all tied to it. Mismatches between platforms CANNOT be retroactively corrected
+— use your registered email everywhere from day one.
+
+--- 5.7 | Why has my mentor not been assigned yet or contacted me on Day 1? ---
+Mentors are NOT assigned on Day 1. You will be assigned a mentor when you move
+to the project phase of VINS, which comes AFTER completing the mandatory
+coursework of the Bronze phase (see section 1.3). Once coursework is complete
+and you are placed on a project, your mentor will reach out.
+
+NOTE: We do NOT run a Discord server. Communication is through Yaksha chat on
+samagama.in and email from no-reply@vicharanashala.ai only (see section 6.1).
+
+================================================================================
+END OF MODULE 5
+================================================================================
+
+
+================================================================================
+MODULE 6 | CODE OF CONDUCT — COMMUNICATION CHANNELS
+================================================================================
+
+--- 6.1 | Are unofficial WhatsApp groups, Telegram channels, or peer-run groups allowed? ---
+NO — unofficial channels of any kind are STRICTLY NOT ALLOWED.
+
+All communication with Vicharanashala about this internship must flow through
+OFFICIAL CHANNELS ONLY:
+
+  1. YAKSHA CHAT on samagama.in (start a message with #escalate to reach a
+     human). This is the PRIMARY channel for any question.
+
+  2. EMAIL: Notifications come FROM no-reply@vicharanashala.ai (outbound-only
+     — replies are not read). If you need to write to the team directly (only
+     when Yaksha is genuinely unable to help), email:
+     sudarshansudarshan@gmail.com
+
+  3. THE MODERATED WHATSAPP TROUBLESHOOTING GROUP, which we invite you to
+     AFTER your offer letter is issued. We do not run any other WhatsApp group.
+
+Creating, joining, or operating an unofficial group — a parallel WhatsApp group,
+Telegram channel, Discord server, or any peer-coordinated space that purports
+to act on behalf of Vicharanashala — is STRICTLY PROHIBITED, whether or not the
+group's name or admins' stated affiliation includes "Vicharanashala", "Samagama",
+"Yaksha", "Internship", "IIT Ropar", or any of our branding.
+
+CONSEQUENCES: Candidates found running or actively participating in such
+unofficial channels may face withdrawal of the offer letter, removal from the
+internship, blacklisting from future Vicharanashala programmes, and a formal
+communication to your college or placement office.
+
+SIMPLE RULE: If we did not invite you to it through samagama.in or our official
+email, it is NOT official. When in doubt, raise an #escalate in chat.
+
+================================================================================
+END OF MODULE 6
+================================================================================
+
+
+================================================================================
+MODULE 7 | INTERVIEWS
+================================================================================
+
+--- 7.1 | My interview is not marked as complete on the dashboard — what do I do? ---
+A data-sync issue sometimes occurs where the chat session closes but the
+interview record doesn't update to "completed." The team will check your record
+and manually mark it as complete if needed. You will be unblocked within 1–2
+hours.
+
+If you don't hear from us and your interview continues to be marked incomplete,
+write to us at: sudarshansudarshan@gmail.com
+
+================================================================================
+END OF MODULE 7
+================================================================================
+
+
+================================================================================
+MODULE 8 | CERTIFICATE
+================================================================================
+
+--- 8.1 | Does Vicharanashala send a grade report or evaluation to my university? ---
+Vicharanashala does NOT send formal evaluation or grade reports to universities
+— that process is between you and your college. The certificate issued upon
+completion is the document you can submit to your college or placement office
+for credit.
+
+If your college specifically requires a structured evaluation form or a report
+on your performance, we can provide the certificate and, if earned, a letter of
+recommendation — but we don't have a process for sending grade reports to
+universities.
+
+--- 8.2 | Does the certificate specify whether it was completed online or offline? ---
+No. The certificate is the SAME for both VINS (online) and VISE (offline)
+tracks. It is issued by Vicharanashala, IIT Ropar, and does NOT specify the
+mode of completion.
+
+--- 8.3 | Will the completion certificate be a physical hardcopy or an e-certificate? ---
+The completion certificate is issued as an E-CERTIFICATE — you download it from
+your dashboard on samagama.in after completing both Bronze and Silver. We do
+NOT print and mail physical copies.
+
+The certificate is DIGITALLY SIGNED and AUTHENTIC — it cannot be duplicated and
+can be verified from our database using the certificate number.
+
+--- 8.4 | Is there a WhatsApp group for candidates during the internship? ---
+There is NO WhatsApp group for this internship. All communication happens
+through official channels. We use WhatsApp intermittently for issue handling and
+delete groups after the task. Not being on WhatsApp should not make you miss
+anything.
+
+================================================================================
+END OF MODULE 8
+================================================================================
+
+
+================================================================================
+MODULE 9 | ROSETTA — YOUR INTERNSHIP JOURNAL
+================================================================================
+
+--- 9.1 | What is Rosetta? ---
+Rosetta is your internship journal — a 65-day document, one entry per day,
+every day, for the full duration of Summership 2026. You write in it daily,
+keep it privately, and submit it at the end as one of your completion
+requirements.
+
+The name comes from the Rosetta Stone — discovered in 1799, it carried the
+same text in three scripts and became the key to decoding an ancient language
+silent for centuries. Not because it was grand, but because it was honest and
+consistent. Sixty-five days of honest writing will become the key to
+understanding your own experience.
+
+--- 9.2 | Why does this exist? Is it just busywork? ---
+No. It exists for two reasons:
+
+  FOR YOU: Most people go through an intense experience and carry it without
+  processing it. They finish and cannot articulate what they actually learned.
+  The journal builds that articulation, one day at a time. Students who reflect
+  regularly consistently get more out of the programme — not because they work
+  harder, but because they understand what they are doing and why.
+
+  FOR US: When you submit Rosetta at the end, it gives us qualitative insight
+  into your experience that no survey or evaluation can capture. We use it to
+  improve the programme for the next cohort. Your honest voice matters.
+
+--- 9.3 | What is a "thinking routine"? ---
+Each day in Rosetta has a thinking routine — a short framework that gives your
+reflection a specific shape. Examples:
+
+  3-2-1: 3 things you engaged with, 2 questions on your mind, 1 surprise.
+  Muddy / Clear: what is sharp, and what is still foggy.
+  What? So What? Now What?: separate facts from meaning from action.
+
+The routines rotate across 65 days so the journal does not feel repetitive or
+mechanical. You do not need to research the routine or prepare for it.
+
+--- 9.4 | How do I get my Rosetta journal? ---
+Your journal will be shared with you as a Google Doc template link during
+orientation. Steps:
+  1. Open the link.
+  2. Make a copy to your own Google Drive.
+  3. Rename it: "Rosetta — [Your Name] — Summership 2026"
+  4. That copy is yours for the full 65 days.
+
+DO NOT write in the shared template. Always work in your own copy.
+
+--- 9.5 | How do I use it day to day? ---
+  1. Open your Rosetta Google Doc.
+  2. Scroll to the entry for today's day number.
+  3. Fill in the date at the top of the entry.
+  4. Read the thinking routine name and its one-line description.
+  5. Answer the three prompts in the writing boxes below.
+  6. Close it and get on with your day.
+
+It should take between 10 and 20 minutes. It is not an essay. It is not a
+report. It is a journal.
+
+--- 9.6 | How long should each entry be? ---
+There is no minimum or maximum word count. A good entry is honest and specific.
+Three to five sentences per prompt is usually enough.
+
+WHAT IS NOT ACCEPTABLE: one-word answers, copy-pasted text, vague non-answers
+like "today was productive," or anything that reads like it was generated by AI.
+
+--- 9.7 | What is the one rule? ---
+WRITE WHAT IS TRUE.
+
+Not what sounds impressive. Not what you think we want to read. Not a polished
+summary of the day. If you hated today, write that. If you are confused and
+frustrated, write that.
+
+We will know immediately if an entry reads like an LLM wrote it. Do not do
+that. The journal only counts as a completion requirement if it is genuinely
+yours — in your voice, from your actual experience.
+
+--- 9.8 | Can I use ChatGPT or any AI tool to write my entries? ---
+NO. This is the ONE FIRM RULE of Rosetta.
+
+The journal is a record of YOUR thinking, not a demonstration of what an AI
+can produce. Entries that read as AI-generated will NOT be counted toward your
+completion requirement. If your entire journal reads this way, the journal will
+not be accepted.
+
+Use AI tools for your technical work if that is permitted in the programme. Do
+NOT use them here.
+
+--- 9.9 | What if I miss a day? ---
+Fill it in as soon as you can. Write the ACTUAL DATE you are filling it in, NOT
+the date of the missed entry. Be honest in the entry about the fact that you are
+writing it late and why.
+
+Do NOT leave entries blank. A late honest entry is always better than no entry.
+
+If you find yourself consistently missing entries, that usually means something
+else is going wrong. Use Yaksha in chat, or reach out to your scholar.
+
+--- 9.10 | Will anyone read my journal during the internship? ---
+No. We will NOT access your journal during the 65 days. You write it, you keep
+it, it is yours.
+
+The only time we read it is AFTER you submit it at the end. This is intentional
+— we want you to write freely, without feeling observed.
+
+--- 9.11 | Can the prompts change mid-internship? ---
+Occasionally we may update a prompt for a specific day based on what is
+happening in the cohort. When this happens, we will announce it through the
+programme communication channel BEFORE that day begins.
+
+Check the announcement channel before filling any entry where a change has been
+announced. If no announcement has been made, use the prompt as written in your
+document.
+
+--- 9.12 | How do I submit Rosetta at the end? ---
+On or before Day 65, share your Rosetta Google Doc with the programme
+coordinator's email address (shared during wrap-up week). Set the sharing
+permission to VIEWER.
+
+CHECKLIST BEFORE SUBMITTING:
+  - Your name is in the document title: "Rosetta — [Your Name] — Summership 2026"
+  - All 65 entries have been filled in.
+  - Your cover page has your name, product, and team filled in.
+
+Rosetta submission is one of the required criteria for receiving your internship
+certificate. An incomplete or AI-generated journal will NOT be accepted.
+
+--- 9.13 | I have a question about Rosetta not answered here. What do I do? ---
+Ask Yaksha first. If Yaksha cannot answer it, escalate to your programme
+coordinator. Do not sit on a question — the journal works best when you start
+it right.
+
+--- 9.14 | My college wants written confirmation this is self-paced and won't clash with classes. ---
+This is NOT a self-paced internship — it is a very rigorous, time-demanding
+programme. It is NOT permitted for one to be part of any other activity during
+this period.
+
+================================================================================
+END OF MODULE 9
+================================================================================
+
+
+================================================================================
+MODULE 10 | PHASE 1 — COURSEWORK, VIBE LMS, AND LIVE SESSIONS
+================================================================================
+
+--- 10.1 | I've previously interned with VLED — am I exempt from any coursework? ---
+Yes — partially. If you previously interned with VLED and completed the MERN
+Stack coursework, you don't need to repeat it this cycle.
+
+HOWEVER: The AI Fundamentals course (Fundamentals of AI using an Agriculture
+dataset) is a NEW ADDITION this cycle and is MANDATORY FOR EVERYONE, including
+returning interns.
+
+To claim the MERN exemption: type "#exemption from mern stack course" in your
+Yaksha chat on Samagama. Yaksha will record your request.
+
+NOTE: The broader "#exemption from coursework (viva-route)" option is NOT
+available to returning interns — it exists only for first-time interns already
+well-versed in both stacks. Since AI Fundamentals is new content, returning
+interns must complete it.
+
+--- 10.2 | How do I register for the AI Fundamentals course on ViBe? ---
+  1. Click the AI Fundamentals registration link sent in the Phase 1 launch email.
+  2. You'll be redirected to the ViBe sign-in page. If you don't have a ViBe
+     account yet, create one using the same Gmail you used to register on Samagama.
+  3. Log in with your credentials.
+  4. After logging in, open the course registration link AGAIN in your browser —
+     the second click after login is what enrols you.
+  5. Complete the brief registration form and submit.
+  6. The course will appear instantly on your ViBe dashboard.
+
+--- 10.3 | I registered on ViBe with a different email than my Samagama email — is that OK? ---
+Please use the SAME EMAIL on both platforms so we can match your Phase 1
+progress to your internship record.
+
+EXCEPTION: ViBe requires a Gmail address for signup. If your Samagama email is
+not Gmail (e.g., a college email like @xyz.ac.in), you may use any Gmail of
+yours to register on ViBe. In that case, tell Yaksha in your Samagama chat:
+
+  #vibe-email your-gmail@gmail.com
+
+So we can link the records.
+
+--- 10.4 | Are live sessions mandatory if I'm on the viva route? ---
+Yes — live sessions are MANDATORY for EVERY INTERN, regardless of path.
+Whether you're on the coursework track, MERN-exempt, or have cleared the viva
+and moved to Phase 2, you are expected to attend every live session.
+
+--- 10.5 | Where do I find the daily live-session schedule? ---
+We share each day's schedule through any one of these channels: Samagama
+dashboard, Yaksha chat, or email. Keep an eye on all three — on a given day
+the schedule may go out via any one of them.
+
+================================================================================
+END OF MODULE 10
+================================================================================
+
+
+================================================================================
+MODULE 11 | YAKSHA CHAT
+================================================================================
+
+--- 11.1 | I'm unable to type in the chat after clicking 'Interact with Yaksha' — what do I do? ---
+After logging into your Yaksha portal, if the field shows that you can't type,
+scroll up to the top of your window and click the "Chat with Yaksha" button to
+activate Yaksha. This will allow you to interact with Yaksha properly.
+
+================================================================================
+END OF MODULE 11
+================================================================================
+
+
+================================================================================
+MODULE 12 | VIBE PLATFORM
+================================================================================
+
+--- 12.1 | How do I log in to ViBe? ---
+Website: https://vibe.vicharanashala.ai/auth
+
+Steps:
+  1. Sign up as a student with the registered email ID on the ViBe platform.
+  2. Log in to the ViBe platform as a student from your registered email ID.
+  3. Check the "Notifications" tab in the top right side of the Dashboard.
+  4. Accept the course invite sent for your respective MERN Course.
+
+WARNING: Logging in with a different email ID may result in access issues or
+missing course visibility.
+
+--- 12.2 | Invite accepted but shows "No course enrolled"? ---
+First check:
+  - Make sure you are logged in with the correct registered email ID.
+  - Check if your college email has multiple aliases and try the correct one.
+  - Log out and log in again once.
+  - Use personal wifi instead of college wifi (college wifi may have network
+    restrictions).
+
+If the issue continues, follow these steps in order:
+
+  STEP 1 — ALLOW THIRD-PARTY COOKIES:
+    Open chrome://settings/cookies
+    Turn OFF "Block third-party cookies" and turn ON "Allow all cookies"
+    Add Site Exception: Scroll to "Sites that can always use cookies", click
+    "Add", paste ".vicharanashala.ai" and ensure "Including third-party
+    cookies" is enabled.
+    Restart browser.
+
+  STEP 2 — FIX DNS (MOST IMPORTANT):
+    Change your laptop DNS to Google DNS.
+    Go to: Control Panel > Network > Active Network > Properties > IPv4
+    Shortcut: Win + R > ncpa.cpl > right-click properties
+    Set Preferred DNS to: 8.8.8.8
+    Set Alternate DNS to: 8.8.4.4
+    Save.
+
+  STEP 3 — FLUSH OLD DNS CACHE (safe to do):
+    Open Command Prompt as Admin.
+    Run: ipconfig /flushdns
+    Run: ipconfig /release
+    Run: ipconfig /renew
+    Restart WiFi.
+
+--- 12.3 | Why are videos stuck or repeating? ---
+This may happen due to ViBe's monitored learning system. Common reasons:
+  - Videos must be watched fully and in sequence (no skipping).
+  - Camera and microphone permissions must be enabled.
+  - Poor lighting or high background noise can affect playback.
+  - Switching tabs or staying idle may restart the video.
+
+For smooth playback: stay on the ViBe tab, keep your camera on, and watch
+videos in a quiet, well-lit environment.
+
+--- 12.4 | Can I use a mobile or tablet? ---
+No. Only desktop/laptop is supported.
+
+--- 12.5 | I'm experiencing video issues (stuck, looping, skipping) on ViBe. How do I troubleshoot? ---
+Try these steps in order:
+  1. Refresh the page and check multiple times.
+  2. Inspect browser console: Right-click > Inspect > Go to Network or Console
+     tab > Try watching the video and check for visible errors.
+  3. Log out and log in again.
+  4. Use a different browser.
+  5. Clear browsing data and cache, then re-login.
+
+If the issue persists after all steps, record the issue and contact Yaksha by
+mentioning #escalate-ViBe.
+
+--- 12.6 | I completed all videos and quizzes but my progress shows less than 100%. ---
+Please do not worry. This might be a skip in the quiz/video item due to penalty
+score — the item may not have been successfully completed/marked.
+
+Verify that you've completed ALL the course items (1006/1006). If not, retry
+the missed contents.
+
+In the meantime, try:
+  - Refresh your browser.
+  - Log out, clear your browser cache, and log in again.
+
+--- 12.7 | I feel the ViBe content or platform is not good. Can I request a bypass? ---
+ViBe is built and continuously improved by interns and students themselves. It
+is a free and open-source learning platform.
+
+If you strongly feel the regular ViBe flow does not fairly reflect your
+understanding, there is a formal ALTERNATIVE EVALUATION PATH. This path is
+intentionally rigorous:
+
+  1. Watch specified YouTube video content completely (links provided).
+  2. Appear for a THREE-HOUR PROCTORED EXAMINATION based only on that content.
+  3. The exam runs under strict supervision with:
+     - Two cameras (front and side view), and
+     - One online human proctor monitoring you live.
+
+  SCORING RULES:
+    - Below 60%: Not qualified. Must join the next cohort and use normal ViBe mode.
+    - 60% to 80%: One more chance in the next scheduled exam.
+    - Above 80%: Considered passed.
+
+  This exam is conducted ONCE EVERY FORTNIGHT, so choosing this route may
+  significantly delay your progress. Most students find that continuing with the
+  standard ViBe workflow is the faster and better option.
+
+--- 12.8 | Is the ViBe consent form compulsory? What if I don't want to grant camera access? ---
+Yes — the consent form is COMPULSORY. Providing consent is a mandatory
+requirement for any candidate enrolling in and continuing a course on ViBe.
+
+The platform is designed with proctoring enabled throughout the learning
+process, which requires access to your webcam and microphone. This ensures:
+  - Fairness across all participants.
+  - Academic integrity.
+  - Active and genuine participation.
+
+If you choose not to grant camera and microphone access, you will NOT be able
+to proceed with the course.
+
+PRIVACY CLARIFICATION:
+  - ViBe does NOT continuously record videos.
+  - Proctoring operates via real-time monitoring during learning and assessments.
+  - All data is handled in accordance with consent terms and data-protection
+    guidelines.
+
+Consent is NOT optional — it is a core requirement for participation.
+
+--- 12.9 | What are penalty scores on ViBe and how do they affect my HP? ---
+Penalty scores are generated when anomalies are detected during your activity
+(for example, irregular behavior while watching videos or attempting quizzes).
+
+If the penalty score becomes high, you may be required to rewatch the video
+lesson and retake the associated quiz.
+
+At present, penalty scores do NOT impact your HP (Health Points) or overall
+performance evaluation — they are not being considered for scoring. Their
+primary purpose is to ensure proper engagement with the learning content.
+
+--- 12.10 | When should I use the Flag option on ViBe, and when should I contact support? ---
+  USE THE FLAG FEATURE: For course CONTENT-RELATED ISSUES only (problems with
+  video content or quiz questions).
+
+  CONTACT YAKSHA: For technical issues, platform errors, login problems, or
+  logistics-related queries. Do NOT use the flag option for these.
+
+Using the correct method helps resolve issues quickly and keeps the learning
+process smooth for everyone.
+
+--- 12.11 | What is Linear Progression on ViBe? ---
+Linear progression is enabled for every course on ViBe. This means you must
+watch videos and attempt quizzes in the EXACT ORDER they appear on the left
+panel.
+
+In practice:
+  - You cannot click on a video or quiz far ahead of your current position.
+  - You must complete each item before the next one unlocks.
+  - Skipping videos or quizzes is NOT allowed by design.
+  - Progress is sequential — finish the item in front of you, and the next one
+    opens automatically.
+
+--- 12.12 | Can I use the left navigation panel to jump ahead to a later video or quiz? ---
+No. The left navigation panel is meant only as a PROGRESS MAP — not as a
+jump-to-anywhere menu.
+
+Instead of clicking through the left panel:
+  - Click "Next Quiz" or "Next Lesson" as it appears on the right panel.
+  - Let the platform unlock items for you in sequence as you complete each one.
+
+Trying to skip ahead through the left panel will trigger the "Access Restricted"
+alert (see section 12.13).
+
+--- 12.13 | I am seeing a red "Access Restricted" banner. Is this a bug? ---
+No, this is NOT a bug. The red Access Restricted banner is an INTENTIONAL alert.
+
+The banner appears when you try to open an item (video or quiz) before
+completing all items that come before it. ViBe automatically returns you to
+the previous valid content — the last item you had legitimately reached. You
+will not lose any progress.
+
+The banner is the system telling you: "There is something earlier in the course
+that you haven't finished yet."
+
+--- 12.14 | How do I resolve the "Access Restricted" error? ---
+Follow these steps in order:
+  1. Go back to the left panel and scroll through your course items from the
+     beginning.
+  2. Look for any item WITHOUT a completion tick — that is your missed item.
+  3. Complete that item (watch the full video, or attempt and submit the quiz).
+  4. Refresh the page once you've completed all earlier items.
+  5. If the banner still appears after refreshing and you are sure all earlier
+     items are completed, report the issue to Yaksha by mentioning #escalate-ViBe.
+
+In the large majority of cases, finding and completing the missed item clears
+the alert.
+
+--- 12.15 | Why does ViBe sometimes make me re-watch a clip after a quiz? ---
+If your answer to the check-in quiz didn't go through correctly, ViBe will take
+you back to the same clip and let you try again. This is called a RE-WATCH, and
+it is part of the design — NOT a penalty.
+
+Key points:
+  - Re-watches are NOT recorded against you. They do not affect your HP or
+    evaluation.
+  - The clips are short, so a re-watch usually costs less time than guessing
+    through multiple retries.
+  - Think of the re-watch as the platform helping the idea stick before you
+    move on.
+
+--- 12.16 | What kinds of quiz questions will I see on ViBe? ---
+ViBe quizzes come in four formats:
+
+  PICK ONE (MCQ): One right answer out of four or so options.
+    Tip: Read all options before clicking.
+
+  PICK ONE OR MORE (MSQ): "Select all that apply" — could be one or several.
+    Tip: Read each option carefully; small mistakes happen here most.
+
+  TYPE A NUMBER (NAT): A text box asking for a numeric value.
+    Tip: Type just the number — no units or extra symbols unless the question
+    explicitly asks.
+
+  TRUE OR FALSE: A statement with only two options.
+    Tip: A single word like "always," "never," or "only" can flip the correct
+    answer.
+
+General tip: Watch the clip first, then answer. Trying to read the question
+while the clip is still playing splits your attention.
+
+--- 12.17 | Are the same proctoring rules applied to every course on ViBe? ---
+NO — this is one of the most important things to understand.
+
+ViBe's proctoring system is MODULAR. Each individual check — face visibility,
+single-face-in-frame, lighting, background voices, gaze on screen,
+camera/microphone access — can be independently switched on or off by the
+instructor for a given course or cohort.
+
+This means:
+  - The instructor decides which proctoring elements are active for their course.
+  - Some courses run with all checks active (typical for internships and
+    credentialed programmes).
+  - Other courses may run with only a subset active.
+  - Certain pilot or open courses may have most proctoring relaxed.
+
+IMPORTANT: Do NOT assume rules carry across courses. A relaxation given in one
+course does NOT transfer to another. Always check the course-specific guidelines
+shared by your instructor before each course you join.
+
+When in doubt, ask your instructor or programme coordinator which proctoring
+elements are active for your current course.
+
+--- 12.18 | What does the "quiet helper" on ViBe actually do? ---
+While a lesson plays, a small helper runs gently on your device using your
+camera and microphone. It checks, in real time, that basic conditions for
+learning are present. It looks at five things:
+
+  1. A face is visible — to confirm you are really there.
+  2. Only one face is in frame — to confirm the learning is yours.
+  3. There is enough light on your face — a silhouette is hard to recognise.
+  4. The room isn't full of voices — no talking, TV, or background podcasts.
+  5. You are looking at the screen — brief glances away are fine; long stretches
+     feel like drifting off.
+
+The helper is NOT a judge. Brief, normal movements (a stretch, a sneeze, a
+glance at your notebook) are absolutely fine. It only pays attention to
+sustained patterns, not split-second things.
+
+--- 12.19 | Does ViBe record long videos of me while I'm learning? ---
+No. ViBe does NOT continuously record videos of you.
+
+  - Camera and microphone are used for REAL-TIME PRESENCE CHECKS ONLY.
+  - Long recordings of your face or voice are NOT stored.
+  - When the lesson ends, the helper goes quiet too.
+  - All data is handled strictly in accordance with the consent terms shown when
+    you signed up.
+
+Think of the helper as a quiet study partner sitting beside you — there if
+needed, invisible otherwise.
+
+--- 12.20 | What is the single most common avoidable mistake learners make? ---
+Sitting with a WINDOW DIRECTLY BEHIND YOU during the day.
+
+The room may feel bright to you, but your camera only sees a dark silhouette
+where your face should be. The helper then struggles to confirm your presence,
+and your lesson may pause or rewind.
+
+THE FIX: Move so the window is to your side or in front of the laptop, not
+behind you. A lamp placed in front of you works just as well in the evening.
+
+--- 12.21 | Why does the lesson keep pausing or restarting even when I'm paying attention? ---
+The cause is almost always something small in your environment, not the platform
+itself. Run through this checklist:
+
+  - Your face is too dark → add a lamp in front of you.
+  - Your face is partly out of frame → raise the laptop or sit a bit closer.
+  - There are voices in the background → close the door, or move to a quieter room.
+  - You switched tabs or went idle → stay on the ViBe tab; take breaks BETWEEN
+    clips, not during them.
+  - Camera or mic permission dropped → check the lock icon in your browser's
+    address bar and confirm both are set to "Allow".
+
+--- 12.22 | Can I read the quiz questions aloud or mutter to myself while watching? ---
+It's best not to. The microphone listens for sustained voices in the room, and
+reading aloud, muttering, or asking a roommate "wait, what was that?" can all
+be picked up as anomalies.
+
+Simple habit: watch in silence, answer in silence, and chat freely during breaks
+between clips.
+
+--- 12.23 | Can I study with a friend on camera since we're learning together? ---
+In most courses, NO. Only you — the registered learner — should be in the
+camera frame during a lesson. The helper checks that exactly ONE FACE is visible
+at a time.
+
+Group study is a wonderful habit — just not inside a ViBe session itself. A
+good way to do it:
+  - Hop on a separate call with your friend on your phone or a second device.
+  - Discuss concepts BEFORE or AFTER a ViBe lesson, not during it.
+  - Return to ViBe alone when you're ready to watch the clip and attempt the quiz.
+
+NOTE: As explained in section 12.17, the single-face-in-frame check is an
+instructor-controlled setting. A few courses (typically paired-learning pilots)
+may explicitly relax this rule. Do NOT assume relaxation in one course applies
+to another — always default to studying alone unless your instructor has clearly
+stated otherwise for that specific course.
+
+--- 12.24 | Will I lose my progress if I clear my browser or reinstall it? ---
+No. Your progress is saved ON THE SERVER, tied to your registered email — NOT
+on your browser or computer.
+
+Refreshing the page, clearing cache, switching browsers, or reinstalling your
+browser will NOT wipe your progress. The moment you log back in with the same
+registered email, all your completed clips and quizzes will be exactly where
+you left them.
+
+When in doubt: log out, log back in.
+
+--- 12.25 | Is there a recommended daily learning rhythm on ViBe? ---
+Yes — small, regular sessions work far better than long marathon sessions. A
+practical rhythm:
+  - Show up daily, even if only for thirty minutes. Daily consistency beats a
+    five-hour weekend cram.
+  - Take breaks between clips, not during them. A clip is short — finish it first.
+  - Treat each quiz as a gentle check-in, not a high-stakes test.
+  - For programmes with deadlines (such as internships), aim for the daily
+    progress target announced by your programme team — typically around 3.33%
+    per day.
+
+NOTE: The pacing above is a general guideline only. For any specific programme,
+the actual milestones, deadlines, and weekly progress targets will be announced
+by your instructors or programme team. That takes precedence over the general
+guidance here.
+
+--- 12.26 | What should my "study corner" look like before I start a ViBe session? ---
+A ViBe-friendly study spot needs only three things:
+  1. LIGHT IN FRONT OF YOUR FACE — a lamp or window facing you, never behind.
+  2. JUST YOU IN THE CAMERA FRAME — ask family, friends, or pets not to wander
+     through.
+  3. A REASONABLY QUIET ROOM — no TV, no music with words, no one else on a
+     call nearby.
+
+Two minutes of setup before you start saves a lot of small frustrations during
+the lesson.
+
+================================================================================
+END OF MODULE 12
+================================================================================
+
+
+================================================================================
+MODULE 13 | TEAM FORMATION
+================================================================================
+
+--- 13.1 | Is team formation compulsory? ---
+Yes. All projects in Phase 2 and Phase 3 (some parts) must be completed in
+teams. Every participant is required to be part of a team.
+
+--- 13.2 | What is the size of a team? ---
+The team size is FIXED AT FOUR MEMBERS. This is mandatory — you cannot have
+fewer or more members in a team at the time of final formation.
+
+--- 13.3 | How are teams formed? ---
+  - For students who joined on May 15 and 16: Teams were formed through a
+    structured activity.
+  - For students joining later: Teams will be RANDOMLY ASSIGNED by the
+    administration.
+
+--- 13.4 | I started on May 15/16 but couldn't form a team during the activity. What happens? ---
+You will be randomly assigned to a team.
+
+--- 13.5 | There was a typo in our email addresses during team formation. Can we fix it? ---
+No action is required from your side. The administration will verify and match
+email IDs with names before finalising and locking teams.
+
+--- 13.6 | I formed a team with only two members. Will it be considered? ---
+No. Teams with fewer than four members will be expanded by adding additional
+members to make a final team of four.
+
+--- 13.7 | What if a team member leaves or becomes ineligible during Phase 1? ---
+  - The administration will attempt to assign a replacement member.
+  - If no replacement is found, you may continue as a team of three.
+  - You MUST inform the admin immediately, or the change will not be recognised.
+
+--- 13.8 | Can I form a team with someone from my own college? ---
+No. Teams must consist of members from DIFFERENT INSTITUTIONS to encourage
+networking. Exception: Students from the same institution but different
+campuses/locations may be allowed.
+
+--- 13.9 | Can I form a team with students from my IIT MBS cohort? ---
+No. You are encouraged to collaborate with participants OUTSIDE your existing
+cohort.
+
+--- 13.10 | Can we change our team name after submission? ---
+Yes, team names are tentative and can be changed. However, due to operational
+constraints, FREQUENT CHANGES ARE DISCOURAGED.
+
+--- 13.11 | What if multiple teams choose the same name? ---
+Teams will be distinguished using suffixes (e.g., Team X-1, Team X-2, etc.).
+
+--- 13.12 | What should I do if I face issues within my team? ---
+Report any concerns immediately to your assigned scholar/mentor. Maintaining a
+safe and respectful environment is a priority.
+
+--- 13.13 | How will I know who my mentor is? ---
+Your mentor will be the scholar assigned to the project your team is working on.
+
+--- 13.14 | When will I know my team details? ---
+Teams are announced in phases via email. Please regularly check your inbox for
+updates.
+
+--- 13.15 | I received a team list email but my name is not included. What should I do? ---
+  - Team announcements are phased, so your name may appear in a later list.
+  - If your entire cohort has moved to team activities and you are still
+    unassigned, raise the issue on Yaksha or contact a scholar.
+
+--- 13.16 | We selected Project X as our top priority but were assigned Project Y. Can we change it? ---
+No. Project assignments are FINAL and cannot be changed. Allocation is done to
+ensure balanced distribution across projects.
+
+--- 13.17 | I just started the internship. Can I form my own team now? ---
+No. For later cohorts, teams will be randomly assigned. Please wait for the
+official communication.
+
+--- 13.18 | When do team activities begin? ---
+Team-based work begins in PHASE 2. During Phase 1 (online coursework), you do
+not need to worry about team activities.
+
+--- 13.19 | Can I request a specific teammate after teams are assigned? ---
+No. Team assignments are FINAL and requests for changes are not entertained.
+
+--- 13.20 | What happens if a team member is inactive or not contributing? ---
+Report the issue to your mentor/scholar early. Prolonged inactivity may lead to
+administrative intervention.
+
+--- 13.21 | Can I switch teams if there are conflicts? ---
+Team switches are NOT ALLOWED except in exceptional, admin-approved cases
+involving serious concerns.
+
+--- 13.22 | Will team performance affect individual evaluation? ---
+Yes. While some components may be individual, team deliverables are a key part
+of evaluation.
+
+--- 13.23 | How will communication happen within teams? ---
+Teams are expected to self-organise internal team coordination (e.g., a small
+WhatsApp/email thread limited to the four teammates). Official programme updates
+will continue to come via email and Yaksha chat on samagama.in.
+
+NOTE: This in-team coordination is DISTINCT from the unofficial cohort-wide
+channels prohibited under section 6.1 — a four-person team thread for project
+work is fine; any group that purports to act on behalf of Vicharanashala or the
+wider cohort is NOT.
+
+--- 13.24 | What if I miss the team allocation email? ---
+All communication is sent via registered email. You are responsible for
+checking regularly, INCLUDING SPAM FOLDERS.
+
+--- 13.25 | Can a team be dissolved and reformed? ---
+No. Once finalised, teams are LOCKED and cannot be dissolved.
+
+--- 13.26 | What happens if I drop out of the internship? ---
+Your team will be adjusted accordingly, and the remaining members may continue
+as a team of three or receive a replacement.
+
+--- 13.27 | Will we get time to know our teammates before Phase 2? ---
+Yes. There is typically a buffer period before Phase 2 where teams can connect
+and prepare.
+
+================================================================================
+END OF MODULE 13
+================================================================================
+
+
+================================================================================
+END OF FULL FAQ DOCUMENT
+For further questions: log in at samagama.in and ask Yaksha.
+================================================================================
