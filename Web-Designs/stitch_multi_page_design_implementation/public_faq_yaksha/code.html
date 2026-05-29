@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Yaksha - Public FAQ</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: IBM Plex Sans, IBM Plex Mono, DM Serif Display -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&amp;family=IBM+Plex+Mono:wght@500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#ffdad3",
+                        "ink-700": "#333333",
+                        "secondary": "#5f5e5e",
+                        "on-primary-fixed": "#001158",
+                        "primary": "#0032c4",
+                        "error": "#ba1a1a",
+                        "secondary-container": "#e5e2e1",
+                        "surface-container-highest": "#e2e1f0",
+                        "on-primary-container": "#d2d7ff",
+                        "on-primary-fixed-variant": "#0032c3",
+                        "inverse-surface": "#2e303b",
+                        "conf-unverified": "#888888",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "on-background": "#191b25",
+                        "ink-50": "#F7F7F7",
+                        "admin-border": "#2A2A2A",
+                        "primary-fixed-dim": "#b9c3ff",
+                        "on-surface": "#191b25",
+                        "ink-400": "#888888",
+                        "admin-surface": "#161616",
+                        "inverse-on-surface": "#f0effe",
+                        "surface-bright": "#fbf8ff",
+                        "inverse-primary": "#b9c3ff",
+                        "ink-100": "#EFEFEF",
+                        "status-escalated": "#DC6803",
+                        "ink-900": "#0A0A0A",
+                        "conf-community": "#CA8A04",
+                        "secondary-fixed-dim": "#c9c6c5",
+                        "tertiary-fixed-dim": "#ffb4a4",
+                        "on-tertiary-fixed-variant": "#8c1800",
+                        "surface-tint": "#0044fe",
+                        "on-error-container": "#93000a",
+                        "primary-fixed": "#dee1ff",
+                        "background": "#fbf8ff",
+                        "tertiary-container": "#b72402",
+                        "surface-variant": "#e2e1f0",
+                        "surface-dim": "#d9d9e7",
+                        "on-secondary-container": "#656464",
+                        "surface-container": "#edecfb",
+                        "ink-200": "#C8C8C8",
+                        "surface-container-low": "#f3f2ff",
+                        "on-secondary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "status-open": "#AAAAAA",
+                        "status-resolved": "#16A34A",
+                        "surface-container-lowest": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed": "#3d0600",
+                        "on-error": "#ffffff",
+                        "surface-container-high": "#e7e7f5",
+                        "outline": "#747688",
+                        "status-discuss": "#E8A000",
+                        "secondary-fixed": "#e5e2e1",
+                        "blue-100": "#E6EEFF",
+                        "on-surface-variant": "#434657",
+                        "tertiary": "#8d1800",
+                        "blue-600": "#0033CC",
+                        "admin-bg": "#0D0D0D",
+                        "outline-variant": "#c4c5da",
+                        "surface": "#fbf8ff",
+                        "on-tertiary": "#ffffff",
+                        "primary-container": "#0044ff",
+                        "conf-high": "#16A34A",
+                        "on-tertiary-container": "#ffcec3",
+                        "status-verifying": "#0044FF",
+                        "on-secondary-fixed-variant": "#474646"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "container-margin": "24px",
+                        "header-height": "56px",
+                        "sidebar-width": "224px",
+                        "content-max-width": "720px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["IBM Plex Sans", "sans-serif"],
+                        "body-sm": ["IBM Plex Sans", "sans-serif"],
+                        "label-mono": ["IBM Plex Mono", "monospace"],
+                        "body-md": ["IBM Plex Sans", "sans-serif"],
+                        "headline-md": ["DM Serif Display", "serif"],
+                        "display-lg": ["DM Serif Display", "serif"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "label-mono": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "400"}],
+                        "display-lg": ["36px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.surface-bright');
+            color: theme('colors.ink-900');
+        }
+        .accordion-content {
+            display: none;
+        }
+        .accordion-content.expanded {
+            display: block;
+        }
+        .accordion-header.expanded .chevron {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="bg-surface-bright dark:bg-admin-bg font-headline-md text-headline-md font-body-md text-body-md docked full-width top-0 h-header-height border-b-[1.5px] border-ink-100 dark:border-admin-border flat no shadows flex justify-between items-center w-full px-container-margin max-w-full mx-auto z-50 sticky">
+<div class="flex items-center gap-8">
+<div class="font-headline-md text-headline-md font-black tracking-tight text-ink-900 dark:text-ink-50 cursor-pointer hover:text-primary transition-colors">
+                VINS · Yaksha
+            </div>
+<nav class="hidden md:flex gap-6 items-center h-full">
+<a class="text-ink-400 dark:text-ink-400 font-normal hover:bg-ink-50 dark:hover:bg-admin-surface hover:text-primary transition-colors h-full flex items-center px-2" href="#">Overview</a>
+<a class="text-primary dark:text-primary-fixed-dim font-bold border-b-2 border-primary hover:bg-ink-50 dark:hover:bg-admin-surface hover:text-primary transition-colors h-full flex items-center px-2" href="#">FAQ</a>
+<a class="text-ink-400 dark:text-ink-400 font-normal hover:bg-ink-50 dark:hover:bg-admin-surface hover:text-primary transition-colors h-full flex items-center px-2" href="#">samagama</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden md:flex relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-ink-400 pointer-events-none">search</span>
+<input class="bg-surface border border-ink-200 rounded-lg pl-10 pr-4 py-2 w-64 focus:outline-none focus:border-primary focus:border-b-2 transition-all font-body-sm text-body-sm text-ink-900" placeholder="Search..." type="text"/>
+</div>
+<button class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-ink-50 dark:hover:bg-admin-surface hover:text-primary transition-colors active:scale-[0.98] transition-transform duration-150 text-ink-700">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-ink-50 dark:hover:bg-admin-surface hover:text-primary transition-colors active:scale-[0.98] transition-transform duration-150 text-ink-700">
+<span class="material-symbols-outlined">help_center</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-ink-200 overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary transition-all active:scale-[0.98] transition-transform duration-150">
+<img alt="User profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDT9Dfakk65zCsxg9C8GH0Y-1hbs3wVd4J2EiZTxSoFiEkTMyLBQ47HvLr_gNTfUGPaJZdkbB4J123e6J5DmnlKTAUq7EEu9rXzlY16L32nUzYU_5G3jTCpHThIqAQRtfsFjN8HgysjkCKYmamciSxM9wlCNAwpkKDeo2xwx08H5P0-YCj4mUK3fu0Tt4zI_UWDJ-JXQL9T7Cl0h9ieZIJY_EkSKmZcuxRUGS4Iy-trZ1R8AKLnTWC3CKAORruQgKRxypzxxDXNohr0"/>
+</div>
+</div>
+</header>
+<div class="flex flex-1 relative">
+<!-- SideNavBar -->
+<aside class="hidden md:flex flex-col h-full py-gutter gap-2 bg-surface-bright dark:bg-admin-bg font-body-md text-body-md font-label-mono text-label-mono w-sidebar-width h-screen sticky top-header-height border-r-[1.5px] border-ink-100 dark:border-admin-border flat no shadows scale-100 active:scale-[0.99]">
+<div class="px-4 py-4 border-b border-ink-100 mb-2">
+<h2 class="font-label-mono text-label-mono text-ink-400 uppercase mb-1">Navigation</h2>
+<p class="font-body-sm text-body-sm text-ink-700 font-medium">Technical Hub</p>
+</div>
+<nav class="flex flex-col gap-1 px-2 flex-1">
+<a class="flex items-center gap-3 bg-ink-100 dark:bg-admin-surface text-primary dark:text-primary-fixed-dim font-bold border-l-2 border-primary-container px-4 py-3 rounded-r-lg hover:bg-ink-100 dark:hover:bg-admin-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-lg">quiz</span>
+<span class="font-body-sm text-body-sm">Public FAQ</span>
+</a>
+<a class="flex items-center gap-3 text-ink-700 dark:text-ink-200 hover:bg-ink-50 dark:hover:bg-admin-surface px-4 py-3 rounded-lg hover:bg-ink-100 dark:hover:bg-admin-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-lg">forum</span>
+<span class="font-body-sm text-body-sm">Discussion Forum</span>
+</a>
+<a class="flex items-center gap-3 text-ink-700 dark:text-ink-200 hover:bg-ink-50 dark:hover:bg-admin-surface px-4 py-3 rounded-lg hover:bg-ink-100 dark:hover:bg-admin-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-lg">emergency_home</span>
+<span class="font-body-sm text-body-sm">Escalations</span>
+</a>
+<a class="flex items-center gap-3 text-ink-700 dark:text-ink-200 hover:bg-ink-50 dark:hover:bg-admin-surface px-4 py-3 rounded-lg hover:bg-ink-100 dark:hover:bg-admin-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-lg">dashboard</span>
+<span class="font-body-sm text-body-sm">Admin Dashboard</span>
+</a>
+</nav>
+<div class="px-4 mt-auto mb-4">
+<button class="w-full bg-primary text-on-primary py-2 px-4 rounded-lg font-body-sm text-body-sm font-medium hover:bg-blue-600 transition-colors active:scale-95">
+                    Submit Inquiry
+                </button>
+</div>
+<div class="border-t border-ink-100 py-2 px-2 flex flex-col gap-1">
+<a class="flex items-center gap-3 text-ink-700 dark:text-ink-200 hover:bg-ink-50 dark:hover:bg-admin-surface px-4 py-2 rounded-lg hover:bg-ink-100 dark:hover:bg-admin-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-lg">settings</span>
+<span class="font-body-sm text-body-sm">Settings</span>
+</a>
+<a class="flex items-center gap-3 text-ink-700 dark:text-ink-200 hover:bg-ink-50 dark:hover:bg-admin-surface px-4 py-2 rounded-lg hover:bg-ink-100 dark:hover:bg-admin-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-lg">contact_support</span>
+<span class="font-body-sm text-body-sm">Support</span>
+</a>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 w-full max-w-content-max-width mx-auto px-4 md:px-8 py-12 pb-32">
+<!-- Hero / Search Section -->
+<section class="mb-12 text-center">
+<h1 class="font-display-lg text-display-lg text-ink-900 mb-4">Find your answer.</h1>
+<p class="font-body-lg text-body-lg text-ink-700 mb-8 max-w-xl mx-auto">Search the public knowledge base for immediate answers to common technical inquiries.</p>
+<div class="relative max-w-2xl mx-auto">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-ink-400 text-2xl">search</span>
+<input class="w-full h-header-height bg-surface border-[1.5px] border-ink-200 rounded-lg pl-12 pr-4 text-body-lg font-body-lg focus:outline-none focus:border-primary focus:border-b-2 shadow-sm transition-all text-ink-900 placeholder:text-ink-400" placeholder="Search for NOC, ViBe, guidelines..." type="text"/>
+</div>
+<div class="flex flex-wrap justify-center gap-2 mt-4">
+<button class="bg-ink-50 border border-ink-100 text-ink-700 px-3 py-1 rounded-full font-body-sm text-body-sm hover:border-ink-200 hover:bg-ink-100 transition-colors">ViBe Platform</button>
+<button class="bg-ink-50 border border-ink-100 text-ink-700 px-3 py-1 rounded-full font-body-sm text-body-sm hover:border-ink-200 hover:bg-ink-100 transition-colors">NOC Process</button>
+<button class="bg-ink-50 border border-ink-100 text-ink-700 px-3 py-1 rounded-full font-body-sm text-body-sm hover:border-ink-200 hover:bg-ink-100 transition-colors">Offer Letters</button>
+<button class="bg-ink-50 border border-ink-100 text-ink-700 px-3 py-1 rounded-full font-body-sm text-body-sm hover:border-ink-200 hover:bg-ink-100 transition-colors">Deadlines</button>
+</div>
+</section>
+<!-- Filter Tabs -->
+<div class="flex border-b border-ink-200 mb-8 overflow-x-auto hide-scrollbar">
+<button class="px-4 py-3 font-body-md text-body-md font-bold text-primary border-b-2 border-primary whitespace-nowrap">All Questions</button>
+<button class="px-4 py-3 font-body-md text-body-md text-ink-700 hover:text-ink-900 whitespace-nowrap transition-colors">Recently Resolved</button>
+<button class="px-4 py-3 font-body-md text-body-md text-ink-700 hover:text-ink-900 whitespace-nowrap transition-colors flex items-center gap-2">
+                    Escalation-sourced <span class="bg-status-escalated text-white text-[10px] px-1.5 py-0.5 rounded-sm font-label-mono leading-none">NEW</span>
+</button>
+</div>
+<!-- Content Area (Accordion Cards) -->
+<div class="space-y-6">
+<!-- Category Group: About the internship -->
+<div class="mb-10">
+<h3 class="font-body-lg text-body-lg font-bold text-ink-900 mb-4 flex items-center gap-2">
+<span class="w-1 h-6 bg-primary rounded-r-sm"></span>
+                        1. About the internship
+                    </h3>
+<div class="space-y-3 pl-3">
+<!-- Accordion Item 1 -->
+<div class="bg-surface border border-ink-200 rounded-lg hover:border-primary transition-colors cursor-pointer" onclick="toggleAccordion(this)">
+<div class="accordion-header flex justify-between items-center p-4">
+<h4 class="font-body-md text-body-md font-medium text-ink-900">1.1 What is the Vicharanashala internship?</h4>
+<span class="material-symbols-outlined text-ink-400 chevron transition-transform duration-200">expand_more</span>
+</div>
+<div class="accordion-content p-4 pt-0 border-t border-ink-100 text-ink-700 font-body-md text-body-md">
+<p>A two-month internship run by Vicharanashala, a research lab at IIT Ropar. You will work on a real open-source project under a mentor, after a short training phase (which you are already doing). The internship is free — we do not charge, and the work is real.</p>
+<div class="mt-4 flex justify-between items-center">
+<span class="font-label-mono text-label-mono text-ink-400">Helpful for 242 users</span>
+<button class="text-primary font-body-sm text-body-sm font-medium hover:underline">Was this helpful?</button>
+</div>
+</div>
+</div>
+<!-- Accordion Item 2 -->
+<div class="bg-surface border border-ink-200 rounded-lg hover:border-primary transition-colors cursor-pointer" onclick="toggleAccordion(this)">
+<div class="accordion-header flex justify-between items-center p-4">
+<h4 class="font-body-md text-body-md font-medium text-ink-900">1.2 What is VINS?</h4>
+<span class="material-symbols-outlined text-ink-400 chevron transition-transform duration-200">expand_more</span>
+</div>
+<div class="accordion-content p-4 pt-0 border-t border-ink-100 text-ink-700 font-body-md text-body-md">
+<p>VINS stands for Vicharanashala Internship Network System. It is the primary dashboard and management platform for all internship-related activities, tracking, and communication.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Category Group: ViBe Platform -->
+<div class="mb-10">
+<h3 class="font-body-lg text-body-lg font-bold text-ink-900 mb-4 flex items-center gap-2">
+<span class="w-1 h-6 bg-primary rounded-r-sm"></span>
+                        12. ViBe Platform
+                    </h3>
+<div class="space-y-3 pl-3">
+<!-- Accordion Item 1 -->
+<div class="bg-surface border border-ink-200 rounded-lg hover:border-primary transition-colors cursor-pointer" onclick="toggleAccordion(this)">
+<div class="accordion-header flex justify-between items-center p-4">
+<h4 class="font-body-md text-body-md font-medium text-ink-900">12.5 I'm experiencing video issues (stuck, looping, skipping) on ViBe. How do I troubleshoot?</h4>
+<span class="material-symbols-outlined text-ink-400 chevron transition-transform duration-200">expand_more</span>
+</div>
+<div class="accordion-content p-4 pt-0 border-t border-ink-100 text-ink-700 font-body-md text-body-md">
+<p>First, clear your browser cache and cookies. If the issue persists, try accessing ViBe in an Incognito/Private window. Ensure your internet connection is stable. If you are still facing issues, please report it via the Support tab with a screenshot and browser details.</p>
+<div class="mt-4 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-status-resolved"></span>
+<span class="font-label-mono text-label-mono text-ink-700 uppercase">Verified Solution</span>
+</div>
+</div>
+</div>
+<!-- Accordion Item 2 -->
+<div class="bg-surface border border-primary border-l-4 rounded-lg shadow-sm cursor-pointer" onclick="toggleAccordion(this)">
+<div class="accordion-header expanded flex justify-between items-center p-4">
+<h4 class="font-body-md text-body-md font-medium text-ink-900">12.13 I am seeing a red "Access Restricted" banner. Is this a bug?</h4>
+<span class="material-symbols-outlined text-primary chevron transition-transform duration-200" style="transform: rotate(180deg);">expand_more</span>
+</div>
+<div class="accordion-content expanded p-4 pt-0 text-ink-700 font-body-md text-body-md">
+<p>This usually occurs if you are trying to access a module that hasn't been unlocked for your cohort yet, or if your session has expired. Try logging out and logging back in. If the banner remains, check your cohort timeline on the dashboard to ensure the module is scheduled to be open.</p>
+<div class="mt-4 bg-blue-100 p-3 rounded text-sm text-blue-600 font-medium">
+                                    Note: Access restrictions are updated daily at 00:00 IST.
+                                </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Floating Action Button (FAB) - Chatbot -->
+<div class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4 group">
+<!-- Tooltip -->
+<div class="bg-ink-900 text-white font-body-sm text-body-sm px-3 py-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none mb-2 relative">
+            Ask Yaksha Mini
+            <div class="absolute -bottom-1 right-6 w-2 h-2 bg-ink-900 transform rotate-45"></div>
+</div>
+<button class="w-14 h-14 bg-primary text-white rounded-full shadow-lg hover:bg-blue-600 transition-colors flex items-center justify-center active:scale-95 focus:outline-none focus:ring-4 focus:ring-primary-fixed">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">chat_bubble</span>
+</button>
+</div>
+<script>
+        function toggleAccordion(element) {
+            const content = element.querySelector('.accordion-content');
+            const header = element.querySelector('.accordion-header');
+            
+            // Close all others (optional, for accordion behavior)
+            // const allContents = document.querySelectorAll('.accordion-content');
+            // const allHeaders = document.querySelectorAll('.accordion-header');
+            // allContents.forEach(c => { if(c !== content) { c.classList.remove('expanded'); }});
+            // allHeaders.forEach(h => { if(h !== header) { h.classList.remove('expanded'); }});
+            // element.parentElement.querySelectorAll('.bg-surface').forEach(el => {
+            //     if(el !== element) { el.classList.remove('border-primary', 'border-l-4'); el.classList.add('border-ink-200');}
+            // });
+
+            content.classList.toggle('expanded');
+            header.classList.toggle('expanded');
+            
+            if(content.classList.contains('expanded')) {
+                element.classList.add('border-primary', 'border-l-4');
+                element.classList.remove('border-ink-200');
+                header.querySelector('.material-symbols-outlined').classList.add('text-primary');
+            } else {
+                element.classList.remove('border-primary', 'border-l-4');
+                element.classList.add('border-ink-200');
+                header.querySelector('.material-symbols-outlined').classList.remove('text-primary');
+            }
+        }
+    </script>
+</body></html>

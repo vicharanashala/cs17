@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Yaksha - Escalation Form</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&amp;family=IBM+Plex+Mono:wght@500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-fixed": "#ffdad3",
+                      "ink-700": "#333333",
+                      "secondary": "#5f5e5e",
+                      "on-primary-fixed": "#001158",
+                      "primary": "#0032c4",
+                      "error": "#ba1a1a",
+                      "secondary-container": "#e5e2e1",
+                      "surface-container-highest": "#e2e1f0",
+                      "on-primary-container": "#d2d7ff",
+                      "on-primary-fixed-variant": "#0032c3",
+                      "inverse-surface": "#2e303b",
+                      "conf-unverified": "#888888",
+                      "on-secondary-fixed": "#1c1b1b",
+                      "on-background": "#191b25",
+                      "ink-50": "#F7F7F7",
+                      "admin-border": "#2A2A2A",
+                      "primary-fixed-dim": "#b9c3ff",
+                      "on-surface": "#191b25",
+                      "ink-400": "#888888",
+                      "admin-surface": "#161616",
+                      "inverse-on-surface": "#f0effe",
+                      "surface-bright": "#fbf8ff",
+                      "inverse-primary": "#b9c3ff",
+                      "ink-100": "#EFEFEF",
+                      "status-escalated": "#DC6803",
+                      "ink-900": "#0A0A0A",
+                      "conf-community": "#CA8A04",
+                      "secondary-fixed-dim": "#c9c6c5",
+                      "tertiary-fixed-dim": "#ffb4a4",
+                      "on-tertiary-fixed-variant": "#8c1800",
+                      "surface-tint": "#0044fe",
+                      "on-error-container": "#93000a",
+                      "primary-fixed": "#dee1ff",
+                      "background": "#fbf8ff",
+                      "tertiary-container": "#b72402",
+                      "surface-variant": "#e2e1f0",
+                      "surface-dim": "#d9d9e7",
+                      "on-secondary-container": "#656464",
+                      "surface-container": "#edecfb",
+                      "ink-200": "#C8C8C8",
+                      "surface-container-low": "#f3f2ff",
+                      "on-secondary": "#ffffff",
+                      "on-primary": "#ffffff",
+                      "status-open": "#AAAAAA",
+                      "status-resolved": "#16A34A",
+                      "surface-container-lowest": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "on-tertiary-fixed": "#3d0600",
+                      "on-error": "#ffffff",
+                      "surface-container-high": "#e7e7f5",
+                      "outline": "#747688",
+                      "status-discuss": "#E8A000",
+                      "secondary-fixed": "#e5e2e1",
+                      "blue-100": "#E6EEFF",
+                      "on-surface-variant": "#434657",
+                      "tertiary": "#8d1800",
+                      "blue-600": "#0033CC",
+                      "admin-bg": "#0D0D0D",
+                      "outline-variant": "#c4c5da",
+                      "surface": "#fbf8ff",
+                      "on-tertiary": "#ffffff",
+                      "primary-container": "#0044ff",
+                      "conf-high": "#16A34A",
+                      "on-tertiary-container": "#ffcec3",
+                      "status-verifying": "#0044FF",
+                      "on-secondary-fixed-variant": "#474646"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "container-margin": "24px",
+                      "header-height": "56px",
+                      "sidebar-width": "224px",
+                      "content-max-width": "720px",
+                      "gutter": "16px"
+              },
+              "fontFamily": {
+                      "body-lg": [
+                              "IBM Plex Sans"
+                      ],
+                      "body-sm": [
+                              "IBM Plex Sans"
+                      ],
+                      "label-mono": [
+                              "IBM Plex Mono"
+                      ],
+                      "body-md": [
+                              "IBM Plex Sans"
+                      ],
+                      "headline-md": [
+                              "DM Serif Display"
+                      ],
+                      "display-lg": [
+                              "DM Serif Display"
+                      ]
+              },
+              "fontSize": {
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-mono": [
+                              "12px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg": [
+                              "36px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+</head>
+<body class="bg-ink-50 text-ink-900 font-body-md text-body-md min-h-screen flex flex-col items-center pt-12 pb-24 px-4 sm:px-6">
+<!-- Focused Canvas Content -->
+<main class="w-full max-w-[560px] bg-surface-bright border-[1px] border-ink-100 p-8 sm:p-10 shadow-sm relative">
+<!-- Back Link -->
+<a class="inline-flex items-center gap-2 text-ink-400 hover:text-primary transition-colors mb-8 group" href="#">
+<span class="material-symbols-outlined text-sm group-hover:-translate-x-1 transition-transform" data-icon="arrow_back">arrow_back</span>
+<span class="font-label-mono text-label-mono uppercase tracking-wider">Back to forum</span>
+</a>
+<!-- Header -->
+<div class="mb-10">
+<div class="flex items-center gap-4 mb-4">
+<img alt="User avatar" class="w-12 h-12 rounded-full border border-ink-200" data-alt="A small circular avatar placeholder image showing a generic user profile picture in a professional setting. The image should fit within a minimal corporate modern design system. The lighting is soft and neutral, conveying approachability and authority. The overall tone is clean and functional, suitable for a technical administration dashboard context." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8JHwmuERABdnpTzJ38_3mCnL95i9iEXGcehqDcUN4aADxaFniqhA9eHsnGzNVHuBoKjOmtXhk_VczJRdJr7BqMHBKlFRif6mm8gtT42c7C1-QlA1bKeCkYrnl4Ur-q-QkpPZSEdgi0y-K9P1ffct9x4R9SNdCE-QcgwbKsImdYtQ2RHQoQGYAUIYWwpu4HkkpNDTovf2BiNmDGG_045KC6v6Oto_fnk0UNRLmkp6Z3r6lYs6tAFvDOZ8apI72rmr7Bh1w85IrKfM2"/>
+<div>
+<h1 class="font-headline-md text-headline-md text-ink-900 mb-1">Submit to Admin</h1>
+<p class="font-body-sm text-body-sm text-ink-400">Escalate an unresolved issue to the technical support team.</p>
+</div>
+</div>
+<!-- Thread Reference -->
+<div class="flex items-start gap-3 p-4 bg-ink-50 border border-ink-100 rounded-DEFAULT">
+<div class="mt-0.5 flex-shrink-0">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 bg-status-escalated/10 text-status-escalated border border-status-escalated/20 rounded-DEFAULT font-label-mono text-label-mono uppercase">
+<span class="w-1.5 h-1.5 rounded-full bg-status-escalated"></span>
+                        Escalating
+                    </span>
+</div>
+<div>
+<h3 class="font-body-md text-body-md font-semibold text-ink-700">Database connection timeout during peak load</h3>
+<p class="font-body-sm text-body-sm text-ink-400 mt-1">Thread #4928 • Unresolved by community</p>
+</div>
+</div>
+</div>
+<!-- Form -->
+<form action="#" class="space-y-6" method="POST">
+<!-- Original Question (Read Only) -->
+<div>
+<label class="block font-label-mono text-label-mono text-ink-700 uppercase mb-2" for="original-question">Original Context</label>
+<div class="relative">
+<textarea class="block w-full bg-ink-50 border-ink-200 text-ink-400 font-body-sm text-body-sm focus:ring-0 focus:border-ink-200 resize-none cursor-not-allowed" id="original-question" name="original-question" readonly="" rows="3">We're seeing intermittent 504 Gateway Timeout errors when connecting to the primary database cluster during our daily 9 AM traffic spike. The connection pool seems to be exhausted despite recent scaling.</textarea>
+<span class="material-symbols-outlined absolute top-3 right-3 text-ink-400" data-icon="lock">lock</span>
+</div>
+</div>
+<!-- Rephrase for Admin -->
+<div>
+<div class="flex justify-between items-end mb-2">
+<label class="block font-label-mono text-label-mono text-ink-900 uppercase" for="admin-details">Additional Context for Admin <span class="text-error">*</span></label>
+<span class="font-label-mono text-label-mono text-ink-400" id="char-count">0/500</span>
+</div>
+<textarea class="block w-full bg-surface-bright border-ink-200 text-ink-900 font-body-sm text-body-sm focus:ring-primary focus:border-primary placeholder:text-ink-200 transition-colors resize-y" id="admin-details" name="admin-details" oninput="document.getElementById('char-count').innerText = this.value.length + '/500'" placeholder="Provide any additional logs, specific timestamps, or steps taken since posting the original question..." required="" rows="5"></textarea>
+</div>
+<!-- Action Area -->
+<div class="pt-6 border-t border-ink-100">
+<button class="w-full bg-primary hover:bg-blue-600 text-white font-body-md text-body-md py-4 px-6 font-semibold transition-colors flex justify-center items-center gap-2 group focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2" type="submit">
+<span>Submit Escalation</span>
+<span class="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform" data-icon="send">send</span>
+</button>
+<p class="text-center font-body-sm text-body-sm text-ink-400 mt-4">
+                    Admin response time is typically within 4-6 hours for escalated technical inquiries.
+                </p>
+</div>
+</form>
+</main>
+</body></html>
