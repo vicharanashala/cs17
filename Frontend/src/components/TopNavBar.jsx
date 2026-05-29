@@ -21,23 +21,30 @@ const NOTIF_LABELS = {
   escalation_acked:  'Your escalation was acknowledged',
 };
 
+function TierBadge({ confidence }) {
+  if (confidence >= 10) return <span className="font-label-mono text-label-mono text-amber-600">★ Expert</span>;
+  if (confidence >= 3) return <span className="font-label-mono text-label-mono text-conf-high">Trusted</span>;
+  return <span className="font-label-mono text-label-mono text-ink-400">New</span>;
+}
+
 export default function TopNavBar({ active, user }) {
   const [notifOpen, setNotifOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const [notifs, setNotifs] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const dropdownRef = useRef(null);
+  const notifRef = useRef(null);
+  const profileRef = useRef(null);
 
   // Fetch unread count on mount
   useEffect(() => {
     fetchCount();
   }, []);
 
-  // Close dropdown on outside click
+  // Close dropdowns on outside click
   useEffect(() => {
     const handler = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setNotifOpen(false);
-      }
+      if (notifRef.current && !notifRef.current.contains(e.target)) setNotifOpen(false);
+      if (profileRef.current && !profileRef.current.contains(e.target)) setProfileOpen(false);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
@@ -95,7 +102,7 @@ export default function TopNavBar({ active, user }) {
 
       <div className="flex items-center gap-4">
         {/* Notification bell */}
-        <div className="relative" ref={dropdownRef}>
+        <div className="relative" ref={notifRef}>
           <button
             onClick={openNotifs}
             className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-ink-100 transition-colors"
@@ -162,9 +169,59 @@ export default function TopNavBar({ active, user }) {
           )}
         </div>
 
-        {/* Profile avatar */}
-        <div className="w-8 h-8 rounded-full bg-ink-200 overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary transition-all active:scale-[0.98] transition-transform duration-150">
-          <img src="https://picsum.photos/seed/user_profile/200/200" alt="User profile" className="w-full h-full object-cover" />
+        {/* Profile avatar + dropdown */}
+        <div className="relative" ref={profileRef}>
+          <button
+            onClick={() => setProfileOpen((v) => !v)}
+            className="w-8 h-8 rounded-full bg-ink-200 overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary transition-all active:scale-[0.98] transition-transform duration-150"
+            title="Profile"
+          >
+            <img src="https://picsum.photos/seed/user_profile/200/200" alt="User profile" className="w-full h-full object-cover" />
+          </button>
+
+          {profileOpen && user && (
+            <div className="absolute right-0 top-full mt-2 w-64 bg-surface border border-ink-200 rounded-xl shadow-lg z-50 overflow-hidden">
+              {/* User info */}
+              <div className="px-4 py-3 border-b border-ink-100">
+                <p className="font-body-md text-body-md font-medium text-ink-900 truncate">{user.name || 'Student'}</p>
+                <p className="font-label-mono text-label-mono text-ink-400 truncate mt-0.5">{user.email}</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="font-label-mono text-label-mono text-ink-500">
+                    {user.confidence ?? 0} confidence
+                  </span>
+                  <span className="font-label-mono text-label-mono text-ink-400">·</span>
+                  <TierBadge confidence={user.confidence ?? 0} />
+                </div>
+              </div>
+
+              {/* Links */}
+              <div className="py-1">
+                <Link
+                  to="/forum"
+                  onClick={() => setProfileOpen(false)}
+                  className="flex items-center gap-3 px-4 py-2.5 hover:bg-surface-container-low transition-colors"
+                >
+                  <span className="material-symbols-outlined text-ink-500 text-lg">inbox</span>
+                  <span className="font-body-sm text-body-sm text-ink-700">My Queries</span>
+                </Link>
+              </div>
+
+              {/* Logout */}
+              <div className="border-t border-ink-100 py-1">
+                <button
+                  onClick={async () => {
+                    setProfileOpen(false);
+                    await fetch('/api/auth/logout', { method: 'POST' });
+                    window.location.href = '/login';
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-surface-container-low transition-colors text-left"
+                >
+                  <span className="material-symbols-outlined text-ink-500 text-lg">logout</span>
+                  <span className="font-body-sm text-body-sm text-ink-700">Log out</span>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </header>

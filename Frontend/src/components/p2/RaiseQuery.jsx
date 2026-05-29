@@ -182,14 +182,22 @@ export default function RaiseQuery({ user }) {
         {/* Tags */}
         <div>
           <label className="block font-label-mono text-label-mono text-ink-400 uppercase mb-1.5">
-            Tags <span className="text-ink-400 normal-case">(optional, comma-separated)</span>
+            Tags <span className="text-ink-400 normal-case">(optional, up to 5)</span>
           </label>
           <input
             value={tags}
-            onChange={(e) => setTags(e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value;
+              const count = val.split(',').filter((t) => t.trim()).length;
+              if (count > 5) return; // block 6th tag
+              setTags(val);
+            }}
             placeholder="noc, vibe-platform, deadline"
             className="w-full px-3 py-2.5 bg-surface border border-ink-200 rounded-xl font-body-md text-body-md text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-colors"
           />
+          <p className="font-label-mono text-label-mono text-ink-400 mt-1">
+            {tags.split(',').filter((t) => t.trim()).length}/5 tags
+          </p>
         </div>
 
         {/* Notify toggle */}
