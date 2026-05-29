@@ -109,6 +109,7 @@ app.use('/api/cache',                          require('./routes/cache'));
 app.use('/api/drafts',                         require('./routes/drafts'));
 app.use('/api/answers',                        require('./routes/answers'));
 app.use('/api/admin',                          require('./routes/admin.queries'));
+app.use('/api/notifications',                    require('./routes/notifications'));
 
 // ─── Health Check ──────────────────────────────────────────────────────────
 app.get('/health', (req, res) => {

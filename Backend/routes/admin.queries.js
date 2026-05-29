@@ -1,10 +1,11 @@
-const express = require('express');
+﻿const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const Query = require('../models/Query');
 const QueryCache = require('../models/QueryCache');
 const QueryVote = require('../models/QueryVote');
+const Notification = require('../models/Notification');
 const User = require('../models/User');
 const Category = require('../models/Category');
 const authAdmin = require('../middleware/authAdmin');
@@ -121,6 +122,15 @@ router.patch('/queries/:id/answer', authAdmin, async (req, res) => {
       { answer: answer.trim(), answerStatus: 'answered' }
     );
 
+    
+    // Notify asker: query answered by admin
+    await Notification.create({
+      notifiedUser: query.submittedBy,
+      type: 'query_answered',
+      queryId: query._id,
+      message: 'Your query has been answered by the admin team.',
+    });
+
     // Notify all interested voters
     const voters = await QueryVote.find({ queryId: query._id, registeredInterest: true })
       .populate('userId', 'email name')
@@ -167,6 +177,14 @@ router.patch('/queries/:id/reject', authAdmin, async (req, res) => {
     }
 
     res.json({ message: 'Query rejected.', query });
+
+    // Notify asker: query rejected
+    await Notification.create({
+      notifiedUser: query.submittedBy,
+      type: 'query_rejected',
+      queryId: query._id,
+      message: reason ? `Your query was rejected: ${reason}` : 'Your query was rejected.',
+    });
   } catch (err) {
     res.status(500).json({ error: 'Failed to reject query.' });
   }
@@ -182,6 +200,15 @@ router.patch('/queries/:id/approve-trusted', authAdmin, async (req, res) => {
     query.askerSatisfied = true;
     query.adminStatus = 'answered';
     await query.save();
+
+    
+    // Notify asker: trusted answer confirmed by admin
+    await Notification.create({
+      notifiedUser: query.submittedBy,
+      type: 'trusted_confirmed',
+      queryId: query._id,
+      message: 'Your community answer was confirmed by an admin.',
+    });
 
     // Award +1 confidence point to answerer
     if (query.answeredByModel === 'User' && query.answeredBy) {
@@ -249,6 +276,15 @@ router.patch('/queries/:id/promote-faq', authAdmin, async (req, res) => {
     query.status = 'faq_promoted';
     query.adminStatus = 'answered';
     await query.save();
+
+    
+    // Notify asker: added to FAQ
+    await Notification.create({
+      notifiedUser: query.submittedBy,
+      type: 'added_to_faq',
+      queryId: query._id,
+      message: 'Your query was promoted to the official FAQ!',
+    });
 
     // Remove from 15-day cache
     await QueryCache.findOneAndDelete({ queryId: query._id });

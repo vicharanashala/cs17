@@ -1,10 +1,11 @@
-const express = require('express');
+﻿const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const Query = require('../models/Query');
 const QueryCache = require('../models/QueryCache');
 const QueryVote = require('../models/QueryVote');
 const User = require('../models/User');
+const Notification = require('../models/Notification');
 const authStudent = require('../middleware/authStudent');
 const { sendAnswerNotification } = require('../services/email');
 
@@ -39,7 +40,15 @@ router.post('/:queryId', authStudent, async (req, res) => {
       query.status = 'answered';
       query.adminStatus = 'answered';
 
-      await query.save();
+            await query.save();
+
+      // Create in-app notification for the asker
+      await Notification.create({
+        notifiedUser: query.submittedBy,
+        type: 'query_answered',
+        queryId: query._id,
+        message: 'Your query was answered by a trusted community member.',
+      });
 
       // Update cache
       await QueryCache.findOneAndUpdate(
