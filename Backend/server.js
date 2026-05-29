@@ -7,6 +7,8 @@ const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
 const path = require('path');
 const rateLimit = require('express-rate-limit');
+const cron = require('node-cron');
+const QueryCache = require('./models/QueryCache');
 
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
@@ -149,6 +151,18 @@ mongoose.connect(MONGODB_URI, {
     app.listen(PORT, () => {
       console.log(`✅ Unified backend running on port ${PORT}`);
       console.log(`🔒 Environment: ${process.env.NODE_ENV || 'development'}`);
+
+      // ─── Cache expiry sweep — runs every hour ───────────────────────────────
+      cron.schedule('0 * * * *', async () => {
+        try {
+          const result = await QueryCache.deleteMany({ expiresAt: { $lt: new Date() } });
+          if (result.deletedCount > 0) {
+            console.log(`🧹 Cache sweep: removed ${result.deletedCount} expired cache entry(ies)`);
+          }
+        } catch (err) {
+          console.error('❌ Cache sweep error:', err.message);
+        }
+      });
     });
   })
   .catch((err) => {
