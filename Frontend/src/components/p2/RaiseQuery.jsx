@@ -1,75 +1,8 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import api2 from '../../lib/axiosP2';
 import SimilarityPanel from './SimilarityPanel';
-import QueryStatusTracker from './QueryStatusTracker';
+import MyQueryCard from './MyQueryCard';
 import DraftBanner from './DraftBanner';
-import { formatDistanceToNow } from 'date-fns';
-
-const EDIT_WINDOW_MS = 10 * 60 * 1000;
-
-function MyQueryCard({ query, onDelete }) {
-  const [expanded, setExpanded] = useState(false);
-  const ageMs = Date.now() - new Date(query.createdAt).getTime();
-  const canEdit = ageMs < EDIT_WINDOW_MS;
-
-  return (
-    <div className="bg-surface border border-ink-100 rounded-xl overflow-hidden">
-      <button
-        onClick={() => setExpanded((v) => !v)}
-        className="w-full flex items-start justify-between gap-3 p-4 text-left hover:bg-surface-container-low transition-colors"
-      >
-        <div className="min-w-0 flex-1">
-          <p className="font-body-sm text-body-sm font-medium text-ink-900 line-clamp-2">{query.title}</p>
-          <p className="font-label-mono text-label-mono text-ink-400 uppercase mt-1">
-            {query.category?.name} · {formatDistanceToNow(new Date(query.createdAt), { addSuffix: true })}
-          </p>
-        </div>
-        <span className={`material-symbols-outlined text-ink-400 text-lg shrink-0 mt-0.5 transition-transform ${expanded ? 'rotate-180' : ''}`}>
-          expand_more
-        </span>
-      </button>
-
-      {expanded && (
-        <div className="px-4 pb-4 border-t border-ink-100">
-          <div className="mt-3">
-            <QueryStatusTracker status={query.status} rejectionReason={query.rejectionReason} />
-          </div>
-          {query.answer && (
-            <div className="mt-3 p-3 bg-surface-container rounded-lg border border-outline-variant">
-              <p className="font-label-mono text-label-mono text-conf-high uppercase mb-1">Answer</p>
-              <p className="font-body-sm text-body-sm text-ink-700">{query.answer}</p>
-              {query.isTrustedAnswer && query.askerSatisfied === null && (
-                <div className="mt-3 flex items-center gap-2">
-                  <p className="font-body-sm text-body-sm text-ink-400">Was this helpful?</p>
-                  <button
-                    onClick={async () => {
-                      try { await api2.post(`/queries/${query._id}/not-satisfied`); }
-                      catch { /* handle silently */ }
-                    }}
-                    className="font-body-sm text-body-sm text-error hover:underline"
-                  >
-                    Not satisfied — escalate to admin
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-          {canEdit && (
-            <p className="mt-2 font-label-mono text-label-mono text-status-discuss">
-              ✎ Editable for {Math.ceil((EDIT_WINDOW_MS - ageMs) / 60000)} more min
-            </p>
-          )}
-          <button
-            onClick={() => onDelete(query._id)}
-            className="mt-3 font-body-sm text-body-sm text-error/70 hover:text-error transition-colors flex items-center gap-1"
-          >
-            <span className="material-symbols-outlined text-base">delete</span> Delete
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
 
 export default function RaiseQuery({ user }) {
   const [title, setTitle] = useState('');
@@ -135,6 +68,10 @@ export default function RaiseQuery({ user }) {
     if (!confirm('Delete this question?')) return;
     await api2.delete(`/queries/${id}`);
     setMyQueries((prev) => prev.filter((q) => q._id !== id));
+  };
+
+  const handleUpdated = (id, updated) => {
+    setMyQueries((prev) => prev.map((q) => q._id === id ? { ...q, ...updated, category: updated.category } : q));
   };
 
   const submit = async (e) => {
@@ -287,7 +224,7 @@ export default function RaiseQuery({ user }) {
           </h3>
           <div className="flex flex-col gap-2">
             {myQueries.map((q) => (
-              <MyQueryCard key={q._id} query={q} onDelete={handleDelete} />
+              <MyQueryCard key={q._id} query={q} onDelete={handleDelete} onUpdated={handleUpdated} />
             ))}
           </div>
         </div>
