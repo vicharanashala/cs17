@@ -12,7 +12,7 @@ function ConfidenceBadge({ tier }) {
   return null;
 }
 
-function QuestionCard({ entry, onUpvote, votedIds }) {
+function QuestionCard({ entry, onVote, votedIds }) {
   const q = entry.queryId;
   if (!q) return null;
   const hasVoted = votedIds.has(entry._id);
@@ -28,27 +28,44 @@ function QuestionCard({ entry, onUpvote, votedIds }) {
             {q.tags?.slice(0, 2).map((t) => (
               <span key={t} className="font-label-mono text-label-mono text-ink-400 bg-surface-container px-2 py-0.5 rounded-full">#{t}</span>
             ))}
+            {entry.answer && (
+              <span className="font-label-mono text-label-mono text-conf-high bg-surface-container px-2 py-0.5 rounded-full">✓ Answered</span>
+            )}
           </div>
           <p className="font-body-md text-body-md font-medium text-ink-900">{q.title}</p>
           {entry.answer && (
             <div className="mt-2 pt-2 border-t border-ink-100">
-              <p className="font-label-mono text-label-mono text-conf-high uppercase mb-1">Answered</p>
+              <p className="font-label-mono text-label-mono text-conf-high uppercase mb-1">Answer</p>
               <p className="font-body-sm text-body-sm text-ink-700 line-clamp-2">{entry.answer}</p>
             </div>
           )}
+          {!entry.answer && (
+            <p className="mt-2 font-label-mono text-label-mono text-ink-400">Awaiting answer</p>
+          )}
         </div>
-        {/* Upvote button */}
-        <button
-          onClick={() => onUpvote(entry._id)}
-          className={`flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg border transition-all shrink-0 ${
-            hasVoted
-              ? 'border-primary bg-blue-100 text-primary'
-              : 'border-ink-200 hover:border-primary hover:bg-blue-100 text-ink-400 hover:text-primary'
-          }`}
-        >
-          <span className="material-symbols-outlined text-lg">arrow_upward</span>
-          <span className="font-label-mono text-label-mono">{entry.upvotes}</span>
-        </button>
+        {/* Vote actions */}
+        <div className="flex flex-col items-center gap-1 shrink-0">
+          {/* Upvote */}
+          <button
+            onClick={() => onVote(entry._id, 'upvote')}
+            className={`flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg border transition-all ${
+              hasVoted
+                ? 'border-primary bg-blue-100 text-primary'
+                : 'border-ink-200 hover:border-primary hover:bg-blue-100 text-ink-400 hover:text-primary'
+            }`}
+          >
+            <span className="material-symbols-outlined text-lg">arrow_upward</span>
+            <span className="font-label-mono text-label-mono">{entry.upvotes}</span>
+          </button>
+          {/* Flag */}
+          <button
+            onClick={() => onVote(entry._id, 'flag')}
+            className="w-full flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg border border-ink-200 hover:border-error hover:bg-red-50 text-ink-400 hover:text-error transition-all"
+            title="Flag as inappropriate"
+          >
+            <span className="material-symbols-outlined text-lg">flag</span>
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -87,13 +104,14 @@ export default function Genie({ onSwitchToRaise }) {
     return () => clearTimeout(t);
   }, [searchQuery]);
 
-  const handleUpvote = async (cacheId) => {
+  const handleVote = async (cacheId, voteType) => {
     try {
-      await api2.post(`/cache/${cacheId}/vote`, { target: 'question', voteType: 'upvote' });
+      await api2.post(`/cache/${cacheId}/vote`, { target: 'question', voteType });
       setVotedIds((prev) => {
         const next = new Set(prev);
-        if (next.has(cacheId)) next.delete(cacheId);
-        else next.add(cacheId);
+        const key = `${cacheId}_${voteType}`;
+        if (next.has(key)) next.delete(key);
+        else next.add(key);
         return next;
       });
       // Refresh top5
@@ -143,7 +161,7 @@ export default function Genie({ onSwitchToRaise }) {
           {isSearching ? (
             <><span className="material-symbols-outlined text-base">search</span> Search results ({displayList.length})</>
           ) : (
-            <><span className="material-symbols-outlined text-base">trending_up</span> Top unanswered questions</>
+            <><span className="material-symbols-outlined text-base">trending_up</span> Top questions from the community</>
           )}
         </h3>
 
@@ -173,7 +191,7 @@ export default function Genie({ onSwitchToRaise }) {
               <QuestionCard
                 key={entry._id}
                 entry={entry}
-                onUpvote={handleUpvote}
+                onVote={handleVote}
                 votedIds={votedIds}
               />
             ))}
