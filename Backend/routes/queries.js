@@ -221,12 +221,15 @@ router.delete('/:id', authStudent, async (req, res) => {
       return res.status(403).json({ error: 'Not your query.' });
     }
 
-    query.status = 'deleted';
-    await query.save();
-    // Remove from cache so it no longer shows in Genie
-    await QueryCache.findOneAndDelete({ queryId: query._id });
+    // Hard delete — cascade to cache, votes, drafts
+    await Promise.all([
+      QueryCache.deleteMany({ queryId: query._id }),
+      QueryVote.deleteMany({ queryId: query._id }),
+      Draft.deleteMany({ queryId: query._id }),
+    ]);
+    await Query.findByIdAndDelete(query._id);
 
-    res.json({ message: 'Query deleted.' });
+    res.json({ message: 'Query permanently deleted.' });
   } catch (err) {
     res.status(500).json({ error: 'Failed to delete query.' });
   }
