@@ -8,6 +8,7 @@ const QueryVote = require('../models/QueryVote');
 const Notification = require('../models/Notification');
 const User = require('../models/User');
 const Category = require('../models/Category');
+const FAQ = require('../models/FAQ');
 const authAdmin = require('../middleware/authAdmin');
 const { sendAnswerNotification, sendFAQPromotionNotification, sendRejectionNotification } = require('../services/email');
 
@@ -263,21 +264,29 @@ router.patch('/queries/:id/override-answer', authAdmin, async (req, res) => {
 // ─── PATCH /api/admin/queries/:id/promote-faq — Add to FAQ ───────────────────
 router.patch('/queries/:id/promote-faq', authAdmin, async (req, res) => {
   try {
-    // NOTE: This creates an entry in the faqEntries collection (Page 1 DB integration point).
-    // For now it just updates the query status and removes from cache.
-    // When Page 1 DB is shared, add: await FAQEntry.create({ ... }) here.
-
     const { question, answer, category, tags } = req.body;
     if (!question || !answer) return res.status(400).json({ error: 'Question and answer are required.' });
 
     const query = await Query.findById(req.params.id);
     if (!query) return res.status(404).json({ error: 'Query not found.' });
 
+    const categoryName = category || (query.category?.name || 'General');
+    const faqCount = await FAQ.countDocuments({ category: categoryName });
+    await FAQ.create({
+      question,
+      answer,
+      category: categoryName,
+      moduleNumber: 1,
+      questionNumber: faqCount + 1,
+      sectionId: `q-1-${faqCount + 1}`,
+      displayNumber: `1.${faqCount + 1}`,
+      resolvedViaEscalation: false,
+    });
+
     query.status = 'faq_promoted';
     query.adminStatus = 'answered';
     await query.save();
 
-    
     // Notify asker: added to FAQ
     await Notification.create({
       notifiedUser: query.submittedBy,
