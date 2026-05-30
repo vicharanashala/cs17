@@ -248,6 +248,35 @@ router.patch('/queries/:id/mark-seen', authAdmin, async (req, res) => {
   }
 });
 
+// ─── PATCH /api/admin/queries/:id/soft-delete — Remove from Answered folder ─
+router.patch('/queries/:id/soft-delete', authAdmin, async (req, res) => {
+  try {
+    const query = await Query.findById(req.params.id);
+    if (!query) return res.status(404).json({ error: 'Query not found.' });
+    if (query.adminStatus !== 'answered') {
+      return res.status(400).json({ error: 'Only answered queries can be removed from Answered.' });
+    }
+    query.adminDeleted = true;
+    await query.save();
+    res.json({ message: 'Query removed from Answered folder.' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed.' });
+  }
+});
+
+// ─── PATCH /api/admin/queries/:id/restore — Restore to Answered folder ───────
+router.patch('/queries/:id/restore', authAdmin, async (req, res) => {
+  try {
+    const query = await Query.findById(req.params.id);
+    if (!query) return res.status(404).json({ error: 'Query not found.' });
+    query.adminDeleted = false;
+    await query.save();
+    res.json({ message: 'Query restored to Answered folder.' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed.' });
+  }
+});
+
 // ─── PATCH /api/admin/queries/:id/override-answer — Override trusted answer ─
 router.patch('/queries/:id/override-answer', authAdmin, async (req, res) => {
   try {
