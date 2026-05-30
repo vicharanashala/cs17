@@ -1,1182 +1,1267 @@
-# Product Requirements Document
-# Yaksha FAQ Platform — VINS Cohort @ IIT Ropar
+# Query Posting Page — Full Technical Specification v5.3 (MERN Stack)
 
-**Version:** 1.0  
-**Status:** Final Draft  
-**Prepared for:** Vicharanashala Internship (VINS) Engineering Team  
-**Last Updated:** May 2026  
+> **Page 2 of the FAQ Platform** — Reached when the chatbot (Page 1) cannot resolve a user's question.  
+> Requires login before query submission.
 
 ---
 
-## Table of Contents
+## 1. Purpose & Context
 
-1. [Executive Summary](#1-executive-summary)
-2. [Problem Statement](#2-problem-statement)
-3. [Goals & Success Metrics](#3-goals--success-metrics)
-4. [User Personas](#4-user-personas)
-5. [Product Overview & Architecture](#5-product-overview--architecture)
-6. [Feature Specifications](#6-feature-specifications)
-   - 6.1 [Page 1 — Public FAQ (`/faq`)](#61-page-1--public-faq-faq)
-   - 6.2 [Page 2 — Discussion Forum (`/forum`)](#62-page-2--discussion-forum-forum)
-   - 6.3 [Page 3 — Admin Escalation (`/escalate`)](#63-page-3--admin-escalation-escalate)
-   - 6.4 [Admin Dashboard (`/admin`)](#64-admin-dashboard-admin)
-7. [Data Models](#7-data-models)
-8. [Authentication & Authorization](#8-authentication--authorization)
-9. [Automated Pipeline & Cron Jobs](#9-automated-pipeline--cron-jobs)
-10. [Confidence Score System](#10-confidence-score-system)
-11. [Similarity Deduplication Engine](#11-similarity-deduplication-engine)
-12. [Gap Tracker & Analytics](#12-gap-tracker--analytics)
-13. [Real-Time Layer (Socket.io)](#13-real-time-layer-socketio)
-14. [Notification System](#14-notification-system)
-15. [UI Design System](#15-ui-design-system)
-16. [Tech Stack & Infrastructure](#16-tech-stack--infrastructure)
-17. [Folder Structure & Code Conventions](#17-folder-structure--code-conventions)
-18. [Environment Configuration & Secrets](#18-environment-configuration--secrets)
-19. [Build Order & MVP Sequence](#19-build-order--mvp-sequence)
-20. [Non-Goals & Hard Constraints](#20-non-goals--hard-constraints)
-21. [Open Questions & Future Considerations](#21-open-questions--future-considerations)
+**Page 1** is the FAQ + Chatbot page. The student searches or asks the chatbot here first. If the chatbot cannot answer, the student is directed to **Page 2**.
+
+**Page 2** is the community query page. It has three dynamic sections that reveal/hide based on user action — all on the same single page (no routing or separate pages):
+
+1. **Genie** — shown by default on Page 2 load. Contains a search bar and the Top 5 most-asked questions from the 15-day cache that are NOT already answered in the Page 1 FAQ. Below Genie are two CTA buttons: **Raise a Query** and **Solve a Query**.
+2. **Raise a Query form** — replaces the Discussion Forum when the user clicks "Raise a Query". The forum section and the Solve a Query button disappear; only the query submission form is shown.
+3. **Solve a Query panel** — replaces the Discussion Forum and the Raise a Query button when the user clicks "Solve a Query". Shows unanswered cached queries that the user can answer.
+
+The goal is to let students raise new queries efficiently, while preventing duplicates, managing admin workload, and ensuring every submitted question reaches the right person.
 
 ---
 
-## 1. Executive Summary
+## 1a. Hard Constraints
 
-**Yaksha FAQ** is a community-driven FAQ and escalation platform purpose-built for the Vicharanashala Internship (VINS) cohort at IIT Ropar. It addresses a recurring operational problem: cohort members ask the same questions repeatedly across scattered channels (WhatsApp, email, Slack), admins get flooded with duplicate queries, and answers are neither searchable nor canonical.
+These constraints apply to the entire platform and override any implementation detail elsewhere in this spec.
 
-The platform introduces a three-layer triage system:
-
-- **Layer 1 (Public FAQ):** A static-but-smart FAQ page with fuzzy search, chatbot fallback, and deadline-aware question surfacing. Open to anyone.
-- **Layer 2 (Peer Forum):** A private, whitelisted discussion space where the 100-member cohort collectively resolves questions before admin involvement.
-- **Layer 3 (Admin Escalation):** A restricted escalation form that becomes accessible only after a question has remained unresolved for 72 hours in the forum.
-
-This architecture ensures admins review only validated, community-filtered questions — not noise.
-
----
-
-## 2. Problem Statement
-
-### Current Pain Points
-
-| Stakeholder | Problem |
+| # | Constraint |
 |---|---|
-| VINS Intern | Cannot find official answers quickly; must ask in group chats and wait |
-| Cohort Peer | Same questions appear repeatedly with no canonical answer |
-| Admin/Coordinator | Flooded with duplicate, low-quality questions via email/WhatsApp |
-| Admin/Coordinator | No structured way to publish official answers once given |
-| All | Answers given informally are never recorded; the knowledge is lost |
-
-### Root Causes
-
-- No single, searchable, authoritative answer repository
-- No peer-filtering mechanism before admin escalation
-- No feedback loop to detect when existing answers fail users
-- No time-sensitive surfacing (e.g., "NOC questions" during the first week)
+| 1 | **Zero generative AI** — no LLMs draft answers at any stage. Every official FAQ entry is written and approved by a human admin. The AI chatbot on page 1 only retrieves and presents existing approved content. |
+| 2 | **Free hosting** — the entire stack must run on free-tier infrastructure (e.g. MongoDB Atlas free tier, Railway free tier, Cloudflare R2 free tier, Vercel hobby plan). No paid services may be introduced without explicit approval. |
+| 3 | **Hidden admin dashboard** — the admin dashboard lives at `/admin`, is not linked anywhere in the student-facing UI, and requires a separate authentication flow (separate credentials, not student login). It is the only place to review the query queue, publish FAQ entries, and read the gap report and cohort pulse heatmap. |
+| 4 | **No Page 3 / escalation page** — there is no separate escalation page or third page in the student-facing flow. The "Not Satisfied" escalation re-queues the query inside the existing admin dashboard; no new page is created or shown to the student. |
+| 5 | **No left sidebar on Page 2** — Page 2 has no left sidebar. Navigation between Genie, Raise a Query, and Solve a Query is handled entirely by the persistent top navigation bar. No sidebar exists in any view state of Page 2. |
+| 6 | **No Escalations in navigation** — the word "Escalations" does not appear as a menu item, tab, sidebar link, or label anywhere in the student-facing UI or the admin dashboard navigation. The underlying escalation mechanism (re-queuing on "Not Satisfied") exists in the backend and admin queue but is never surfaced as a named section. |
 
 ---
 
-## 3. Goals & Success Metrics
+## 2. Complete Feature List
 
-### Primary Goals
-
-- Reduce duplicate admin queries by ≥ 60% within the first month
-- Answer ≥ 80% of common questions directly on Page 1 without requiring login
-- Ensure every escalated admin question has already been through peer triage
-
-### Success Metrics
-
-| Metric | Target |
-|---|---|
-| FAQ `helpful_yes` rate | ≥ 70% of engaged FAQ sessions |
-| `search_miss` rate (no FAQ match) | ≤ 20% of all searches |
-| Forum thread resolution rate (peer-only) | ≥ 65% resolved without admin |
-| Admin queue items per week | ≤ 15 (down from estimated 60+) |
-| Thread-to-escalation conversion | ≤ 20% of open threads |
-| Similarity dedup merge rate | ≥ 30% of submitted questions matched |
-
----
-
-## 4. User Personas
-
-### Persona 1 — The New Intern (Priya)
-- **Context:** Just joined VINS; confused about NOC submission, offer letters, ViBe platform onboarding
-- **Behavior:** Will Google or ask WhatsApp before checking any formal system
-- **Needs:** Instant, searchable answers; no login friction; mobile-friendly layout
-- **Access:** Page 1 only (unauthenticated)
-
-### Persona 2 — The Active Cohort Member (Rahul)
-- **Context:** 3 weeks into the internship; knows the system; helps peers
-- **Behavior:** Checks the forum daily; upvotes good answers; flags wrong ones
-- **Needs:** Quick post/answer flow; confidence in answer quality; notification when their question resolves
-- **Access:** Pages 1 and 2 (Google login + whitelist)
-
-### Persona 3 — The Admin / Coordinator (Dr. Sharma)
-- **Context:** Manages the cohort; reviews the queue once daily
-- **Behavior:** Does not browse raw forum threads; wants a curated review list
-- **Needs:** One-click approve/override/answer fresh workflow; daily digest email; gap intelligence
-- **Access:** `/admin` dashboard (separate admin JWT)
-
----
-
-## 5. Product Overview & Architecture
-
-### The Three-Page Funnel
-
-```
-User has a question
-       │
-       ▼
-[Page 1 — /faq]  ──── Found answer? ──── YES ──→ Done (helpful_yes logged)
-       │
-       │ No match in FAQ
-       ▼
-[Chatbot Widget] ──── Redirects to /forum ──────────────────────────────┐
-                                                                         │
-       ┌─────────────────────────────────────────────────────────────────┘
-       │
-       ▼
-[Page 2 — /forum]  ──── Community resolves in < 72 hrs? ──── YES ──→ Done (notification sent)
-       │
-       │ No peer resolution after 72 hrs
-       ▼
-[Cron job promotes status to "escalated"]
-       │
-       │ Original author sees "Submit to Admin" button
-       ▼
-[Page 3 — /escalate]  ──── Admin answers ──→ Published to FAQ ──→ Done
-```
-
-### Component Interaction Summary
-
-- **Frontend** (React + Vite) hosted on **Vercel**
-- **Backend** (Node.js + Express) hosted on **Render**
-- **Database** (MongoDB Atlas) — free tier
-- **Real-time** layer via **Socket.io** for live status bar updates
-- **Cron jobs** run on the backend for archival, escalation, and digest emails
-- **Nodemailer** for transactional emails (resolution notifications, admin digest)
-- **Fuse.js** for fuzzy search (client-side on Page 1, server-side for dedup)
-
----
-
-## 6. Feature Specifications
-
----
-
-### 6.1 Page 1 — Public FAQ (`/faq`)
-
-**Purpose:** The primary self-service layer. No login required. Answers the most common VINS questions, with smart search and surfacing based on what phase of the internship is active.
-
-#### 6.1.1 Layout
-
-```
-┌──────────────────────────────────────────────────────┐
-│ HEADER: VINS logo · Nav (Overview | FAQ | samagama)  │
-├──────────────┬───────────────────────────────────────┤
-│              │  🔍 Search bar (Fuse.js + mark.js)    │
-│  LEFT        │  Popular chips: NOC · Dates · Stipend │
-│  SIDEBAR     ├───────────────────────────────────────┤
-│  (sticky)    │  Deadline banner (if active phase)    │
-│              │  Filter tabs (horizontal)              │
-│  Categories  │  AccordionCards with dropdowns         │
-│  + icons     │  "N interns found this helpful" count  │
-│              │  PeerFootnote (if approved)            │
-└──────────────┴───────────────────────────────────────┘
-│  Chatbot widget (floating bottom-right, pulsing)     │
-│  Back to top button (after 300px scroll)             │
-└──────────────────────────────────────────────────────┘
-```
-
-#### 6.1.2 Fuzzy Search
-
-- Fuse.js index built **client-side** from the full FAQ dataset fetched on mount
-- No debounce needed at this scale — live filtering on every keystroke
-- Matching fields: `question`, `answer`, `category`
-- `mark.js` highlights matched terms inside expanded accordion answers
-- "Did you mean this?" shown for match scores between **0.60 and 0.84**
-- If score < 0.60 (no match): logs `search_miss` analytics event → chatbot widget activates with "No match found, ask the community?" → redirects to `/forum` with search query pre-filled
-- If score ≥ 0.85: direct match, shown at top with highlight
-
-**Search Analytics Events:**
-- `search_hit` — at least one FAQ entry matched
-- `search_miss` — no match found
-
-#### 6.1.3 Accordion Cards
-
-- Component: `AccordionCard.jsx`
-- Groups FAQ entries by `category` (e.g., "NOC", "ViBe Platform", "Stipend")
-- Each card is collapsible; only one section can be fully expanded at a time within a category group (or all open simultaneously — to be confirmed per design)
-- Shows: question text → answer text → `helpfulCount` counter → `peerFootnote` (if present and admin-approved)
-- Answer text is the human-written, admin-approved content from `db.faqs.answer`
-
-**"N interns found this helpful" counter:**
-- Displayed below each answer: `"42 interns found this helpful"`
-- Sourced from `db.faqs.helpfulCount`
-- Incremented via the Exit Confirmation modal's "Yes, thanks" click
-- Counter is display-only; no inline click-to-increment button
-
-#### 6.1.4 Sidebar (Left, Sticky)
-
-- Lists all FAQ categories with icons (Tabler Icons)
-- Clicking a category smoothly scrolls to the relevant `AccordionCard` group
-- Sidebar is sticky — remains visible during vertical scroll
-- On mobile: collapses into a horizontal scrollable chip row or hidden drawer
-
-#### 6.1.5 Deadline-Aware Surfacing (DeadlineBanner + Phases)
-
-- Config lives in `client/src/constants/phases.js`:
-
-```js
-export const phases = [
-  {
-    dateRange: ["2026-05-01", "2026-05-20"],
-    categories: ["NOC", "Offer Letter"],
-    banner: "Starting soon? Most asked questions right now:"
-  },
-  {
-    dateRange: ["2026-05-21", "2026-06-15"],
-    categories: ["ViBe Platform", "Team Formation"],
-    banner: "Phase 1 is live — common questions this week:"
-  }
-]
-```
-
-- `useDeadlinePhase.js` hook uses `date-fns` to determine which phase is currently active
-- If an active phase exists: `DeadlineBanner` renders a dismissible strip at the top of the main content area
-- Banner text is the phase `banner` string; below it, pinned `AccordionCards` for the phase's `categories` appear first in the list
-- If no active phase: banner does not render; normal category order applies
-- This config is admin-editable as a JSON file (no UI needed in V1)
-
-#### 6.1.6 Popular Chips
-
-- Horizontal clickable tag row beneath the search bar
-- Chips: dynamically generated from the most-searched categories over the last 7 days (or hardcoded as "NOC", "Dates", "Stipend" in V1)
-- Clicking a chip filters the accordion list to that category and scrolls to it
-
-#### 6.1.7 Chatbot Widget (Yaksha-mini)
-
-- Component: `ChatbotWidget.jsx`
-- Floating bottom-right, with pulsing animation to draw attention
-- **Trigger conditions:**
-  - `search_miss` event fires (no FAQ match)
-  - User explicitly clicks the widget icon
-- **Behavior:**
-  - Performs a Fuse.js search against FAQ data using the current search query
-  - If a result found: shows it inline with a "Was this helpful?" prompt
-  - If no result: shows "Couldn't find an answer — ask the community" + button that redirects to `/forum` with query pre-filled in the forum search bar
-- Widget state: collapsed (icon only) ↔ expanded (chat panel)
-- Does **not** call any LLM. All results are from the FAQ database.
-
-#### 6.1.8 Exit Confirmation Modal
-
-- Component: `ExitConfirmModal.jsx`
-- **Fire conditions (ALL must be true):**
-  - User opened a specific accordion item
-  - User spent > 15 seconds on that item (tracked by local timer)
-  - User navigates away from the page (router `beforeunload` / route change)
-- **Does NOT fire** on every page exit — only after genuine FAQ engagement
-- **Modal content:** "Did this answer your question?"
-  - "Yes, thanks" → logs `helpful_yes` analytics event (with `section` field) → increments `helpfulCount` on the FAQ entry → dismisses
-  - "No" → logs `helpful_no` analytics event → redirects to `/forum` with section pre-filled as search query
-
-#### 6.1.9 Peer Footnote
-
-- Component: `PeerFootnote.jsx`
-- Appears below the official answer in an `AccordionCard` if `peerFootnote.approvedByAdmin === true`
-- Max 200 characters
-- Display format: `"💬 [authorName]: [text]"`
-- Sourced from `db.faqs.peerFootnote`
-- Submission pipeline: triggered from Page 2 when a forum answer reaches high-confidence resolution (see Section 6.2.8)
-
----
-
-### 6.2 Page 2 — Discussion Forum (`/forum`)
-
-**Purpose:** A private peer workspace for the 100 whitelisted cohort members. Questions are posted here when the FAQ doesn't help. Community votes and answers route good resolutions toward the FAQ.
-
-#### 6.2.1 Access Control
-
-- Requires Google login via `@react-oauth/google`
-- After OAuth, backend checks `db.users.isWhitelisted === true`
-- If not whitelisted: `403 — "Access restricted to authorized cohort members."`
-- If not logged in: redirect to Google login, return to `/forum` after auth
-
-#### 6.2.2 Layout
-
-```
-┌──────────────────────────────────────────────────────┐
-│ HEADER: notification bell (red badge) · user avatar  │
-├──────────────┬───────────────────────────────────────┤
-│              │  🔍 "Search active discussions..."    │
-│  LEFT        │  [Ask a Question] button (blue)       │
-│  SIDEBAR     ├───────────────────────────────────────┤
-│  (matches    │  Filter tabs: All · Unresolved ·      │
-│   Page 1)    │            Resolved · My Posts        │
-│              │  Thread rows (stacked list, no cards) │
-│              │  StatusBar (socket-driven)             │
-│              │  Leaderboard strip (weekly top 3)     │
-└──────────────┴───────────────────────────────────────┘
-```
-
-#### 6.2.3 Thread Row
-
-Each `ThreadRow.jsx` displays:
-- Vote count (upvote arrow + number)
-- Question title (max 100 chars)
-- 1-line body preview (truncated at ~120 chars)
-- Author name + timestamp (relative: "2 hours ago")
-- Status badge (colored, socket-driven)
-
-#### 6.2.4 Filter Tabs
-
-Component: `FilterTabs.jsx`
-
-| Tab | Filter logic |
-|---|---|
-| All | All non-archived threads |
-| Unresolved | `status = "open"` or `status = "escalated"` |
-| Resolved | `status = "community_resolved"` or `status = "admin_resolved"` |
-| My Posts | Threads where `authorEmail === currentUser.email` |
-
-#### 6.2.5 Ask a Question Modal
-
-- Triggered by the [Ask a Question] button (`#0044FF`, solid blue)
-- **Modal fields:**
-  - Title: plain text, max 100 chars, required
-  - Body: plain text, max 1500 chars, optional
-- **On submit:**
-  - POST to `/api/threads`
-  - Backend runs `similarityService.js` before creating the thread (see Section 11)
-  - If duplicate detected: thread not created; frontend shows "N other interns asked this — being tracked"; user is redirected to existing thread
-  - If new: thread created with `status = "open"`; user is auto-subscribed to resolution notifications
-
-#### 6.2.6 Thread Detail View
-
-- Clicking a `ThreadRow` opens the full thread
-- Displays: title, full body, all answers sorted by `confidenceScore` descending
-- Each answer shown in `AnswerBlock.jsx` (see below)
-- Input area at bottom: post an answer (max 1500 chars)
-- Current user's own answer has a "Mark as Helpful" button
-
-#### 6.2.7 AnswerBlock
-
-Component: `AnswerBlock.jsx`
-
-Shows per answer:
-- Answer text
-- Author name + timestamp
-- **Confidence badge** (derived from `confidenceScore`):
-  - Score 0–4: no badge (grey, "Unverified")
-  - Score 5–9: yellow badge ("Community Pick")
-  - Score ≥ 10: green badge ("High Confidence")
-- **Upvote button** (calls POST `/api/threads/:id/upvote`)
-- **Flag button** (calls POST `/api/threads/:id/answers/:answerId/flag`)
-  - Disabled if user already flagged
-  - Answer auto-hidden when `flagCount ≥ 3`
-- **Mark as Helpful** button — only visible to the original thread author on their own thread's answers
-
-#### 6.2.8 Upvoting
-
-- POST `/api/threads/:id/upvote`
-- `db.upvotes` enforces a compound unique index on `{ userId, threadId }` — one upvote per user per thread
-- Upvoting a thread also subscribes the upvoter to resolution notifications
-- If upvote is a `isSilentMerge` (auto-upvote from similarity dedup), `isSilentMerge = true` on the record
-
-#### 6.2.9 Flagging
-
-- POST `/api/threads/:id/answers/:answerId/flag`
-- `flaggedBy` array tracks user emails to prevent duplicate flags
-- Once `flagCount ≥ 3`: answer is hidden from view and enters admin queue as "Override needed"
-- Backend does not delete the answer — admin reviews and either confirms removal or overrides with correct answer
-
-#### 6.2.10 Live Status Bar
-
-Component: `StatusBar.jsx`
-
-Driven by `socket.io`. Four states:
-
-| Color | Label | Meaning |
+| # | Feature | Status |
 |---|---|---|
-| Grey | "Waiting for community…" | Newly posted, 0 answers |
-| Yellow | "Being discussed — N answers, community voting" | Has answers, voting in progress |
-| Blue | "Answer found — admin verifying" | `confidenceScore ≥ 10`, `markedHelpful = true` |
-| Green | "Resolved — now in official FAQ" | `status = "admin_resolved"` or `status = "community_resolved"` |
-| Orange | "Sent to admin — no peer answer in 72hrs" | `status = "escalated"` |
-
-Socket event: server emits `thread:status_change` with `{ threadId, newStatus }`. Client updates only the relevant `StatusBar` instances.
-
-#### 6.2.11 Leaderboard Strip
-
-- Weekly aggregation on `db.threads` and `db.users.contributionScore`
-- Displayed in the sidebar on Page 2 as a compact strip: top 3 contributors for the current week
-- Metric: answers given with at least one upvote or `markedHelpful`
-- Resets weekly (cron job or aggregated query — no persistent leaderboard document needed in V1)
-
----
-
-### 6.3 Page 3 — Admin Escalation (`/escalate`)
-
-**Purpose:** A last-resort form that allows the original thread author to formally submit an unresolved question to admin. Only reachable via redirect — never directly navigable.
-
-#### 6.3.1 Access Control
-
-- Direct navigation to `/escalate` → immediate redirect to `/faq`
-- Only accessible via redirect when ALL of the following are true:
-  - User is logged in and whitelisted
-  - The `threadId` in the URL query param exists
-  - That thread's `status === "escalated"` (72hr cron set this)
-  - The current user is the `authorEmail` of that thread
-- If any condition fails: redirect to `/forum`
-
-#### 6.3.2 Form Fields
-
-- Thread title (pre-filled from `db.threads.title`, read-only)
-- Question summary (editable, max 500 chars, required) — user can rephrase for admin
-- Original forum thread URL (auto-attached, hidden, sent as `threadId`)
-
-#### 6.3.3 Submission
-
-- POST `/api/escalate`
-- Creates a record in `db.escalations`
-- Thread `status` remains `"escalated"` until admin answers
-- Admin receives this in the "Answer fresh" section of the admin queue
-
----
-
-### 6.4 Admin Dashboard (`/admin`)
-
-**Purpose:** A hidden, separately authenticated view for reviewing the escalation queue, publishing FAQ entries, reading the gap report, and reviewing the cohort pulse heatmap.
-
-#### 6.4.1 Access Control
-
-- Not linked from any public page — URL known only to admins
-- Separate JWT: `ADMIN_JWT_SECRET` (different from cohort `JWT_SECRET`)
-- Admin login: separate credentials (not Google OAuth flow)
-- `adminMiddleware.js` verifies `isAdmin === true` on decoded token
-
-#### 6.4.2 Admin Queue
-
-Component: `AdminQueue.jsx`
-
-Admin never sees raw forum threads. The queue shows exactly three task types:
-
-**Task Type 1: Approve**
-- Community-validated answer: `confidenceScore ≥ 10`, `markedHelpful = true`
-- Admin sees: thread title, best answer text, confidence score
-- Action: one-click "Publish to FAQ" → creates/updates `db.faqs` entry → sets `thread.status = "admin_resolved"` → sends resolution email to `thread.subscribers`
-- 24-hour retraction window after publish (undo button)
-
-**Task Type 2: Override**
-- Flagged answer (`flagCount ≥ 3`) — community suspects the answer is wrong
-- Admin sees: flagged answer text, flag count, thread context
-- Action: admin writes corrected answer in a text field → clicks "Publish Override" → publishes corrected answer to FAQ (if worthy) or closes thread with correction
-
-**Task Type 3: Answer Fresh**
-- 72hr escalation from Page 3 — no peer answer exists
-- Admin sees: `db.escalations.questionSummary`, original forum thread link
-- Action: admin writes answer in text field → clicks "Publish to FAQ"
-- Sets `db.escalations.status = "answered"`, `publishedToFAQ = true`
-- Sets `db.faqs.resolvedViaEscalation = true` (signals gap tracker that FAQ had a hole)
-
-**Daily Digest (replaces real-time admin alerts):**
-- Admin receives one email per day at 08:00 listing:
-  - Pending approvals
-  - Override requests
-  - Fresh escalations needing response
-  - Top 3 gap signals
-- Admin reviews queue at their own pace; no real-time pressure
-
-#### 6.4.3 Cohort Pulse Chart
-
-Component: `CohortPulseChart.jsx` (recharts)
-
-- Heatmap-style chart showing question activity by category over time
-- X-axis: days (last 14 days)
-- Y-axis: FAQ categories
-- Cell color intensity: volume of `search_hit`, `helpful_no`, or new forum threads for that category-day pair
-- Helps admin identify which topics are surging before they become escalations
-- Data sourced from `db.analytics` aggregated by `section` and `createdAt`
-
-#### 6.4.4 Gap Report
-
-Component: `GapReport.jsx`
-
-- Ranked list of FAQ sections by `gapScore` (computed nightly by `gapTracker.js`)
-- Color coding:
-  - Red: gapScore ≥ threshold → "Rewrite needed"
-  - Yellow: medium gap → "Surfacing issue"
-  - Green: low gap → "Working"
-- Each row shows: category name, gapScore, contributing signals (e.g., "Posted 4× this week", "High search_hit but low helpful_yes")
-- Admin can click a row to jump to that FAQ section for editing
-
-#### 6.4.5 Peer Footnote Approval
-
-- High-confidence resolved threads trigger a `peerFootnote` candidate (max 200 chars)
-- Admin sees these as a light approval task in the queue
-- One-click "Approve Footnote" → sets `db.faqs.peerFootnote.approvedByAdmin = true` → footnote appears on Page 1
+| 1 | Admin-provisioned login gate — only users added by admin can log in; no self-registration | ✅ |
+| 2 | Smart title input + real-time similarity scan | ✅ |
+| 3 | Character limit counter (live, colour-coded) | ✅ |
+| 4 | Self-duplicate detection (same user, similar past query) | ✅ |
+| 5 | Category toggle | ✅ |
+| 6 | Tag system | ✅ |
+| 7 | Drag & drop screenshot attachment | ✅ |
+| 8 | Email notification preference | ✅ |
+| 9 | Auto-save draft every 30 seconds | ✅ |
+| 10 | Query status tracker (Posted → In Progress → Answered / Rejected) | ✅ |
+| 11 | Edit after submit (10-minute window) | ✅ |
+| 12 | Delete own query | ✅ |
+| 13 | Estimated reply time | ✅ |
+| 14 | Genie (top of page 2) with Top 5 Most Asked from cache (not in FAQ); unanswered cache questions show upvote option | ✅ |
+| 15 | Search bar for Genie (cache-backed, excludes FAQ entries already on Page 1) | ✅ |
+| 21 | "Raise a Query" CTA button — hides Genie + Solve button, reveals submission form; in-page navigation bar allows switching between all views | ✅ |
+| 22 | "Solve a Query" CTA button — hides Genie + Raise button, reveals unanswered query list | ✅ |
+| 23 | Dynamic single-page layout — all three modes (Genie / Raise / Solve) on the same page, no routing; persistent nav bar between modes | ✅ |
+| 16 | 15-day query cache with upvote / flag on both questions (by others) and answers | ✅ |
+| 17 | User confidence score system | ✅ |
+| 18 | Trusted-user direct posting (bypasses admin approval) | ✅ |
+| 19 | Unsatisfied button → escalation to admin queue | ✅ |
+| 24 | Admin dashboard at `/admin` — view all queries filtered by status (Pending / Under Review / Resolved / Rejected / Deleted) | ✅ |
+| 25 | Admin approve/reject queries, add query to FAQ, manually create new FAQ entries | ✅ |
+| 26 | Separate admin authentication (email + password, independent from student login) | ✅ |
+| 27 | JWT inactivity timeout — token expires after 10 minutes of user inactivity | ✅ |
+| 28 | Admin can provision new user accounts; no self-registration allowed | ✅ |
+| 29 | Self-duplicate hard block — student cannot resubmit a query they already raised; shown their existing query with status/answer | ✅ |
+| 30 | Categories sourced from Page 1 FAQ categories; admin-managed (add/edit/delete) | ✅ |
+| 31 | Edit query allows editing the question text (not just tags); button hidden after 10-minute window closes | ✅ |
+| 32 | Unanswered cache questions: student can upvote OR register interest; on admin answer all interested students notified in-app and by email (if opted in) | ✅ |
+| 33 | Answered cache questions: upvote and flag available | ✅ |
+| 34 | Admin answered queries go to Answered folder; admin can delete from there at any time | ✅ |
+| 35 | Admin query list sorted oldest-first by default; sortable by newest, oldest, most-asked, least-asked | ✅ |
+| 36 | FAQ promotion: query removed from cache immediately; remains visible in submitter's past queries list | ✅ |
+| 37 | Admin answers trust-resolved query: only the asker is notified, not the community answerer | ✅ |
+| 38 | Confidence score decreases by 1 when a user's answer is flagged by multiple users and removed | ✅ |
+| 39 | Admin can modify an answer before pushing to FAQ | ✅ |
+| 40 | Admin can provision new student accounts with email and password from the admin dashboard | ✅ |
+| 41 | Notification bell icon in TopNavBar — shows unread in-app alerts; clicking opens notification dropdown | ✅ |
+| 42 | Profile dropdown in TopNavBar — shows user's name, email, confidence points, and link to My Queries | ✅ |
+| 43 | No word limit on answers — users and admins may write answers of any length | ✅ |
+| 44 | Vector search used in both query submission similarity scan AND Genie search bar | ✅ |
+| 45 | User-deleted queries are hard-deleted from the database and are not visible to the user, admin, or anyone | ✅ |
+| 46 | Trust/confidence milestone display in Profile — shown as a milestone progress line (not on Page 2 Genie) | ✅ |
+| 47 | Admin-side delete of a query from the Answered folder hides it from admin only; students still see it | ✅ |
+| 48 | Admin deletes a query from Genie/cache — hides it from everyone (students and admin) | ✅ |
+| 49 | Upvote and downvote on peer-posted answers in Solve a Query and Genie | ✅ |
 
 ---
 
-## 7. Data Models
+## 3. User Flow
 
-### 7.1 `db.faqs`
+```
+[Page 1 — FAQ + Chatbot]
+  User searches / asks chatbot
+        │
+   Answer found → shown on Page 1 (no redirect)
+        │
+   Answer NOT found
+        │
+        ▼
+[Page 2 loads]
+  Check login status
+        │
+   Not logged in ────────────────────────────┐
+        │                                    │
+        ▼                                    ▼
+   Show login modal               Enter email + password
+                                         Authenticate (JWT)
+                                                │
+                                    ◄───────────┘
+        │
+   Logged in
+        │
+        ├── Check for saved draft → restore if found (banner shown)
+        │
+        ▼
+┌───────────────────────────────────────────────────────────┐
+│  DEFAULT VIEW — DISCUSSION FORUM                          │
+│  ├── Search bar (searches 15-day cache only,              │
+│  │    NOT Page 1 FAQ entries)                             │
+│  │     ├── Match in cache → show Q+A card (if answered)  │
+│  │     │   or Q only (if pending) + upvote/flag           │
+│  │     └── No match → prompt user to raise a query       │
+│  │                                                        │
+│  ├── Top 5 Most Asked (from cache, NOT in FAQ)            │
+│  │   ranked by vote_count DESC — expandable              │
+│  │                                                        │
+│  └── CTA Buttons (below forum)                            │
+│       [Raise a Query]   [Solve a Query]                   │
+└───────────────────────────────────────────────────────────┘
+        │
+        ├── User clicks "Raise a Query"
+        │       │
+        │       ▼
+        │   Discussion Forum hides
+        │   "Solve a Query" button hides
+        │       │
+        │       ▼
+        │  ┌─────────────────────────────────────────────┐
+        │  │  RAISE A QUERY FORM                         │
+        │  │  (same submission form — see §3a below)     │
+        │  └─────────────────────────────────────────────┘
+        │
+        └── User clicks "Solve a Query"
+                │
+                ▼
+            Discussion Forum hides
+            "Raise a Query" button hides
+                │
+                ▼
+           ┌──────────────────────────────────────────────┐
+           │  SOLVE A QUERY PANEL                         │
+           │  List of unanswered cached queries           │
+           │  User can submit an answer to any of them    │
+           │  Trusted users: answer posted directly       │
+           │  New users: answer pending admin approval    │
+           └──────────────────────────────────────────────┘
+```
+
+### 3a. Raise a Query Submission Flow
+
+```
+User is in Raise a Query view
+        │
+        ▼
+User types query title  ←──── Auto-save fires every 30 seconds
+        │
+        ├── Character counter updates live (warn at 400, red at 470)
+        │
+        ├── Real-time similarity scan (debounced 400ms)
+        │        │
+        │    FAQ/pending match found (≥ threshold)
+        │        └── Show matched FAQ links / pending queries panel
+        │
+        │    Self-duplicate detected (same user, similar query)
+        │        └── Show "You asked this on [date]" warning
+        │
+        │    No match → Continue
+        │
+        ▼
+User picks category (required)
+        │
+        ▼
+(Optional) Add tags
+        │
+        ▼
+(Optional) Drag & drop screenshot
+        │
+        ▼
+(Optional) Toggle email notification
+        │
+        ▼
+Click "Submit Query"
+        │
+        ├── Final server-side similarity check
+        │        │
+        │    Duplicate found → Increment vote count, notify user
+        │        │
+        │    No duplicate → Save query, add to cache, clear draft
+        │
+        ▼
+Query enters answer pipeline:
+        │
+        ├── Trusted user answers → posted directly (no admin approval)
+        │        │
+        │    Asker satisfied → query removed from admin queue
+        │        │
+        │    Asker clicks "Not Satisfied" → re-added to admin queue
+        │        at original timestamp position
+        │
+        └── No trusted user → admin reviews normally
+                │
+                ▼
+        Query Status Tracker visible
+        [Posted ✓] → [In Progress ⟳] → [Answered ✓ / Rejected ✕]
+                │
+                ├── Edit button active for 10-minute window (live countdown)
+                │
+                └── Delete button always available
+```
+
+---
+
+## 4. Page Layout
+
+Page 2 is a **single-page dynamic layout**. Three mutually exclusive view states exist. Only one is visible at a time. No routing — state is managed client-side.
+
+### 4a. Default View (Discussion Forum)
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│ HEADER: Logo | "Page 1" | "Page 2" tabs | Draft dot | 🔔 Notif | User pill │
+├──────────────────────────────────────────────────────────────────┤
+│ [DRAFT BANNER if applicable]   📝 Draft restored · Discard       │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  GENIE                                                           │
+│  ┌────────────────────────────────────────────────────────────┐  │
+│  │ 🔍 Search questions from community...          [Search]    │  │
+│  │   (searches 15-day cache only — NOT Page 1 FAQ)           │  │
+│  │                                                            │  │
+│  │  [Search result card — if cache hit]                       │  │
+│  │  ┌──────────────────────────────────────────────────────┐  │  │
+│  │  │ Q: "How do I access the library portal?"             │  │  │
+│  │  │ A: "Use your student ID at library.uni.ac.in"        │  │  │
+│  │  │ Confidence: ★★★☆  [↑ Upvote] [⚑ Flag as wrong]      │  │  │
+│  │  └──────────────────────────────────────────────────────┘  │  │
+│  │                                                            │  │
+│  │ TOP 5 MOST ASKED (from cache, not in FAQ)                  │  │
+│  │   1. How do I reset my portal password?  [↑ 42] [⚑ 2]    │  │
+│  │   2. Where can I find my timetable?      [↑ 38] [⚑ 0]    │  │
+│  │   3. ...  (up to 5 entries only)                          │  │
+│  └────────────────────────────────────────────────────────────┘  │
+│                                                                  │
+│  [  ✏ Raise a Query  ]   [  🛠 Solve a Query  ]                  │
+│                                                                  │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+### 4b. Raise a Query View (after clicking "Raise a Query")
+
+Discussion Forum section and "Solve a Query" button are hidden. Only the submission form is shown.
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│ HEADER (unchanged)                                               │
+├──────────────────────────────────────────────────────────────────┤
+│  ← Back to forum                                                 │
+│                                                                  │
+│  QUERY STATUS TRACKER (visible after submission only)            │
+│  ┌────────────────────────────────────────────────────────────┐  │
+│  │ Query: "How do I reset my portal password?"                │  │
+│  │                           Edit window: 09:47  [Edit][Del]  │  │
+│  │ ●────⟳────○                                              │  │
+│  │ Post  In Prog  Ans/Rej                [😕 Not Satisfied]    │  │
+│  └────────────────────────────────────────────────────────────┘  │
+│                                                                  │
+│  FORM CARD                                                       │
+│  ┌────────────────────────────────────────────────────────────┐  │
+│  │ §1 Your Question * (with similarity scan + self-dupe)      │  │
+│  │ §2 Category *                                              │  │
+│  │ §3 Tags (optional)                                         │  │
+│  │ §4 Attach Screenshot (optional)                            │  │
+│  │ §5 Preferences (email notification toggle)                 │  │
+│  │                          [ → Submit Query ]                │  │
+│  └────────────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+### 4c. Solve a Query View (after clicking "Solve a Query")
+
+Discussion Forum section and "Raise a Query" button are hidden. Only the solve panel is shown.
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│ HEADER (unchanged)                                               │
+├──────────────────────────────────────────────────────────────────┤
+│  ← Back to forum                                                 │
+│                                                                  │
+│  SOLVE A QUERY                                                   │
+│  ┌────────────────────────────────────────────────────────────┐  │
+│  │  Unanswered community questions — help your peers!         │  │
+│  │                                                            │  │
+│  │  ┌──────────────────────────────────────────────────────┐  │  │
+│  │  │ Q: "How to get library card issued?"   [↑ 31]        │  │  │
+│  │  │ Category: Administrative | Tags: #library #card       │  │  │
+│  │  │  ┌──────────────────────────────────────────────────┐ │  │  │
+│  │  │  │ Write your answer...                             │ │  │  │
+│  │  │  └──────────────────────────────────────────────────┘ │  │  │
+│  │  │  [ Submit Answer ]  · Trusted users post directly      │  │  │
+│  │  └──────────────────────────────────────────────────────┘  │  │
+│  │  (more unanswered queries...)                               │  │
+│  └────────────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────────┘
+---
+
+### 4d. Admin Dashboard (hidden at `/admin`)
+
+Accessible only via separate admin credentials. Not linked from any student-facing page.
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│  ADMIN DASHBOARD   [admin@uni.ac.in]                  [Sign out] │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  FILTER BAR                                                      │
+│  [All] [Pending] [Under Review] [Resolved] [Rejected] [Deleted]  │
+│  Category: [All v]   Tags: [filter...]   Search: [search...]     │
+│                                                                  │
+├──────────────────────────────────────────────────────────────────┤
+│  QUERY LIST                                                      │
+│  ┌────────────────────────────────────────────────────────────┐  │
+│  │ # | Question              | Category | Votes | Status  | v │  │
+│  │ 1 | How do I reset my ... | Technical|  42   | Pending | > │  │
+│  │ 2 | Library card issued?  | Admin    |  31   | In Prog | > │  │
+│  │ 3 | Hostel allotment...   | Admin    |  28   | Resolved| > │  │
+│  │ 4 | Can I change elective?| Academic |  17   | Rejected| > │  │
+│  └────────────────────────────────────────────────────────────┘  │
+│                                                                  │
+│  [EXPANDED QUERY ROW - on click >]                               │
+│  ┌────────────────────────────────────────────────────────────┐  │
+│  │ Q: "How do I reset my portal password?"                    │  │
+│  │ By: aarav.shah@uni.ac.in · May 20 2025 · 42 votes          │  │
+│  │ Tags: #login #portal | Category: Technical                 │  │
+│  │ Screenshot: [View attachment]                              │  │
+│  │                                                            │  │
+│  │ ADMIN RESPONSE                                             │  │
+│  │ ┌──────────────────────────────────────────────────────┐  │  │
+│  │ │ Type your official answer here...                    │  │  │
+│  │ └──────────────────────────────────────────────────────┘  │  │
+│  │                                                            │  │
+│  │ [Approve & Answer]  [Reject]  [Add to FAQ]                 │  │
+│  │ [Mark as Seen]  [Mark as In Progress]                      │  │
+│  └────────────────────────────────────────────────────────────┘  │
+│                                                                  │
+├──────────────────────────────────────────────────────────────────┤
+│  FAQ MANAGEMENT                                                  │
+│  ┌────────────────────────────────────────────────────────────┐  │
+│  │ [+ Add New FAQ Entry]                                      │  │
+│  │                                                            │  │
+│  │ Existing FAQ entries:                                      │  │
+│  │ 1. How do I access the student portal?  [Edit] [Delete]    │  │
+│  │ 2. What is the fee payment deadline?    [Edit] [Delete]    │  │
+│  │ 3. How to apply for bonafide cert?      [Edit] [Delete]    │  │
+│  └────────────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 5. Features — Detailed Behaviour
+
+### 5.1 Login Gate
+
+**No blurred background.** When a student lands on Page 2 without being logged in, they see a clean, unblurred login page — not a blurred overlay. The login form is presented clearly with no underlying content visible behind it.
+
+**Admin-provisioned accounts only.** There is no self-registration on the student side. The only way a student can log in is if an admin has already created an account for them via the admin dashboard. No email is automatically on a whitelist. No one can sign themselves up.
+
+**Login credentials:** Email address and password only. No SSO, no magic links, no OTP in this version.
+
+**On successful login:** A JWT access token is stored in an `httpOnly` cookie (not localStorage — prevents XSS token theft). After login the page transitions to Page 2 default view (Genie), the draft is checked and restored if found, and auto-save begins.
+
+**Inactivity timeout:** The JWT expires after **10 minutes of user inactivity** (no mouse movement, keypress, scroll, or API call). A 2-minute warning is shown before expiry ("You will be logged out in 2 minutes due to inactivity"). On expiry, the session is invalidated, the cookie is cleared, and the student is returned to the clean login page. Activity resets the inactivity timer silently — the token is refreshed on each active API call as long as the user is engaged.
+
+**Session rule summary:**
+- Active session: token refreshes on every API call.
+- Inactive for 10 minutes: token expires, student returned to login page.
+- No fixed 24-hour session — session length is determined entirely by activity.
+
+---
+
+### 5.2 Smart Title Input with Real-Time Similarity Scan
+
+As the user types their query title:
+
+1. Input is debounced by 400ms — the scan only fires when the user pauses.
+2. The title is sent to `POST /api/similarity/scan`.
+3. Backend runs three-layer similarity checking (see Section 9).
+4. If match found, a results panel appears showing matched FAQ entries and pending queries.
+5. User can still submit — the system informs, not hard-blocks.
+6. If a near-duplicate pending query is confirmed server-side at submission, the vote count increments and the user is shown that query's status.
+
+**Similarity thresholds:**
+| Layer | Method | Threshold |
+|---|---|---|
+| Layer 1 | Exact keyword (Jaccard) | ≥ 85% |
+| Layer 2 | Fuzzy (Levenshtein) | Score ≥ 0.75 |
+| Layer 3 | Semantic (MiniLM cosine) | ≥ 0.88 |
+
+---
+
+### 5.3 Character Limit Counter
+
+- Live counter below the textarea: `234 / 500`
+- A thin progress bar fills as the user types.
+- Colour states:
+  - 0–399 chars: green bar, grey counter
+  - 400–469 chars: amber bar and counter ("warning zone")
+  - 470–500 chars: red bar and counter, counter bold
+- Hard limit at 500 — textarea has `maxlength="500"`.
+- Also shown on the backend — reject if `title.length > 500` even if client-side is bypassed.
+
+---
+
+### 5.4 Self-Duplicate Detection — Hard Block
+
+Separate from the general similarity check, this specifically checks the current logged-in user's own query history.
+
+- Runs at the same time as the global similarity scan (debounced 400ms).
+- Calls `POST /api/similarity/scan` with `{ title, userId }`.
+- Backend checks the `queries` table filtered by `submitted_by = userId` AND `status NOT IN ('rejected', 'deleted')`.
+- If a past query from the same user scores ≥ 0.85 cosine similarity:
+  - **Submission is completely blocked.** The Submit button is disabled.
+  - The existing query is shown to the student in full — including: question title, current status (Posted / Under Review / Answered / Rejected), the answer (if any), all tags, category, submission date, and vote count.
+  - Message displayed: "You've already asked this. Here's your existing query."
+  - The student cannot work around this — the block is enforced server-side at `POST /api/queries` too, returning a `409 Conflict` with the existing query ID.
+- This is a **hard block**, not a soft warning. Unlike the global similarity scan (which informs and allows submission), a self-duplicate always prevents a new submission.
+
+---
+
+### 5.5 Category Toggle
+
+- Pill/chip toggle — single select, required.
+- Categories are **fully admin-managed** — stored in the `categories` table, fetched on page load via `GET /api/categories`.
+- **The categories shown on Page 2 are the same set used on Page 1 FAQ.** They are not hardcoded. The defaults at setup are examples only (e.g. Academic, NOC, Vibe, Finance, etc.) — the actual list is whatever the admin has configured.
+- Admin can add, edit, or delete categories at any time from the admin dashboard. Changes reflect immediately on both Page 1 and Page 2.
+- No hardcoded fallback list — if the admin has defined 3 categories, only 3 chips appear. If they've defined 10, all 10 appear.
+- Selected category routes the query in the admin dashboard and is used for FAQ promotion categorisation.
+
+---
+
+### 5.6 Tag System
+
+- User can add up to 5 tags per query.
+- Input accepts free text — auto-lowercased, spaces converted to hyphens, `#` prefix stripped on input but displayed with `#`.
+- Tags can be added by typing + Enter, or by clicking suggested tag chips.
+- Suggested tags are fetched from most-used tags in the system (`GET /api/tags/popular`).
+- Each tag renders as a removable chip.
+- Tags are stored as a `TEXT[]` array in the DB and indexed for filtering in the admin dashboard.
+- No spaces in individual tags — validated server-side.
+
+---
+
+### 5.7 Drag & Drop Screenshot Attachment
+
+- Drop zone accepts: `image/png`, `image/jpeg`, `application/pdf`. Max 5MB.
+- On drop/select: shows thumbnail preview with remove button.
+- File uploaded to object storage on form submit (not on drop — avoids orphaned uploads).
+- If upload fails, query still submits; `screenshot_url` is stored as null.
+
+---
+
+### 5.8 Email Notification Toggle
+
+- Checkbox defaulting to ON.
+- When admin answers and approves a query, backend triggers email to all students with `notify_email = true`.
+- Email contains: question, answer, and a link to the FAQ entry.
+- Uses Resend, SendGrid, or Nodemailer + SMTP.
+
+---
+
+### 5.9 Auto-Save Draft
+
+- Every 30 seconds, if the query title is non-empty, the draft is saved.
+- Additionally saved 2 seconds after the user stops typing (debounced).
+- Draft stored in `localStorage` (key: `faq_draft`) as JSON:
+  ```json
+  {
+    "title": "...",
+    "cat": "technical",
+    "tags": ["login", "mobile"],
+    "emailNotify": true,
+    "savedAt": 1716451200000
+  }
+  ```
+- On next page load (post-login), draft is detected and restored — a banner shows with the save time and a "Discard draft" option.
+- Draft is cleared on successful submission or manual discard.
+- Header shows a live "Draft saved / Unsaved changes…" indicator dot.
+
+**Edge cases:**
+- If localStorage is unavailable (private mode, storage full): fail silently, continue without draft.
+- Draft from a different device is not restored (localStorage is per-device). For cross-device draft: store draft server-side in a `drafts` table instead.
+
+---
+
+### 5.10 Query Status Tracker
+
+Visible in the student's Raise a Query view after submission.
+
+**Three stages rendered as a horizontal stepper, with a terminal fourth for rejection:**
+
+| Stage | Label shown to student | Trigger |
+|---|---|---|
+| Stage 1 | **Posted** ✓ | Immediately on query creation |
+| Stage 2 | **In Progress** ⟳ | Admin opens or starts working on the query |
+| Stage 3 | **Answered** ✓ | Admin or trusted user posts an approved answer |
+| Stage 3 (alt) | **Rejected** ✕ | Admin explicitly rejects the query |
+
+**Removed from student view:** The "Seen" stage is not shown to the student at all. Internally the admin still has `adminStatus` values of `seen` and `in_progress` in MongoDB, but from the student's perspective both of these map to the single "In Progress" stage. The student never sees a "Seen" label.
+
+- Active stage pulses with a coloured ring animation.
+- Timestamps shown below each completed stage.
+- Polled via `GET /api/queries/:id/status` every 60 seconds (or WebSocket/SSE for live push).
+- If query was answered by a trusted user, a "Not Satisfied?" button appears in the tracker card. Clicking it escalates the query back to the admin queue at its original timestamp position.
+- **Rejected** stage is terminal — no further transitions. The rejection reason (if provided by admin) is shown below the stage.
+
+---
+
+### 5.11 Edit After Submit (10-Minute Window)
+
+- After successful submission, an edit timer starts: `09:59 → 00:00`.
+- Displayed as a monospace countdown badge in the tracker card.
+- The **Edit button is active and visible while timer > 0 only.** Once the timer reaches 00:00, the Edit button is completely removed from the UI — it is not greyed out, it disappears entirely.
+- Clicking Edit opens the full question form in edit mode, allowing the student to modify:
+  - The **question text** (not just tags — the full title/description)
+  - Category
+  - Tags
+  - Screenshot attachment
+- The button changes to "Save edits" while in edit mode, with a "Cancel" option to discard changes.
+- On save: `PATCH /api/queries/:id` with `{ title, category, tags, screenshot_url }`.
+- The embedding is re-computed if the title changed.
+- Server enforces: `PATCH` rejected with `403 Forbidden` if `now() - created_at > interval '10 minutes'` or if `status != 'pending'` (can't edit if already being answered).
+- After window closes: Edit button is removed entirely. No "Edit window closed" label — it simply does not exist.
+- Rationale: prevents admin from starting to answer a query that is still being revised.
+
+---
+
+### 5.12 Delete Own Query
+
+- "Delete query" button always visible in tracker card.
+- Clicking opens a confirmation modal: "Only do this if you found the answer yourself."
+- On confirm: `DELETE /api/queries/:id` — **hard delete**. The query and all associated votes, cache entries, and draft data are permanently removed from the database. This cannot be undone.
+- The query is not visible to the student, admin, or anyone after deletion. It does not appear in any dashboard filter (including "Deleted") — it is gone from the DB entirely.
+- All voters on that query are notified before deletion: "This query was removed by the original poster."
+- **This is a permanent action.** Unlike admin-side soft-deletes, user-initiated deletes bypass soft-delete logic and cascade to all related records (`queryCache`, `queryVotes`, `cacheVotes`, `drafts`).
+
+---
+
+### 5.13 Genie
+
+Displayed at the top of Page 2 by default. It is the first stop for students arriving from Page 1. Named **Genie**.
+
+**Important:** Genie only contains queries from the **15-day community cache**. It does **not** include or surface any questions that are already answered in the Page 1 FAQ. The purpose is to surface community questions that are NOT yet in the official knowledge base.
+
+**Navigation:** A persistent navigation bar is always visible at the top of Page 2, allowing the student to switch between Genie, Raise a Query, and Solve a Query at any time without losing their place. Switching views does not require a "back" link — the nav bar replaces that need.
+
+**Search Bar**
+- Accepts free-text search input.
+- Searches the 15-day cache only (not Page 1 FAQ).
+- On search:
+  1. Check 15-day cache — if matched, show the cached Q&A card (answered or pending).
+  2. If no cache match — show a message prompting the user to submit a new query via "Raise a Query".
+- Search uses the same 3-layer similarity scan (§5.2).
+
+**Top 5 Most Asked**
+- Shows the **top 5** most-asked questions from the 15-day cache that are NOT promoted to the Page 1 FAQ.
+- Ranked by `upvotes DESC` among cached queries.
+- Each entry shows: question title, upvote count, flag count.
+- Clicking an entry expands it to show the answer (if available) or the unanswered state (see below).
+
+**Upvoting and flagging a question (the query itself):**
+- Any logged-in student can **upvote a question raised by another student** — this signals "I have this question too."
+- Any logged-in student can **flag a question** raised by another student — this signals "This question is inappropriate, spam, or a duplicate."
+- Upvote and flag are mutually exclusive on a question: picking one removes the other.
+- A student **cannot upvote or flag their own question** — only questions submitted by others.
+- If a question accumulates **more than 3 flags**, it is auto-hidden from Genie and sent to admin for review.
+- Upvoting a question increments `queryCache.upvotes` and registers the voter in `queryVotes` (so they are notified when answered).
+- Vote state is stored in `cacheVotes` with `voteType: 'upvote'` or `'flag'`.
+
+**Unanswered questions in Genie:**
+- If a cache question has `answerStatus = 'pending'`, it is shown with an "Awaiting answer" label.
+- The student sees two options:
+  1. **Upvote** — increments the question's vote count and registers the student for notification.
+  2. **Register interest** (if they did not originally submit this query and have not already upvoted) — functionally identical to upvoting; adds them to `queryVotes` so they will be notified when answered. Button label: "Notify me when answered."
+- Upvote and Register Interest are the same action — showing both is a UX choice to make the notification aspect explicit.
+- If the student originally submitted the query, they are already registered; the Upvote button is shown but the Register Interest button is hidden.
+- When an admin or trusted user answers a question: all voters with `notifyEmail = true` receive an email notification AND an in-app notification. Voters with `notifyEmail = false` receive in-app notification only.
+
+**Answered questions in Genie:**
+- If `answerStatus = 'answered'`, the answer is shown below the question.
+- **On the question itself:** the Upvote button remains (still means "I had this question too / this was useful to find"), but the Flag button on the question is replaced by a Flag on the **answer** only.
+- **On the answer:** two buttons — **Upvote answer** (this answer is correct and helpful) and **Flag answer** (this answer is wrong).
+- A student cannot upvote and flag the same answer simultaneously — choosing one removes the other.
+- If answer flags exceed 3, the answer is auto-hidden and sent to admin for review.
+- A student cannot flag their own answer.
+
+**CTA Buttons (below the Top 5 list)**
+- **Raise a Query**: navigates to the Raise a Query view via the nav bar.
+- **Solve a Query**: navigates to the Solve a Query view via the nav bar.
+- These buttons are supplementary to the nav bar — the nav bar is the primary navigation.
+
+---
+
+### 5.14 15-Day Query Cache
+
+All queries submitted on page 2 are stored in a rolling cache for 15 days from submission date. The cache powers the discussion forum search and the Top 10 list.
+
+**Cache entry structure:**
+```json
+{
+  "query_id": "uuid",
+  "title": "How do I access the VPN?",
+  "answer": "Use your student ID at vpn.uni.ac.in ...",
+  "answered_by": "user_id | admin",
+  "answer_status": "pending | answered",
+  "upvotes": 12,
+  "flags": 1,
+  "confidence_score": 3,
+  "expires_at": "2025-06-10T00:00:00Z"
+}
+```
+
+**Display rules:**
+- If `answer_status = answered`: show question + answer + confidence star rating + upvote/flag buttons.
+- If `answer_status = pending`: show question only + "Awaiting answer" label.
+- Cache entries expire automatically after 15 days (cron or DB TTL).
+- If a cached query is promoted to the official FAQ by admin, it is removed from the cache and a redirect link is shown.
+
+**Upvote / Downvote (Flag):**
+- Any logged-in user can upvote a cached answer (signals the answer was helpful).
+- Any logged-in user can flag an answer as wrong (downvote/report).
+- If a cached answer accumulates **more than 3 flags**, it is automatically hidden from the cache and sent to the admin for review.
+- A user cannot upvote and flag the same answer simultaneously; picking one removes the other.
+
+---
+
+### 5.15 User Confidence Score
+
+Each user has a `confidence_score` (integer, starts at 0). It reflects the reliability of the user's answers as verified by admin.
+
+**Earning points:**
+- When a user posts an answer to a cached query and an admin approves it as correct: **+1 confidence point**.
+
+**Losing points:**
+- When a user's answer is flagged by multiple users (flags exceed 3) AND the answer is subsequently removed (auto-hidden and confirmed removed by admin review): **−1 confidence point**.
+- The deduction only applies when both conditions are met: (a) flag threshold exceeded, AND (b) admin confirms removal. Flags alone without admin-confirmed removal do not deduct points.
+- Minimum score is 0 — a score cannot go negative.
+
+**Confidence tiers:**
+
+| Tier | Score | Privileges |
+|---|---|---|
+| New | 0–2 | Answers require admin approval before display |
+| Trusted | 3–9 | Answers posted directly; admin removed from queue |
+| Expert | 10+ | Answers posted directly; displayed with ★★★ badge |
+
+**Confidence display:**
+- In the discussion forum, each answer shows a star-based confidence indicator (1–3 stars based on tier).
+- User profile page shows the current score, tier, and a **milestone progress line** — see §5.30 for the full specification. The "How trust works" explanatory box is **not shown on Page 2 (Genie)**; it lives exclusively in the profile view.
+
+---
+
+### 5.16 Trusted-User Direct Posting
+
+When a user with confidence score ≥ 3 (Trusted tier) answers a question in the discussion forum:
+
+- The answer is posted immediately without waiting for admin approval.
+- The query is **removed from the admin's review queue** — admin does not need to act.
+- The answer is visible in the cache with the user's confidence star badge.
+- Other users can upvote or flag the answer.
+- If flags exceed 3 → answer is auto-hidden and re-added to admin queue for review. If admin confirms removal, the answering user loses 1 confidence point (§5.15).
+
+---
+
+### 5.17 "Not Satisfied" Escalation & Admin Queue Re-insertion
+
+When a trusted user answers a query directly:
+
+- The original asker sees a **"Not Satisfied?"** button in their query tracker card.
+- Clicking it opens a confirmation: "Send this to our admin team for an official answer?"
+- On confirm:
+  - The query is re-added to the admin queue.
+  - It is inserted at the position it would have originally occupied based on its **submission timestamp** (not re-queued at the end).
+  - The trusted user's answer remains visible but is labelled "Community answer — official review requested".
+  - Admin is notified via in-app alert.
+- If the asker does not click "Not Satisfied" within 48 hours, the query is considered resolved and permanently removed from the admin queue.
+
+---
+
+### 5.19 Solve a Query Panel
+
+Shown when the user clicks "Solve a Query" from the Discussion Forum. Hides the forum and the "Raise a Query" button.
+
+- Lists unanswered cached queries (those with `answer_status = 'pending'`), sorted by upvote count DESC.
+- Each entry shows: question title, category, tags, upvote count.
+- Each entry has an answer textarea (no word/character limit — see §5.31) and a "Submit Answer" button.
+- Once an answer is posted and visible, other students can **upvote** (↑) or **downvote** (↓) it directly on the card. Votes are mutually exclusive per user; a student cannot vote on their own answer. At 3 downvotes the answer is auto-hidden and sent to admin (§5.34).
+- On submit:
+  - If user confidence score ≥ 3 (Trusted): answer posted directly, query marked answered, removed from admin queue.
+  - If confidence score < 3 (New): answer stored as pending, awaiting admin approval.
+- A "← Back to forum" link restores the default forum view.
+
+---
+
+### 5.20 Page 2 View State Machine
+
+```
+State: GENIE (default)
+  → click "Raise a Query" (nav or CTA) → State: RAISE
+  → click "Solve a Query" (nav or CTA) → State: SOLVE
+
+State: RAISE
+  → click "Genie" in nav bar → State: GENIE
+  → click "Solve a Query" in nav bar → State: SOLVE
+
+State: SOLVE
+  → click "Genie" in nav bar → State: GENIE
+  → click "Raise a Query" in nav bar → State: RAISE
+```
+
+**Navigation bar:** A persistent tab bar is always visible at the top of the Page 2 content area (below the global header). It contains three tabs: **Genie**, **Raise a Query**, **Solve a Query**. The active tab is highlighted. Clicking any tab switches the view immediately without losing draft state (draft is preserved in memory/localStorage even when switching tabs).
+
+All three states live on the same page. No URL routing. Managed via client-side state (e.g. `useState` in React). The "← Back to forum" link pattern is replaced entirely by the nav bar.
+
+The admin dashboard is updated to reflect the trust system:
+
+- Queries answered by trusted users are **not shown** in the admin queue by default.
+- Admin has a toggle: "Show trust-resolved queries" to review them optionally.
+- If a "Not Satisfied" escalation arrives, the query re-appears in the queue at the correct timestamp position (sorted among pending queries as if it had never been removed).
+- Admin can also proactively approve or override any trusted-user answer from the optional view.
+- Approving a trusted answer awards the answering user +1 confidence point (§5.15).
+
+---
+
+---
+
+### 5.21 Admin Dashboard — Query Management
+
+The admin dashboard lives at `/admin` and requires a separate login (separate credential table — `admins`, not `users`). It is never linked from any student-facing page.
+
+**Authentication:**
+- Admin logs in with email + password via `POST /api/admin/auth/login`.
+- Issues a separate short-lived JWT (4-hour session) stored in an `httpOnly` cookie.
+- Admin session is not shared with the student session in any way.
+
+**Query List View:**
+- Displays all queries in a paginated table, sorted by `created_at DESC` by default.
+- Each row shows: row number, question title (truncated), category, vote count, current status, and an expand toggle.
+- Clicking any row expands it inline to show full query detail (see wireframe §4d).
+
+**Filter Bar:**
+- Admin can filter the query list by status:
+  - **All** — every query regardless of status
+  - **Pending** — submitted, not yet seen or acted on
+  - **Under Review** — admin has marked as Seen or In Progress
+  - **Resolved** — answered (by admin or trusted user, confirmed satisfied or timeout)
+  - **Rejected** — admin explicitly rejected
+  - **Deleted** — soft-deleted by student
+- Additional filters: Category (dropdown), Tags (text filter), free-text search across titles.
+- Filters are combinable (e.g. "Pending + Technical + #login").
+- A toggle: **"Show trust-resolved queries"** — off by default. When on, shows queries answered by trusted users that never entered the admin queue.
+
+**Per-Query Actions (in expanded row):**
+
+| Action | Behaviour |
+|---|---|
+| **Mark as Seen** | Sets `admin_status = 'seen'`; student tracker updates to stage 2 |
+| **Mark as In Progress** | Sets `admin_status = 'in_progress'`; student tracker updates to stage 3 |
+| **Approve & Answer** | Admin types answer → sets `status = 'answered'`, `admin_status = 'answered'`; student notified by email; query removed from pending queue |
+| **Reject** | Sets `status = 'rejected'`; all voters notified; admin can optionally add a rejection reason |
+| **Add to FAQ** | Promotes the query+answer to the official FAQ (see §5.22) |
+| **Approve trusted answer** | Confirms a trusted-user answer as officially correct; awards answering user +1 confidence point |
+| **Override trusted answer** | Admin replaces trusted-user answer with their own official answer. Only the **original asker** is notified ("Your query has been officially answered"). The community answerer is not notified. |
+
+---
+
+### 5.22 Promote Query to FAQ
+
+When an admin clicks **"Add to FAQ"** on an answered query:
+
+1. A modal appears pre-filled with:
+   - **Question** (editable) — the query title
+   - **Answer** (editable) — the current answer text (admin's or trusted user's)
+   - **Category** (dropdown) — pre-set from query category
+   - **Tags** (editable chips) — pre-set from query tags
+2. Admin edits as needed — they can modify the question text, rewrite the answer, change the category, and adjust the tags — then clicks **"Publish to FAQ"**.
+3. On publish:
+   - `POST /api/admin/faq` — inserts a new row into the `faq_entries` table.
+   - The query's `status` is set to `'faq_promoted'`.
+   - The query is removed from the 15-day cache (`query_cache` row deleted).
+   - A redirect stub is stored in `query_cache` so any direct link shows: "This question has been added to the official FAQ → View".
+   - All voters on that query are notified: "Your question is now in the official FAQ!".
+   - The FAQ entry is immediately visible on Page 1.
+
+**FAQ entry DB structure (new table):**
+```js
+// Collection auto-created by Mongoose faq_entries (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  question     TEXT NOT NULL,
+  answer       TEXT NOT NULL,
+  category_id  INTEGER REFERENCES categories(id),
+  tags         TEXT[],
+  promoted_from UUID REFERENCES queries(id),
+  created_by   UUID REFERENCES admins(id),
+  created_at   TIMESTAMPTZ DEFAULT now(),
+  updated_at   TIMESTAMPTZ DEFAULT now()
+);
+```
+
+---
+
+### 5.23 Admin Creates New FAQ Entry Manually
+
+Admin can create a brand-new FAQ entry without it originating from a student query. This is accessible via the **"+ Add New FAQ Entry"** button in the FAQ Management section of the admin dashboard.
+
+**Form fields:**
+| Field | Required | Notes |
+|---|---|---|
+| Question | Yes | Max 300 chars |
+| Answer | Yes | No max — supports basic markdown (bold, lists) |
+| Category | Yes | Dropdown from `categories` table |
+| Tags | No | Same tag input as student form; max 10 tags |
+
+**Behaviour:**
+- Admin fills out the form and clicks **"Publish"**.
+- `POST /api/admin/faq` is called with `promoted_from: null` (manual entry flag).
+- Entry is inserted into `faq_entries` with `promoted_from = null`.
+- Immediately live on Page 1 (no approval step — admin action is inherently approved).
+- Admin can edit or delete any FAQ entry at any time via the FAQ Management list (see §4d wireframe).
+
+**Edit/Delete existing FAQ entries:**
+- **Edit**: `PATCH /api/admin/faq/:id` — opens the same form pre-filled; saves updated `question`, `answer`, `category`, `tags`, `updated_at`.
+- **Delete**: `DELETE /api/admin/faq/:id` — hard delete (FAQ entries don't need soft-delete since they are admin-authored). Entry is removed from Page 1 immediately.
+
+---
+
+### 5.24 Admin User Provisioning
+
+Since there is no self-registration, the admin is the sole gatekeeper for student accounts.
+
+**Creating a new student account (from admin dashboard):**
+- Admin navigates to the **User Management** section of the admin dashboard.
+- Fills in: Full name, University email address, Temporary password.
+- On submit: `POST /api/admin/users` — inserts a new row into the `users` table with `active = true`.
+- The student can now log in on Page 2 with the provided email and password.
+- Admin can optionally flag the account to require a password reset on first login.
+
+**Deactivating an account:**
+- `PATCH /api/admin/users/:id` with `{ active: false }`.
+- Deactivated users cannot log in — login endpoint checks `active = true` before issuing token.
+- Existing queries from deactivated users remain in the system.
+
+**No email invite flow** — the admin provides credentials to the student directly (verbally, printed handout, internal communication). The platform does not send sign-up emails.
+
+---
+
+### 5.25 Admin Answered Queries — Answered Folder
+
+When a query is answered (by admin or by a trusted user and confirmed), it moves to the **Answered** section in the admin dashboard. This is a separate view from the active query queue.
+
+**Answered folder behaviour:**
+- Contains all queries with `status = 'answered'`.
+- Sorted newest-answered first by default.
+- Shows: question title, who answered, date answered, number of voters notified.
+- Admin can **delete** any query from the Answered folder at any time — this is a soft delete on the admin side (`adminDeleted = true` flag), meaning the query is removed from the admin's Answered view but the student can still see it in their past queries list. This is distinct from a Genie/cache delete (§5.32), which hides the query from everyone.
+- Admin cannot edit an already-answered query from the Answered folder — they would need to go back to the active query and use Override (§5.21).
+
+---
+
+### 5.26 Admin Query List — Sorting & Ordering
+
+By default, the admin query list shows **oldest first** (`.sort({ createdAt: 1 })`). This ensures the longest-waiting queries are addressed first.
+
+**Available sort options (dropdown in the filter bar):**
+
+| Sort option | DB equivalent |
+|---|---|
+| Oldest first *(default)* | `.sort({ createdAt: 1 })` |
+| Newest first | `.sort({ createdAt: -1 })` |
+| Most asked first | `.sort({ voteCount: -1 })` |
+| Least asked first | `.sort({ voteCount: 1 })` |
+| Most recently updated | `.sort({ updatedAt: -1 })` |
+| Alphabetical (A–Z) | `.sort({ title: 1 })` |
+
+Sorting is combinable with all existing filters (status, category, tags, search).
+
+---
+
+### 5.27 FAQ Promotion — Cache Removal & Past Queries Visibility
+
+When a query is promoted to FAQ (§5.22):
+
+- The query is **immediately removed from the 15-day cache** — it no longer appears in Genie's Top 5 or search results for other students.
+- A redirect stub is placed in the cache so that any direct link to the cached query shows: "This question has been added to the official FAQ → View".
+- **The query remains fully visible in the submitting student's Past Queries list.** The student can still see their original question, the answer, the FAQ promotion status, and all metadata. It is only removed from the public Genie view, not from the submitter's personal history.
+- All voters on that query are notified: "Your question is now in the official FAQ!"
+
+---
+
+## 6. Tech Stack
+
+**Runtime:** Node.js + Express.js (backend), React.js (frontend)
+**Database:** MongoDB Atlas (free M0 cluster) via Mongoose ODM
+**Authentication:** JWT stored in `httpOnly` cookies; separate secrets for student and admin tokens
+**File Storage:** Cloudflare R2 (free tier) for screenshot attachments
+**Embeddings:** MiniLM (384-dim, runs locally on server — no per-call AI cost)
+**Vector Search:** MongoDB Atlas Vector Search (replaces Atlas Vector Search)
+**Email:** Nodemailer or Resend free tier
+**Hosting:** Vercel (frontend) + Railway free tier (Express backend)
+
+---
+
+### Frontend
+| Layer | Choice | Reason |
+|---|---|---|
+| Framework | Next.js 14 (App Router) | SSR for auth checks, fast routing |
+| Styling | Tailwind CSS | Utility-first, rapid consistent UI |
+| State | Zustand | Lightweight, no boilerplate |
+| Forms | React Hook Form + Zod | Validation, schema-first |
+| Animations | Framer Motion | Smooth panel reveals, drag feedback |
+| File upload | react-dropzone | Battle-tested drag & drop |
+| Debounce | use-debounce | Controlled API scan calls |
+| Real-time status | SWR with polling or SSE | Query status updates |
+
+### Backend
+| Layer | Choice | Reason |
+|---|---|---|
+| Runtime | Node.js + Express OR FastAPI (Python) | Express if JS-only stack; FastAPI if running MiniLM locally |
+| Auth | JWT (httpOnly cookie) | Secure, stateless |
+| Embedding service | FastAPI microservice (Python) | Runs sentence-transformers separately |
+| Email | Resend or Nodemailer | Simple transactional email |
+| File storage | Cloudflare R2 or MongoDB Atlas Storage | S3-compatible, generous free tier |
+| Cron jobs | node-cron or pg_cron | Cache expiry (15-day TTL) and flag auto-delete |
+
+### Database
+| Layer | Choice | Reason |
+|---|---|---|
+| Primary DB | MongoDB (MongoDB Atlas or Railway) | Relational, reliable |
+| Vector storage | Atlas Vector Search extension | Store & query embeddings in same DB |
+| Cache | Redis (optional) | Cache embeddings of stored queries |
+
+---
+
+## 7. MongoDB Collections (Atlas)
+
+All collections live in a single MongoDB Atlas M0 (free) cluster in a database named `faqplatform`. Mongoose schemas are defined server-side. Collections are auto-created on first insert.
+
+---
+
+### 7.1 `users` — Student accounts (admin-provisioned only)
 
 ```js
 {
-  question: String,               // The FAQ question text
-  answer: String,                 // Official admin-written answer
-  category: String,               // e.g. "NOC", "ViBe Platform"
-  sectionId: String,              // e.g. "q-3-1" for anchor links
-  helpfulCount: Number,           // Incremented by helpful_yes clicks
-  resolvedViaEscalation: Boolean, // true if entered FAQ via Page 3
-  peerFootnote: {
-    text: String,                 // max 200 chars
-    authorName: String,
-    approvedByAdmin: Boolean
-  },
-  gapScore: Number,               // Computed nightly by gapTracker.js
-  phase: [String],                // e.g. ["may", "june"] for deadline surfacing
-  popularBadge: Boolean,          // Admin-toggled, shows 🔥 badge
+  _id: ObjectId,                    // auto-generated
+  name: String,                     // required
+  email: String,                    // required, unique index
+  passwordHash: String,             // bcrypt hash
+  confidenceScore: Number,          // default: 0 — never negative
+  active: Boolean,                  // default: true — false = deactivated by admin
+  requirePasswordReset: Boolean,    // default: false
+  createdAt: Date,                  // auto
+  updatedAt: Date                   // auto
+}
+```
+**Indexes:** `{ email: 1 }` unique
+
+---
+
+### 7.2 `admins` — Admin accounts (completely separate from users)
+
+```js
+{
+  _id: ObjectId,
+  name: String,
+  email: String,          // required, unique
+  passwordHash: String,
+  createdAt: Date
+}
+```
+**Indexes:** `{ email: 1 }` unique
+
+---
+
+### 7.3 `categories` — Admin-managed; shared between Page 1 and Page 2
+
+```js
+{
+  _id: ObjectId,
+  name: String,     // e.g. "Academic", "NOC", "Vibe"
+  slug: String,     // e.g. "academic", "noc" — URL-safe
+  createdAt: Date,
   updatedAt: Date
 }
 ```
+**Indexes:** `{ slug: 1 }` unique
 
-### 7.2 `db.threads`
+---
+
+### 7.4 `faqEntries` — Official FAQ knowledge base (shown on Page 1)
 
 ```js
 {
-  title: String,                  // max 100 chars (DB-level validation)
-  body: String,                   // max 1500 chars
-  authorEmail: String,
-  answers: [{
-    text: String,                 // max 1500 chars
-    authorEmail: String,
-    authorName: String,
-    confidenceScore: Number,      // upvotes×2 + markedHelpful×5 - reports×3
-    markedHelpful: Boolean,       // set by original thread author only
-    flagCount: Number,
-    flaggedBy: [String],          // email array; auto-hide at flagCount ≥ 3
-    createdAt: Date
-  }],
-  upvoteCount: Number,
-  status: {
-    type: String,
-    enum: ["open", "community_resolved", "escalated", "admin_resolved"]
-  },
-  isArchived: Boolean,            // set to true by nightly cron after 14 days
-  subscribers: [String],          // emails to notify on resolution
+  _id: ObjectId,
+  question: String,          // required, max 300 chars
+  answer: String,            // required, supports basic markdown
+  category: ObjectId,        // ref: categories
+  tags: [String],            // array of tag strings
+  promotedFrom: ObjectId,    // ref: queries — null if manually created by admin
+  createdBy: ObjectId,       // ref: admins
   createdAt: Date,
-  escalatedAt: Date               // set by cron when 72hr elapses without resolution
+  updatedAt: Date
 }
 ```
+**Indexes:** `{ category: 1 }`, `{ tags: 1 }`
 
-### 7.3 `db.users`
+---
+
+### 7.5 `queries` — Every student query submitted
 
 ```js
 {
-  email: String,                  // unique; sourced from whitelist
-  name: String,
-  isWhitelisted: Boolean,
-  isAdmin: Boolean,
-  notifyOnResolve: Boolean,       // user notification preference
-  contributionScore: Number,      // answers given × helpfulness ratio
+  _id: ObjectId,
+  title: String,               // required, max 500 chars
+  category: ObjectId,          // ref: categories
+  submittedBy: ObjectId,       // ref: users
+  screenshotUrl: String,       // Cloudflare R2 URL, nullable
+  tags: [String],
+  status: String,              // 'pending' | 'answered' | 'rejected' | 'faq_promoted' | 'deleted'
+  adminStatus: String,         // 'pending' | 'seen' | 'in_progress' | 'answered' | 'rejected'
+                             // Note: 'seen' and 'in_progress' both map to 'In Progress' on student tracker
+  adminDeleted: Boolean,       // default: false — soft delete from admin answered folder
+  voteCount: Number,           // default: 1 (submitter counts as first vote)
+  answer: String,              // null until answered
+  answeredBy: ObjectId,        // ref: users OR admins
+  answeredByModel: String,     // 'User' or 'Admin' — for Mongoose populate
+  isTrustedAnswer: Boolean,    // true = answered by Trusted/Expert user directly
+  askerSatisfied: Boolean,     // null = not yet resolved, true = satisfied, false = escalated
+  rejectionReason: String,     // null unless status = 'rejected'
+  embedding: [Number],         // 384-dim MiniLM vector for similarity search
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+**Indexes:** `{ submittedBy: 1 }`, `{ status: 1 }`, `{ adminStatus: 1 }`, `{ voteCount: -1 }`, `{ createdAt: 1 }`, `{ category: 1 }`
+**Atlas Vector Search Index:** `{ path: "embedding", numDimensions: 384, similarity: "cosine" }`
+
+---
+
+### 7.6 `queryCache` — 15-day rolling window (powers Genie on Page 2)
+
+```js
+{
+  _id: ObjectId,
+  queryId: ObjectId,       // ref: queries
+  title: String,           // denormalised for fast reads
+  answer: String,          // null if pending
+  answerStatus: String,    // 'pending' | 'answered'
+  upvotes: Number,          // default: 0 — votes on the question
+  flags: Number,            // default: 0 — flags on the question (spam/inappropriate)
+  answerUpvotes: Number,    // default: 0 — upvotes on the answer
+  answerDownvotes: Number,  // default: 0 — downvotes on the answer (triggers auto-hide at 3)
+  isHidden: Boolean,        // true = auto-hidden after question flags > 3 OR answer downvotes > 3
+  adminDeletedGenie: Boolean, // default: false — admin-deleted from Genie; hidden from everyone
+  expiresAt: Date,         // set to createdAt + 15 days
   createdAt: Date
 }
 ```
+**Indexes:** `{ queryId: 1 }` unique, `{ upvotes: -1 }`, `{ expiresAt: 1 }` with `expireAfterSeconds: 0` (MongoDB TTL — auto-deletes expired documents, no cron job needed)
 
-### 7.4 `db.upvotes`
+---
 
-```js
-{
-  userId: ObjectId,
-  threadId: ObjectId,
-  isSilentMerge: Boolean          // true if auto-upvoted via similarity dedup
-}
-// Compound unique index on { userId, threadId }
-```
-
-### 7.5 `db.escalations`
+### 7.7 `queryVotes` — Tracks who voted on / registered interest in a query
 
 ```js
 {
-  threadId: ObjectId,             // link to original forum thread
-  studentEmail: String,
-  questionSummary: String,        // max 500 chars
-  adminResponse: String,
-  status: { type: String, enum: ["pending", "answered"] },
-  publishedToFAQ: Boolean,
+  _id: ObjectId,
+  userId: ObjectId,              // ref: users
+  queryId: ObjectId,             // ref: queries
+  notifyEmail: Boolean,          // user's email preference at time of vote
+  registeredInterest: Boolean,   // true = clicked "Notify me when answered"
   createdAt: Date
 }
 ```
+**Indexes:** `{ userId: 1, queryId: 1 }` unique (prevents double-voting)
 
-### 7.6 `db.analytics`
+**Note:** This collection handles both "I upvoted this question" and "notify me when answered." Upvoting a question from Genie does both — increments `queryCache.upvotes` and inserts a `queryVotes` record.
+
+---
+
+### 7.8 `cacheVotes` — Upvote / flag on Genie cache entries (both questions and answers)
 
 ```js
 {
-  eventType: {
-    type: String,
-    enum: [
-      "search_hit",      // FAQ matched a query
-      "search_miss",     // chatbot redirected to forum
-      "helpful_yes",     // exit confirmation: yes
-      "helpful_no",      // exit confirmation: no → forum
-      "section_view"     // FAQ section opened
-    ]
-  },
-  section: String,        // FAQ category, e.g. "NOC"
-  query: String,          // anonymized search query
-  userHash: String,       // sha256 of email, never raw email
+  _id: ObjectId,
+  userId: ObjectId,          // ref: users
+  cacheEntryId: ObjectId,    // ref: queryCache
+  target: String,            // 'question' | 'answer' — what is being voted on
+  voteType: String,          // 'upvote' | 'flag'
   createdAt: Date
 }
 ```
+**Indexes:** `{ userId: 1, cacheEntryId: 1, target: 1 }` unique (one vote per user per entry per target — allows a student to upvote the question AND separately upvote the answer on the same cache entry)
 
 ---
 
-## 8. Authentication & Authorization
-
-### Route Guard Matrix
-
-| Route | Access Level | Guard |
-|---|---|---|
-| `/faq` | Public | None |
-| `/forum` | Google login + whitelist | `authMiddleware.js` |
-| `/escalate` | Whitelisted user + thread is escalated + user is thread author | `authMiddleware.js` + redirect guard |
-| `/admin` | Admin JWT | `adminMiddleware.js` |
-
-### Whitelist Check (`authMiddleware.js`)
+### 7.9 `drafts` — Auto-saved query drafts (one per user)
 
 ```js
-const user = await User.findOne({ email: decoded.email })
-if (!user || !user.isWhitelisted) {
-  return res.status(403).json({ error: "Access restricted to authorized cohort members." })
+{
+  _id: ObjectId,
+  userId: ObjectId,    // ref: users, unique index
+  title: String,
+  category: ObjectId,
+  tags: [String],
+  notifyEmail: Boolean,
+  savedAt: Date
 }
 ```
-
-### JWT Strategy
-
-- Cohort JWT: issued after Google OAuth callback via `passport-google-oauth20`
-  - Payload: `{ email, name, isWhitelisted }`
-  - Secret: `JWT_SECRET`
-- Admin JWT: issued via separate admin login (username/password or separate Google account)
-  - Payload: `{ email, isAdmin: true }`
-  - Secret: `ADMIN_JWT_SECRET`
-- JWT is stateless; no server-side session storage
-- Frontend stores JWT in memory (React Context) — **not** localStorage
-- Axios instance in `client/src/lib/axios.js` auto-injects JWT in every request header via interceptor
-
-### Google OAuth Flow
-
-- Frontend: `@react-oauth/google` renders the Google login button
-- Backend: `passport-google-oauth20` handles the callback at `/api/auth/google/callback`
-- On successful OAuth:
-  1. Check if `email` exists in `db.users`
-  2. If not: create user record with `isWhitelisted: false` (admin manually whitelists)
-  3. Issue JWT and return to frontend
-  4. `AuthContext.jsx` stores JWT and `isWhitelisted` flag
+**Indexes:** `{ userId: 1 }` unique (upsert on save — each user has at most one draft)
 
 ---
 
-## 9. Automated Pipeline & Cron Jobs
-
-All cron logic in `server/services/cronJobs.js`. Uses `node-cron`.
-
-### Job 1 — Archive Sweep (Daily at 00:00)
-
-```
-Condition: thread.createdAt < now - 14 days AND thread.isArchived === false
-Action: thread.isArchived = true
-Purpose: Keeps the active forum clean; archived threads are excluded from
-         similarity dedup and forum feed (but preserved in DB for analytics)
-```
-
-### Job 2 — Gap Tracker (Daily at 00:00)
-
-```
-Runs: gapTracker.js aggregation query
-Writes: updated gapScore to each db.faqs document
-See Section 12 for full logic
-```
-
-### Job 3 — Escalation Promotion (Every Hour)
-
-```
-Condition: thread.status === "open"
-           AND thread.createdAt < now - 72hrs
-           AND no answer with markedHelpful === true
-Action:
-  - thread.status = "escalated"
-  - thread.escalatedAt = now
-  - server emits "thread:status_change" { threadId, newStatus: "escalated" }
-  - frontend shows "Submit to Admin" button to original author
-```
-
-### Job 4 — Admin Daily Digest (Daily at 08:00)
-
-```
-Sends one email to the admin account containing:
-  - Count + list of threads pending approval (confidenceScore ≥ 10, markedHelpful = true)
-  - Count + list of flagged answers needing override (flagCount ≥ 3)
-  - Count + list of escalated questions with no admin response
-  - Top 3 gap signals from last 24hrs (ranked by delta gapScore)
-```
+## 8. Similarity
 
 ---
 
-## 10. Confidence Score System
+### 5.28 TopNavBar — Notification Icon
 
-File: `server/services/confidenceService.js`
+A bell icon (🔔) is always visible in the global header (TopNavBar), to the left of the User pill, for all logged-in students.
 
-### Formula
+**Behaviour:**
+- An unread count badge overlays the bell when there are unread notifications (e.g. "3").
+- Clicking the bell opens a dropdown/panel listing the most recent in-app notifications (newest first).
+- Each notification entry shows: message text, timestamp, and a link to the relevant query or FAQ entry.
+- Clicking a notification marks it as read and navigates to the linked resource.
+- A "Mark all as read" action clears the badge.
+- Notification types that appear here: query answered, query rejected, query added to FAQ, answer flagged and removed, trusted user answer confirmed, "Not Satisfied" escalation acknowledged.
 
+**DB Collection — `notifications`:**
+```js
+{
+  _id: ObjectId,
+  userId: ObjectId,        // ref: users
+  message: String,         // human-readable notification text
+  link: String,            // relative URL to navigate to
+  read: Boolean,           // default: false
+  createdAt: Date
+}
 ```
-score = (upvotes × 2) + (markedHelpful × 5) - (flagCount × 3)
-```
-
-Where:
-- `upvotes` = `answer.confidenceScore` upstream field (thread-level `upvoteCount` is separate)
-- `markedHelpful` is boolean (treated as 0 or 1)
-- `flagCount` is the number of flags on that specific answer
-
-### Thresholds & Badge Logic
-
-| Score Range | Badge | Color | Action |
-|---|---|---|---|
-| 0 – 4 | None / "Unverified" | Grey | No action |
-| 5 – 9 | "Community Pick" | Yellow | Visible prominence in AnswerBlock |
-| ≥ 10 | "High Confidence" | Green | Sent to admin digest |
-| ≥ 15 + markedHelpful = true + flagCount = 0 | "Auto-publish candidate" | Green + star | Admin can ratify in digest (24hr window to retract) |
-
-### Score Recalculation Triggers
-
-- On every upvote POST
-- On every flag POST
-- On every `markedHelpful` toggle
-- Score stored on the embedded answer object in `db.threads`
+**Indexes:** `{ userId: 1, read: 1 }`, `{ createdAt: -1 }`
 
 ---
 
-## 11. Similarity Deduplication Engine
+### 5.29 Profile Dropdown in TopNavBar
 
-File: `server/services/similarityService.js`
+The User pill in the global header is a clickable dropdown. On click it expands to show:
 
-Uses Fuse.js server-side against all active (non-archived) thread titles.
-
-### Flow
-
-```
-POST /api/threads (new question submitted)
-  │
-  ▼
-similarityService.findDuplicate(title)
-  │
-  ├── similarity ≥ 0.75 found
-  │     → Do NOT create new thread
-  │     → Silently add upvote to existing thread (isSilentMerge: true in db.upvotes)
-  │     → Return { isDuplicate: true, existingThreadId, existingThreadTitle }
-  │     → Frontend shows: "N other interns asked this — being tracked"
-  │     → Frontend redirects user to existing thread
-  │
-  └── similarity < 0.75
-        → Create new thread normally
-        → Return { isDuplicate: false, thread: newThread }
-```
-
-### Why This Matters
-
-- Prevents forum fragmentation from slight question variations
-- Boosts upvote signal on existing threads (faster confidence score growth)
-- Reduces admin queue noise
-- "N other interns asked this" message provides social validation
-
----
-
-## 12. Gap Tracker & Analytics
-
-File: `server/services/gapTracker.js`
-
-### Gap Score Signals
-
-A FAQ section's `gapScore` increases when any of the following occur:
-
-| Signal | Description | Weight |
-|---|---|---|
-| `helpful_no` exits | Users confirmed the FAQ answer didn't help | High |
-| Repeated duplicate threads | Same unlisted question posted 3+ times in 7 days (dedup count) | High |
-| `resolvedViaEscalation: true` | FAQ entry only exists because peer forum failed | Medium |
-| High `search_hit` + low `helpful_yes` | Answer is found but doesn't satisfy | Medium |
-
-### Gap Score Color Bands (Admin View)
-
-| Color | Meaning |
+| Field | Value |
 |---|---|
-| Red | Answer is actively failing users — rewrite urgently needed |
-| Yellow | Answer exists but surfacing or clarity is an issue |
-| Green | Answer is working well |
+| **Name** | Student's full name |
+| **Email** | Student's university email |
+| **Confidence Points** | Current `confidenceScore` with tier label (New / Trusted / Expert) |
+| **My Queries** | Link to the student's past queries list (filtered to their own submissions) |
+| **Sign Out** | Ends the session (clears cookie, returns to login) |
 
-### Analytics Events Schema
+This dropdown replaces any need for a separate profile page as a navigation destination. The full profile milestone view (§5.30) is accessible from within My Queries.
 
-All events are anonymous. `userHash` is `sha256(email)` — never raw email.
+---
 
-| Event | When Logged |
+### 5.30 Profile — Confidence Milestone Progress Line
+
+The student's confidence progression is displayed as a **horizontal milestone line** (similar to an order-tracking progress bar) inside their profile/My Queries view — **not** on Page 2 Genie or anywhere in the query flow. The "How trust works" explanatory box is removed from Page 2 Genie entirely and replaced by this milestone UI in the profile.
+
+**Milestone line layout (3 stops):**
+
+```
+  ●────────────────────○────────────────────○
+SELECT (0 pts)      ELITE (threshold)    ICON (max)
+```
+
+- The filled/active node tracks the student's current tier.
+- Each node shows the tier name and the point threshold below it.
+- The connecting line fills proportionally to show progress toward the next tier.
+- Tiers map to confidence score ranges (see §5.15):
+  - **New (0–2 pts)** — first node active
+  - **Trusted (3–9 pts)** — second node active
+  - **Expert (10+ pts)** — third node active
+- A short label below the active node shows current points: e.g. "4 / 10 pts to Expert".
+- Visual style: dark background, gold/amber filled nodes and progress line (consistent with the reference image provided).
+
+**Where it appears:** Only in the student's profile view (accessible via "My Queries" in the profile dropdown). It does NOT appear on Page 2 in Genie, on the query tracker, or in the Solve a Query panel.
+
+---
+
+### 5.31 Answer Word Limit — None
+
+There is **no word or character limit** on answers submitted by students (in Solve a Query) or by admins (in the admin dashboard). The answer textarea accepts content of any length.
+
+- No `maxlength` attribute on answer textareas.
+- No server-side length validation on `answer` fields.
+- This applies to: student answers in §5.19 (Solve a Query), admin answers in §5.21, trusted-user direct answers in §5.16, and admin-created FAQ entries in §5.23.
+- Note: The 500-character limit applies only to **query titles**, not to answers.
+
+---
+
+### 5.32 Admin — Delete Query from Genie (Cache)
+
+In addition to managing queries from the admin query list, an admin can delete a query directly from the Genie cache. This is a distinct action from the admin-side soft-delete in §5.25.
+
+**Behaviour:**
+- Admin deletes a query from Genie/cache → the query is hidden from **everyone**: students see it neither in Genie, the Top 5, search results, nor in any student's past queries list. The admin also does not see it.
+- This is effectively a full suppression of the cache entry (`queryCache` document deleted; associated `queries` record set to `status = 'admin_deleted_genie'`).
+- Use case: spam, offensive content, or a query that should never have been cached.
+- This is separate from the admin answered-folder soft-delete (§5.25), which only hides the query from the admin's own view while leaving it visible to students.
+
+**Summary of delete behaviours:**
+
+| Action | Visible to student | Visible to admin |
+|---|---|---|
+| Student deletes own query | ❌ Hard deleted — gone for everyone | ❌ Gone |
+| Admin deletes from Answered folder | ✅ Student still sees it | ❌ Hidden from admin |
+| Admin deletes from Genie/cache | ❌ Hidden from students | ❌ Hidden from admin |
+
+---
+
+### 5.33 Vector Search — Scope (Query Submission AND Genie)
+
+Vector search (MongoDB Atlas Vector Search with MiniLM 384-dim embeddings) is used in **two places**:
+
+1. **Query Submission similarity scan (§5.2):** When a student types a query title in the Raise a Query form, the real-time scan uses vector search (Layer 3, cosine ≥ 0.88) to find semantically similar existing queries and FAQ entries.
+
+2. **Genie search bar (§5.13):** When a student searches in the Genie search bar, the search runs the same 3-layer similarity check — including vector search — against the 15-day cache. This ensures semantic matches are surfaced even when keywords don't overlap exactly.
+
+Both flows call `POST /api/similarity/scan` (or a dedicated `/api/genie/search` endpoint) and use the same MiniLM embedding service. Embeddings for new queries are computed at submission time and stored in `queries.embedding`.
+
+---
+
+### 5.34 Upvote / Downvote on Peer-Posted Answers
+
+When a student posts an answer in the Solve a Query panel (§5.19) and that answer is visible in Genie (§5.13) or on the query tracker, other students can:
+
+- **Upvote the answer** — signals the answer is correct and helpful. Increments `answerUpvotes` on the cache entry.
+- **Downvote the answer** — signals the answer is incorrect or unhelpful. Increments `answerDownvotes`. (Previously referred to as "flag" in some contexts; "downvote" is the user-facing label. Internal flag-threshold logic at 3 downvotes still applies — auto-hides answer and sends to admin review.)
+
+Upvote and downvote are mutually exclusive per user per answer — choosing one removes the other. A student cannot vote on their own answer.
+
+**DB change — `cacheVotes.voteType` updated values:**
+
+| voteType | Meaning |
 |---|---|
-| `search_hit` | FAQ matched user query |
-| `search_miss` | No FAQ match found |
-| `helpful_yes` | Exit modal: "Yes, thanks" |
-| `helpful_no` | Exit modal: "No" (also fires when chatbot fallback redirects) |
-| `section_view` | User expands an accordion card |
-
----
-
-## 13. Real-Time Layer (Socket.io)
-
-### Server-Side
-
-- `socket.io` attached to Express HTTP server in `server.js`
-- Emits `thread:status_change` event with `{ threadId, newStatus }` whenever a thread's status changes
-
-### Client-Side
-
-- `client/src/lib/socket.js` — singleton `socket.io-client` instance
-- `useSocket.js` hook — connects/subscribes on mount, cleans up on unmount
-- `StatusBar.jsx` subscribes to `thread:status_change` events and updates only matching thread rows
-
-### Status Change Triggers
-
-| Trigger | New Status | Emitted by |
-|---|---|---|
-| Thread created | `open` | Route handler |
-| Answer added, voting begins | `open` → StatusBar shows discussion | Implicit (vote count) |
-| `confidenceScore ≥ 10`, `markedHelpful = true` | `community_resolved` (tentative) | `confidenceService.js` |
-| 72hr cron fires with no resolution | `escalated` | `cronJobs.js` |
-| Admin approves/publishes | `admin_resolved` | `admin.js` route |
-
----
-
-## 14. Notification System
-
-File: `server/services/notificationService.js`  
-Transport: **Nodemailer** via `EMAIL_USER` / `EMAIL_PASS`
-
-### Resolution Email
-
-- Sent when `thread.status` transitions to `community_resolved` or `admin_resolved`
-- Recipients: `thread.subscribers` array (original author + upvoters who have `notifyOnResolve: true`)
-- Content: thread title, the resolved answer, link to the now-published FAQ entry (if applicable)
-
-### Notification Preference
-
-- `db.users.notifyOnResolve` — boolean, defaults to `true`
-- User can toggle this in their profile/header settings on Page 2
-- Upvoters are auto-added to `thread.subscribers` but only emailed if `notifyOnResolve === true`
-
-### Admin Daily Digest Email
-
-- Sent daily at 08:00 by `cronJobs.js`
-- To: admin email (from env)
-- Summarizes the current admin queue (see Section 9, Job 4)
-- Replaces all real-time admin alerts — admin is not pinged on every flag or escalation
-
----
-
-## 15. UI Design System
-
-### Color System
-
-| Element | Color |
-|---|---|
-| Primary student action (Ask, Submit) | `#0044FF` (solid blue) |
-| Resolved badge | Green with checkmark |
-| Status: Waiting | Grey |
-| Status: Being discussed | Yellow |
-| Status: Answer found, verifying | Blue |
-| Status: Resolved | Green |
-| Status: Sent to admin | Orange |
-| Confidence: Unverified | Grey |
-| Confidence: Community Pick | Yellow |
-| Confidence: High Confidence | Green |
-| Admin dashboard | Dark mode (high-contrast) |
-
-### Typography
-
-- Default font: system sans-serif via Tailwind defaults
-- Heading hierarchy: Tailwind `text-2xl font-bold` → `text-xl font-semibold` → `text-base font-medium`
-- Timestamps and metadata: `text-sm text-gray-500`
-
-### Spacing & Layout Conventions
-
-- Content area max width: `max-w-5xl mx-auto`
-- Sidebar width: fixed, `w-64`
-- Padding: `p-4` for cards, `p-6` for page content
-- Accordion cards: `rounded-lg border border-gray-200 shadow-sm`
-- Status badges: `rounded-full px-2 py-0.5 text-xs font-medium`
-
-### Styling Rules
-
-- **Tailwind CSS throughout** — no inline styles unless:
-  - Dynamic runtime values (e.g., confidence score width bars)
-  - Platform-specific overrides
-  - JS-driven animated transitions
-- Repeated patterns extracted to `@apply` directives in `global.css`
-- No `style={{ }}` props for anything that could be a Tailwind class
-
-### Responsive Behavior
-
-- Desktop: two-column layout (sidebar + main content)
-- Mobile: sidebar collapses; hamburger menu or horizontal chip row for categories
-- Thread rows: stacked vertically, touch-friendly tap targets
-
----
-
-## 16. Tech Stack & Infrastructure
-
-### Frontend
-
-| Layer | Technology | Notes |
-|---|---|---|
-| Framework | React.js (Vite) | Fast HMR; optimized build |
-| Styling | Tailwind CSS | Utility-first; `@apply` for repeated patterns |
-| Routing | React Router v6 | `<Routes>` + auth guards |
-| HTTP | Axios | Single instance; JWT auto-injected via interceptor |
-| Auth UI | `@react-oauth/google` | Google One Tap / button flow |
-| Global state | React Context | Auth state + user prefs (no Redux/Zustand) |
-| Fuzzy search | Fuse.js | Client-side; no backend cost on Page 1 |
-| Search highlight | mark.js | Highlights matched terms in accordion answers |
-| Real-time | socket.io-client | Live status bar |
-| Notifications | react-hot-toast | Non-blocking toast messages |
-| Date logic | date-fns | Phase calculation, relative timestamps |
-| Charts | recharts | Admin cohort pulse heatmap |
-| Icons | Font Awesome | Consistent icon system |
-
-### Approved UI Component & Asset Libraries
-Where ever any asset or library is used, they must ONLY come from the following approved lists:
-
-**UI Component Libraries**
-- **shadcn/ui** (Copy & Paste Registry) - https://shadcn.com
-- **Mantine UI** (Full-Featured Framework) - https://mantine.dev
-- **daisyUI** (Tailwind CSS Plugin) - https://daisyui.com
-- **HeroUI** (React Component Library) - https://heroui.com
-- **Material UI (MUI)** (Enterprise Framework) - https://mui.com
-
-**Assets & Creative Libraries**
-- **UIverse** (Open-Source UI Elements) - https://uiverse.io
-- **Figma Community** (Design Assets & Kits) - https://figma.com
-- **Font Awesome** (Vector Icons) - https://fontawesome.com
-- **Unsplash** (Stock Images) - https://unsplash.com
-- **Google Fonts** (Typography) - https://fonts.google.com
-
-**Images & Placeholders**
-Use **Lorem Picsum** (https://picsum.photos) for any placeholder images.
-
-### Backend
-
-| Layer | Technology | Notes |
-|---|---|---|
-| Runtime | Node.js | |
-| Framework | Express.js | Thin routes; logic in services |
-| Auth | Passport.js + passport-google-oauth20 | OAuth flow |
-| Sessions | jsonwebtoken (JWT) | Stateless; two secrets (cohort + admin) |
-| Real-time | socket.io | Emits status change events |
-| Cron jobs | node-cron | 4 scheduled jobs |
-| Email | Nodemailer | Resolution notifications + admin digest |
-| Security | cors, helmet, express-rate-limit | Standard hardening |
-| Logging | morgan | Request logging |
-| Config | dotenv | Environment variable management |
-
-### Database
-
-| Layer | Technology | Notes |
-|---|---|---|
-| Database | MongoDB (Mongoose ODM) | 6 collections |
-| Hosting | MongoDB Atlas free tier | No cost |
-
-### Hosting
-
-| Service | Platform | Notes |
-|---|---|---|
-| Frontend | Vercel | Free tier; auto-deploy from `main` |
-| Backend | Render | Free tier; may cold-start on inactivity |
-| Database | MongoDB Atlas | Free tier; 512MB storage |
-
-### Strict Library Policy
-
-Do not introduce new major libraries without a documented reason and team approval. All additions must be justified against the existing stack. Default answer is "no new library."
-
----
-
-## 17. Folder Structure & Code Conventions
-
-```
-project/
-├── client/                        ← React frontend (Vite)
-│   ├── src/
-│   │   ├── pages/
-│   │   │   ├── Page1_FAQ.jsx              ← Public FAQ (routes only; composes components)
-│   │   │   ├── Page2_Forum.jsx            ← Whitelisted forum
-│   │   │   ├── Page3_Escalate.jsx         ← Redirect-only escalation form
-│   │   │   └── AdminDashboard.jsx         ← Hidden admin view
-│   │   ├── components/
-│   │   │   ├── SearchBar.jsx              ← Fuse.js + mark.js live search
-│   │   │   ├── AccordionCard.jsx          ← FAQ category + dropdown answers
-│   │   │   ├── FilterTabs.jsx             ← All / Resolved / Unresolved / My Posts
-│   │   │   ├── ThreadRow.jsx              ← Forum list item: vote + title + status badge
-│   │   │   ├── AnswerBlock.jsx            ← Peer answer with confidence badge + flag
-│   │   │   ├── StatusBar.jsx              ← Socket-driven live status display
-│   │   │   ├── ChatbotWidget.jsx          ← Floating Yaksha-mini widget
-│   │   │   ├── DeadlineBanner.jsx         ← "Relevant right now" strip
-│   │   │   ├── ExitConfirmModal.jsx       ← "Did this answer your question?"
-│   │   │   ├── PeerFootnote.jsx           ← 200-char community note under FAQ answer
-│   │   │   ├── CohortPulseChart.jsx       ← Admin heatmap (recharts)
-│   │   │   ├── GapReport.jsx              ← Admin gap signal ranked list
-│   │   │   ├── AdminQueue.jsx             ← Approve / override / answer fresh
-│   │   │   └── Sidebar.jsx                ← Left nav (sticky, category links)
-│   │   ├── context/
-│   │   │   └── AuthContext.jsx            ← Google auth state + whitelist flag
-│   │   ├── hooks/
-│   │   │   ├── useFuzzySearch.js          ← Fuse.js wrapper
-│   │   │   ├── useSocket.js               ← socket.io-client connection/cleanup
-│   │   │   ├── useConfidenceScore.js      ← Read-only score display helper
-│   │   │   └── useDeadlinePhase.js        ← date-fns phase calculator
-│   │   ├── lib/
-│   │   │   ├── axios.js                   ← Axios instance with JWT interceptor
-│   │   │   └── socket.js                  ← socket.io-client singleton
-│   │   ├── constants/
-│   │   │   └── phases.js                  ← Deadline-aware phase config
-│   │   ├── types/
-│   │   │   └── index.ts                   ← FAQEntry, Thread, Answer, User, etc.
-│   │   └── App.jsx                        ← Routes + auth guards
-│
-├── server/                        ← Express backend
-│   ├── routes/
-│   │   ├── faq.js                         ← GET /faqs, POST /faqs/:id/helpful, GET /faqs/search
-│   │   ├── forum.js                       ← CRUD /threads, POST answers, upvote, flag
-│   │   ├── escalate.js                    ← POST /escalate
-│   │   ├── auth.js                        ← Google OAuth callback, JWT issue
-│   │   └── admin.js                       ← Queue, approve, publish, gap report
-│   ├── services/
-│   │   ├── confidenceService.js           ← Score formula + threshold logic
-│   │   ├── similarityService.js           ← Fuse.js server-side dedup
-│   │   ├── gapTracker.js                  ← Nightly aggregation → writes gapScore
-│   │   ├── notificationService.js         ← Nodemailer: resolution email + digest
-│   │   └── cronJobs.js                    ← node-cron: archive, escalation, digest
-│   ├── models/
-│   │   ├── FAQ.js                         ← Mongoose schema only; no logic
-│   │   ├── Thread.js
-│   │   ├── User.js
-│   │   ├── Upvote.js
-│   │   ├── Escalation.js
-│   │   └── Analytics.js
-│   ├── middleware/
-│   │   ├── authMiddleware.js              ← JWT verify + whitelist check
-│   │   └── adminMiddleware.js             ← Admin-only route guard
-│   └── server.js
-│
-└── .env
-```
-
-### Code Conventions
-
-- **Pages** are route-level components only. They compose components and call hooks. Zero business logic inline.
-- **Components** are created only when: used in more than one place, OR make a page significantly easier to read.
-- **Services** hold all backend business logic. Routes are thin — they validate input, call a service, return the response.
-- **Models** are Mongoose schemas only. No methods, no middleware, no business logic inside model files.
-- **TypeScript:** Strict mode on both client and server. No `any`. Shared types in `client/src/types/`. Inline types in server model files.
-
----
-
-## 18. Environment Configuration & Secrets
-
-### Server `.env` (Never committed)
-
-```
-MONGODB_URI=
-JWT_SECRET=
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-EMAIL_USER=
-EMAIL_PASS=
-ADMIN_JWT_SECRET=
-CLIENT_URL=
-```
-
-### Client `.env` (Only two variables; Vite prefix required)
-
-```
-VITE_GOOGLE_CLIENT_ID=
-VITE_API_URL=
-```
-
-### Rules
-
-- No secrets in client code — ever
-- No secrets in `console.log` or error messages
-- JWT decoded client-side for display only; never trusted without backend verification
-- `userHash` in analytics = `sha256(email)` — raw email never stored in `db.analytics`
-
----
-
-## 19. Build Order & MVP Sequence
-
-Build strictly in this order. Do not skip ahead. Each step depends on the previous.
-
-| # | Feature | Key Files |
-|---|---|---|
-| 1 | MongoDB models + Express server skeleton | All 6 schemas, basic routes returning `[]` |
-| 2 | Google OAuth + whitelist middleware | `auth.js`, `authMiddleware.js`, `AuthContext.jsx` |
-| 3 | Page 1 static FAQ | `AccordionCard`, `Sidebar`, `FilterTabs`, seeded FAQ data |
-| 4 | Fuse.js search + mark.js highlight | `SearchBar.jsx`, `useFuzzySearch.js` |
-| 5 | Deadline banner + phases config | `useDeadlinePhase.js`, `DeadlineBanner.jsx`, `phases.js` |
-| 6 | Chatbot widget | `ChatbotWidget.jsx` — search fallback + redirect |
-| 7 | Exit confirmation modal | `ExitConfirmModal.jsx` — 15s timer + analytics events |
-| 8 | Page 2 forum feed | `ThreadRow`, `FilterTabs`, Ask a Question modal |
-| 9 | Upvoting + flag system | `forum.js` routes, `Upvote` model, compound index |
-| 10 | Confidence score engine | `confidenceService.js`, `AnswerBlock` badge display |
-| 11 | Similarity dedup | `similarityService.js` on POST `/threads` |
-| 12 | Status bar + socket.io | `useSocket.js`, `StatusBar.jsx`, server emit |
-| 13 | Resolution email + notification toggle | `notificationService.js`, `subscribers[]`, pref toggle |
-| 14 | node-cron jobs | `cronJobs.js` — archive, escalation, digest |
-| 15 | Page 3 escalation form | `Page3_Escalate.jsx`, redirect guard, `escalate.js` |
-| 16 | Admin dashboard | `AdminQueue`, `CohortPulseChart`, `GapReport`, publish flows |
-| 17 | Peer footnote pipeline | Submission trigger, admin 1-click approve, Page 1 display |
-| 18 | "N interns found this helpful" counter | `helpfulCount` on `db.faqs`, display in `AccordionCard` |
-| 19 | Leaderboard | Weekly aggregation, Page 2 sidebar strip |
-| 20 | Gap tracker nightly job | `gapTracker.js`, `GapReport` component in admin |
-
----
-
-## 20. Non-Goals & Hard Constraints
-
-These are **firm constraints** — not subject to re-evaluation during development:
-
-| Constraint | Rationale |
-|---|---|
-| **Zero generative AI** | No LLMs draft answers. Every FAQ entry is human-approved. No hallucination risk in an official document. |
-| **Zero file uploads** | Text only at every layer. No images, no attachments. Simplifies security, storage, and moderation. |
-| **Free hosting throughout** | Vercel + Render + MongoDB Atlas free tier. No paid services. |
-| **Community-first triage** | Admin must never see raw, unfiltered questions. Every admin queue item has passed peer review or exhausted it. |
-| **Admin reviews outcomes, not noise** | Daily digest only. No real-time admin pings. |
-| **No Redux or Zustand** | React Context is sufficient at this scale. No state management library bloat. |
-| **No new major libraries without approval** | Every addition must justify its cost in bundle size, maintenance burden, and learning curve. |
-| **TypeScript strict mode, no `any`** | Both client and server. Enforced at lint time. |
-
----
-
-## 21. Open Questions & Future Considerations
-
-### Open Questions (To resolve before or during build)
-
-- Should multiple accordion items be open simultaneously on Page 1, or only one at a time per category?
-- Leaderboard scoring formula: is `contributionScore` accumulated over the full cohort, or reset weekly for the Page 2 strip?
-- Peer footnote submission: should the high-confidence answer's author be notified that their answer was selected as a footnote candidate, or should it happen silently?
-- Admin whitelist management: is there a UI for adding/removing whitelisted emails, or is it seeded directly in the database?
-- On Render free tier cold-starts (≥30s): should there be a frontend "warming" indicator or a backend keep-alive ping?
-
-### Future Considerations (Post-MVP, Not in V1)
-
-- Mobile app version (PWA or React Native)
-- Bulk FAQ import from a spreadsheet (admin upload once per cohort cycle)
-- Multi-cohort support (separate namespaced FAQ/forum per cohort year)
-- Voting on FAQ entries directly (not just forum threads) to surface "most helpful" answers
-- Search analytics dashboard visible to cohort reps, not just admin
-- Automated phase config updates (admin UI to edit `phases.js` without a code deploy)
-- Rate limiting per user on POST `/threads` and POST `/answers` to prevent spam
-
----
-
-*This PRD is the single source of truth for Yaksha FAQ Platform V1. All feature decisions, edge cases, and implementation details should be resolved against this document. When in doubt, re-read Section 20 (Non-Goals) before adding complexity.*
+| `'upvote'` | Positive vote (question or answer) |
+| `'downvote'` | Negative vote on an answer (replaces `'flag'` for answers) |
+| `'flag'` | Flag a question as spam/inappropriate (questions only) |
+
+**Display:** Each answer card shows `↑ N  ↓ M` vote counts. The threshold for auto-hiding an answer remains 3 downvotes (formerly "flags").
