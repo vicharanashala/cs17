@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const QueryCache = require('../models/QueryCache');
 const CacheVote = require('../models/CacheVote');
 const QueryVote = require('../models/QueryVote');
+const Notification = require('../models/Notification');
+const User = require('../models/User');
 const authStudent = require('../middleware/authStudent');
 
 // ─── GET /api/cache/top5 — Genie: top 5 most upvoted from 15-day cache ──────
@@ -134,6 +136,18 @@ router.post('/:cacheId/vote', authStudent, async (req, res) => {
         // Auto-hide if flags exceed threshold
         if (updated.flags > 3) {
           await QueryCache.findByIdAndUpdate(entry._id, { isHidden: true });
+
+          // Penalise answerer: -1 confidence, notify answerer
+          if (entry.answeredBy) {
+            const answererId = typeof entry.answeredBy === 'object' ? entry.answeredBy._id : entry.answeredBy;
+            await User.findByIdAndUpdate(answererId, { $inc: { confidenceScore: -1 } });
+            await Notification.create({
+              notifiedUser: answererId,
+              type: 'answer_flagged',
+              queryId: entry.queryId,
+              message: 'Your answer was flagged and removed.',
+            });
+          }
         }
       }
     }
