@@ -28,7 +28,7 @@ const querySchema = new mongoose.Schema(
     // rejected    → admin rejected
     adminStatus: {
       type: String,
-      enum: ['pending', 'in_progress', 'answered', 'rejected'],
+      enum: ['pending', 'seen', 'in_progress', 'answered', 'rejected'],
       default: 'pending',
     },
 

@@ -230,6 +230,24 @@ router.patch('/queries/:id/approve-trusted', authAdmin, async (req, res) => {
   }
 });
 
+// ─── PATCH /api/admin/queries/:id/mark-seen — Mark query as seen ────────────
+router.patch('/queries/:id/mark-seen', authAdmin, async (req, res) => {
+  try {
+    const query = await Query.findById(req.params.id);
+    if (!query) return res.status(404).json({ error: 'Query not found.' });
+    if (query.adminStatus !== 'pending') {
+      return res.status(400).json({ error: 'Only pending queries can be marked as seen.' });
+    }
+
+    query.adminStatus = 'seen';
+    await query.save();
+
+    res.json({ message: 'Query marked as seen.' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to mark as seen.' });
+  }
+});
+
 // ─── PATCH /api/admin/queries/:id/override-answer — Override trusted answer ─
 router.patch('/queries/:id/override-answer', authAdmin, async (req, res) => {
   try {

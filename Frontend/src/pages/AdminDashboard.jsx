@@ -128,6 +128,12 @@ function QueryDrawer({ query, onClose, onRefresh }) {
         {/* Action buttons */}
         <div className="p-5 border-b border-admin-border flex gap-2 flex-wrap">
           {query.adminStatus === 'pending' && (
+            <button onClick={() => act('mark-seen')} disabled={loading}
+              className="px-3 py-1.5 bg-admin-bg border border-admin-border text-amber-400 font-body-sm text-body-sm rounded-lg hover:border-amber-400 transition-colors">
+              Mark as Seen
+            </button>
+          )}
+          {(query.adminStatus === 'seen' || query.adminStatus === 'pending') && (
             <button onClick={() => act('mark-progress')} disabled={loading}
               className="px-3 py-1.5 bg-admin-bg border border-admin-border text-ink-200 font-body-sm text-body-sm rounded-lg hover:border-primary hover:text-primary transition-colors">
               Mark In Progress
@@ -212,11 +218,12 @@ function QueryDrawer({ query, onClose, onRefresh }) {
 
 // ── Status Tab Button ───────────────────────────────────────────────────────
 const STATUS_TABS = [
-  { key: 'pending',     label: 'Pending',     color: 'text-status-open' },
-  { key: 'in_progress', label: 'In Progress', color: 'text-status-verifying' },
-  { key: 'answered',    label: 'Answered',    color: 'text-conf-high' },
-  { key: 'rejected',    label: 'Rejected',    color: 'text-error' },
-  { key: 'all',         label: 'All',         color: 'text-ink-400' },
+  { key: 'pending',     label: 'Pending',      color: 'text-status-open' },
+  { key: 'seen',        label: 'Under Review', color: 'text-status-verifying' },
+  { key: 'in_progress', label: 'In Progress',  color: 'text-status-verifying' },
+  { key: 'answered',    label: 'Answered',     color: 'text-conf-high' },
+  { key: 'rejected',    label: 'Rejected',     color: 'text-error' },
+  { key: 'all',         label: 'All',          color: 'text-ink-400' },
 ];
 
 // ── Main Dashboard ─────────────────────────────────────────────────────────
