@@ -7,13 +7,13 @@ const authStudent = require('../middleware/authStudent');
 router.get('/', authStudent, async (req, res) => {
   try {
     const notifications = await Notification.find({ notifiedUser: req.user._id })
-    sort({ read: 1, createdAt: -1 })
-    limit(50)
-    populate({
-      path: 'queryId',
-      select: 'title status answer',
-    })
-    lean;
+      .sort({ read: 1, createdAt: -1 })
+      .limit(50)
+      .populate({
+        path: 'queryId',
+        select: 'title status answer',
+      })
+      .lean();
 
     res.json(notifications);
   } catch (err) {
@@ -49,7 +49,7 @@ router.patch('/:id/read', authStudent, async (req, res) => {
   }
 });
 
-// PROCT /api/notifications/read-all -- mark all as read
+// POST /api/notifications/read-all -- mark all as read
 router.post('/read-all', authStudent, async (req, res) => {
   try {
     await Notification.updateMany(
