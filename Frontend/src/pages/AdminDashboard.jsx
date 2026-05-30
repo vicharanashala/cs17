@@ -234,6 +234,7 @@ export default function AdminDashboard() {
   const [total, setTotal] = useState(0);
   const [statusTab, setStatusTab] = useState('pending');
   const [search, setSearch] = useState('');
+  const [sort, setSort] = useState('oldest');
   const [page, setPage] = useState(1);
   const [loadingQ, setLoadingQ] = useState(false);
   const [selected, setSelected] = useState(null);
@@ -250,7 +251,7 @@ export default function AdminDashboard() {
   const fetchQueries = async () => {
     setLoadingQ(true);
     try {
-      const params = new URLSearchParams({ status: statusTab, page, limit: 20 });
+      const params = new URLSearchParams({ status: statusTab, page, limit: 20, sort });
       if (search) params.set('search', search);
       const r = await api2.get(`/admin/queries?${params}`);
       setQueries(r.data.queries);
@@ -262,7 +263,7 @@ export default function AdminDashboard() {
     }
   };
 
-  useEffect(() => { if (admin) fetchQueries(); }, [admin, statusTab, page, search]);
+  useEffect(() => { if (admin) fetchQueries(); }, [admin, statusTab, page, search, sort]);
 
   const fetchUsers = async () => {
     const r = await api2.get('/admin/users');
@@ -343,6 +344,15 @@ export default function AdminDashboard() {
                   className="w-full pl-10 pr-4 py-2 bg-admin-surface border border-admin-border rounded-xl font-body-sm text-body-sm text-ink-50 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-primary/40"
                 />
               </div>
+              <select value={sort} onChange={(e) => { setSort(e.target.value); setPage(1); }}
+                className="px-3 py-2 bg-admin-surface border border-admin-border text-ink-200 font-body-sm text-body-sm rounded-xl cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/40">
+                <option value="oldest">Oldest first</option>
+                <option value="newest">Newest first</option>
+                <option value="most-voted">Most voted</option>
+                <option value="least-voted">Least voted</option>
+                <option value="updated">Recently updated</option>
+                <option value="alpha">A → Z</option>
+              </select>
               <p className="font-label-mono text-label-mono text-ink-400">{total} total</p>
             </div>
 
