@@ -103,6 +103,8 @@ app.use('/api/faqs',        postLimiter,       require('./routes/faq'));
 app.use('/api/auth',                           require('./routes/auth'));
 app.use('/api/admin/auth',                     require('./routes/admin.auth'));
 app.use('/api/categories',                     require('./routes/categories'));
+app.use('/api/upload',                          require('./routes/upload'));
+app.use('/uploads',                              express.static(path.join(__dirname, 'uploads')));
 app.use('/api/queries',                        require('./routes/queries'));
 app.use('/api/similarity',  similarityLimiter, require('./routes/similarity'));
 app.use('/api/cache',                          require('./routes/cache'));
