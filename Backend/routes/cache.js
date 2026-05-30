@@ -82,9 +82,18 @@ router.post('/:cacheId/vote', authStudent, async (req, res) => {
       return res.status(400).json({ error: 'Invalid cache entry ID.' });
     }
 
-    const entry = await QueryCache.findById(req.params.cacheId);
+    const entry = await QueryCache.findById(req.params.cacheId)
+      .populate('queryId', 'submittedBy');
     if (!entry) return res.status(404).json({ error: 'Cache entry not found.' });
     if (entry.isHidden) return res.status(400).json({ error: 'This entry has been hidden.' });
+
+    // Prevent voting on own content
+    if (target === 'question' && entry.queryId?.submittedBy?.toString() === req.user._id.toString()) {
+      return res.status(400).json({ error: "You can't vote on your own question." });
+    }
+    if (target === 'answer' && entry.answeredBy && entry.answeredBy.toString() === req.user._id.toString()) {
+      return res.status(400).json({ error: "You can't vote on your own answer." });
+    }
 
     // Check if already voted on this target
     const existing = await CacheVote.findOne({
