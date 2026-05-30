@@ -216,6 +216,14 @@ router.patch('/queries/:id/approve-trusted', authAdmin, async (req, res) => {
       await User.findByIdAndUpdate(query.answeredBy._id, { $inc: { confidenceScore: 1 } });
     }
 
+    // Back-populate answeredBy on cache so flag penalty works if answer is later removed
+    if (query.answeredByModel === 'User' && query.answeredBy) {
+      await QueryCache.findOneAndUpdate(
+        { queryId: query._id },
+        { answer: query.answer, answerStatus: 'answered', answeredBy: query.answeredBy._id }
+      );
+    }
+
     res.json({ message: 'Trusted answer approved. +1 confidence point awarded.' });
   } catch (err) {
     res.status(500).json({ error: 'Failed to approve answer.' });

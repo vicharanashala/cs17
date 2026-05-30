@@ -9,6 +9,7 @@ const queryCacheSchema = new mongoose.Schema(
     upvotes: { type: Number, default: 0 },
     flags: { type: Number, default: 0 },
     isHidden: { type: Boolean, default: false }, // auto-hidden when flags > 3
+    answeredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     // TTL: MongoDB auto-deletes this document when expiresAt is reached
     expiresAt: { type: Date, required: true },
   },

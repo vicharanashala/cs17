@@ -53,7 +53,7 @@ router.post('/:queryId', authStudent, async (req, res) => {
       // Update cache
       await QueryCache.findOneAndUpdate(
         { queryId: query._id },
-        { answer: answer.trim(), answerStatus: 'answered' }
+        { answer: answer.trim(), answerStatus: 'answered', answeredBy: req.user._id }
       );
 
       // Notify all interested students
