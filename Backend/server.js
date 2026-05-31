@@ -8,7 +8,8 @@ const dotenv = require('dotenv');
 const path = require('path');
 const rateLimit = require('express-rate-limit');
 const cron = require('node-cron');
-const QueryCache = require('./models/QueryCache');
+const { sendAdminDigest } = require('./services/emailDigest');
+
 
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
@@ -166,6 +167,15 @@ mongoose.connect(MONGODB_URI, {
           console.error('❌ Cache sweep error:', err.message);
         }
       });
+
+      // [digest] Daily admin digest - 08:00 IST every day
+      cron.schedule(
+        '0 8 * * *',
+        async () => { await sendAdminDigest(); },
+        { timezone: 'Asia/Calcutta' }
+      );
+      console.log('[digest] Admin digest cron scheduled for 08:00 IST daily');
+
     });
   })
   .catch((err) => {
