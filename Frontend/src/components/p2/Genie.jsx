@@ -37,6 +37,23 @@ function QuestionCard({ entry, onVote, votedIds }) {
             <div className="mt-2 pt-2 border-t border-ink-100">
               <p className="font-label-mono text-label-mono text-conf-high uppercase mb-1">Answer</p>
               <p className="font-body-sm text-body-sm text-ink-700 line-clamp-2">{entry.answer}</p>
+              {/* Answer vote buttons */}
+              <div className="flex items-center gap-3 mt-2">
+                <button
+                  onClick={() => onVote(entry._id, 'upvote', 'answer')}
+                  className="flex items-center gap-1 text-sm text-ink-400 hover:text-amber-600 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-base">thumb_up</span>
+                  <span>{entry.answerUpvotes || 0}</span>
+                </button>
+                <button
+                  onClick={() => onVote(entry._id, 'flag', 'answer')}
+                  className="flex items-center gap-1 text-sm text-ink-400 hover:text-red-500 transition-colors"
+                  title="Flag this answer"
+                >
+                  <span className="material-symbols-outlined text-base">flag</span>
+                </button>
+              </div>
             </div>
           )}
           {!entry.answer && (
@@ -104,9 +121,9 @@ export default function Genie({ onSwitchToRaise }) {
     return () => clearTimeout(t);
   }, [searchQuery]);
 
-  const handleVote = async (cacheId, voteType) => {
+  const handleVote = async (cacheId, voteType, target = 'question') => {
     try {
-      await api2.post(`/cache/${cacheId}/vote`, { target: 'question', voteType });
+      await api2.post(`/cache/${cacheId}/vote`, { target, voteType });
       setVotedIds((prev) => {
         const next = new Set(prev);
         const key = `${cacheId}_${voteType}`;
