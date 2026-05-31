@@ -20,6 +20,7 @@ export default function MyQueryCard({ query, onDelete, onUpdated }) {
   const [editOpen, setEditOpen] = useState(false);
 
   const createdAt = new Date(query.createdAt).getTime();
+  const isPending = query.status === 'posted' || query.status === 'in_progress';
 
   // Live countdown: ticks every second while window is open
   useEffect(() => {
@@ -31,6 +32,19 @@ export default function MyQueryCard({ query, onDelete, onUpdated }) {
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, [createdAt]);
+
+  // ETR: only shown for pending queries
+  const [etr, setEtr] = useState('');
+  useEffect(() => {
+    if (!isPending) return;
+    api2.get('/stats').then((r) => {
+      if (r.data.pendingCount === 0) {
+        setEtr('Usually answered within the day');
+      } else {
+        setEtr(`~≈${r.data.estimatedHours} hour${r.data.estimatedHours === 1 ? '' : 's'} ahead`);
+      }
+    }).catch(() => {});
+  }, [isPending]);
 
   const canEdit = countdown !== null;
 
@@ -69,6 +83,12 @@ export default function MyQueryCard({ query, onDelete, onUpdated }) {
             <div className="mt-3">
               <QueryStatusTracker status={query.status} rejectionReason={query.rejectionReason} />
             </div>
+            {isPending && etr && (
+              <p className="mt-2 font-body-sm text-body-sm text-ink-400 flex items-center gap-1">
+                <span className="material-symbols-outlined text-base">schedule</span>
+                {etr}
+              </p>
+            )}
 
             {query.answer && (
               <div className="mt-3 p-3 bg-surface-container rounded-lg border border-outline-variant">

@@ -19,6 +19,7 @@ export default function RaiseQuery({ user }) {
   const [error, setError] = useState('');
   const [images, setImages] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const [stats, setStats] = useState({ label: '' });
   const draftTimerRef = useRef(null);
 
   // Load categories, draft, my queries
@@ -26,6 +27,11 @@ export default function RaiseQuery({ user }) {
     api2.get('/categories').then((r) => setCategories(r.data));
     api2.get('/drafts/mine').then((r) => setDraft(r.data)).catch(() => {});
     api2.get('/queries/mine').then((r) => setMyQueries(r.data)).catch(() => {});
+  }, []);
+
+  // Load queue stats for ETR display
+  useEffect(() => {
+    api2.get('/stats').then((r) => setStats(r.data)).catch(() => {});
   }, []);
 
   // Auto-save draft every 30s
@@ -261,6 +267,12 @@ export default function RaiseQuery({ user }) {
         {success && (
           <div className="px-3 py-2 bg-surface-container border border-conf-high/20 rounded-lg">
             <p className="font-body-sm text-body-sm text-conf-high">{success}</p>
+            {stats.label && (
+              <p className="font-body-sm text-body-sm text-ink-400 mt-1 flex items-center gap-1">
+                <span className="material-symbols-outlined text-base">schedule</span>
+                {stats.label}
+              </p>
+            )}
           </div>
         )}
 
