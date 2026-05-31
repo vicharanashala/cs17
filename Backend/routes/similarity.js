@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Query = require('../models/Query');
+const FAQ = require('../models/FAQ');
 const authStudent = require('../middleware/authStudent');
 const { isSimilar } = require('../services/similarity');
 
@@ -22,6 +23,28 @@ router.post('/scan', authStudent, async (req, res) => {
     }
 
     const trimmedTitle = title.trim();
+
+    // Fetch all FAQs for comparison (collection is small — admin-managed)
+    const faqs = await FAQ.find({}).lean();
+
+    const faqMatches = [];
+    for (const faq of faqs) {
+      const result = isSimilar(trimmedTitle, faq.question, null, null);
+      if (!result.similar) continue;
+      if (faqMatches.length < 3) {
+        faqMatches.push({
+          _id: faq._id,
+          question: faq.question,
+          answer: faq.answer,
+          category: faq.category,
+          sectionId: faq.sectionId,
+          displayNumber: faq.displayNumber,
+          similarity: result,
+        });
+      }
+    }
+    // Sort by score descending
+    faqMatches.sort((a, b) => b.similarity.score - a.similarity.score);
 
     // Fetch recent non-deleted, non-rejected queries for comparison
     // Limit to last 500 for performance (free tier)
@@ -76,7 +99,7 @@ router.post('/scan', authStudent, async (req, res) => {
     }
 
     res.json({
-      faqMatches: [], // TODO: query Page 1 FAQ collection after DB integration
+      faqMatches,
       communityMatches,
       selfDuplicate,
     });
