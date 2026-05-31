@@ -134,7 +134,11 @@ function QueryDrawer({ query, onClose, onRefresh }) {
         {query.answer && (
           <div className="p-5 border-b border-admin-border">
             <p className="font-label-mono text-label-mono text-ink-400 uppercase mb-2">
-              {query.isTrustedAnswer ? 'Community Answer (Trusted User)' : 'Answer'}
+              {query.isTrustedAnswer && query.askerSatisfied === false
+                ? 'Community answer — official review requested'
+                : query.isTrustedAnswer
+                ? 'Community Answer (Trusted User)'
+                : 'Answer'}
             </p>
             <p className="font-body-sm text-body-sm text-ink-200">{query.answer}</p>
             {query.askerSatisfied === false && (
