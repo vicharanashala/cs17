@@ -242,6 +242,16 @@ router.patch('/queries/:id/mark-seen', authAdmin, async (req, res) => {
     query.adminStatus = 'seen';
     await query.save();
 
+    // Notify asker if this query was escalated (asker clicked "Not Satisfied")
+    if (query.askerSatisfied === false) {
+      await Notification.create({
+        notifiedUser: query.submittedBy,
+        type: 'escalation_acked',
+        queryId: query._id,
+        message: 'Your escalated query has been acknowledged and is being reviewed by the admin.',
+      });
+    }
+
     res.json({ message: 'Query marked as seen.' });
   } catch (err) {
     res.status(500).json({ error: 'Failed to mark as seen.' });
