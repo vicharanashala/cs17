@@ -5,7 +5,7 @@ const querySchema = new mongoose.Schema(
     title: { type: String, required: true, maxlength: 500, trim: true },
     category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
     submittedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    screenshotUrl: { type: String, default: null },
+    screenshotUrls: { type: [String], default: [] },
     tags: { type: [String], default: [] },
 
     // ── Student-facing status (drives the 3-stage tracker) ─────────────────

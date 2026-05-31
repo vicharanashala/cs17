@@ -8,6 +8,7 @@ const queryCacheSchema = new mongoose.Schema(
     answerStatus: { type: String, enum: ['pending', 'answered'], default: 'pending' },
     upvotes: { type: Number, default: 0 },
     flags: { type: Number, default: 0 },
+    screenshotUrls: { type: [String], default: [] }, // denormalised from Query at cache creation time
     isHidden: { type: Boolean, default: false }, // auto-hidden when flags > 3
     answeredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     // TTL: MongoDB auto-deletes this document when expiresAt is reached

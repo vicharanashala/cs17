@@ -14,7 +14,7 @@ const CACHE_TTL_DAYS = 15;
 // ─── POST /api/queries — Submit a new query ─────────────────────────────────
 router.post('/', authStudent, async (req, res) => {
   try {
-    const { title, category, tags = [], notifyEmail = true } = req.body;
+    const { title, category, tags = [], notifyEmail = true, screenshotUrls = [] } = req.body;
 
     if (!title || title.trim().length < 5) {
       return res.status(400).json({ error: 'Question must be at least 5 characters.' });
@@ -90,6 +90,7 @@ router.post('/', authStudent, async (req, res) => {
       submittedBy: req.user._id,
       tags: tags.slice(0, 5).map((t) => t.toLowerCase().replace(/\s+/g, '-').replace(/^#/, '')),
       notifyEmail,
+      screenshotUrls: screenshotUrls.slice(0, 5),
       status: 'posted',
       adminStatus: 'pending',
       voteCount: 1,
@@ -102,6 +103,7 @@ router.post('/', authStudent, async (req, res) => {
       title: newQuery.title,
       answerStatus: 'pending',
       expiresAt,
+      screenshotUrls: screenshotUrls.slice(0, 5),
     });
 
     // Register submitter as first voter

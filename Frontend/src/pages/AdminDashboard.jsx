@@ -112,6 +112,24 @@ function QueryDrawer({ query, onClose, onRefresh }) {
           </div>
         )}
 
+        {/* Screenshots */}
+        {(query.screenshotUrls?.length > 0) && (
+          <div className="px-5 py-3 border-b border-admin-border">
+            <p className="font-label-mono text-label-mono text-ink-400 uppercase mb-2">Screenshots</p>
+            <div className="flex gap-2 flex-wrap">
+              {query.screenshotUrls.map((url, i) => (
+                <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+                  <img
+                    src={url}
+                    alt={`Screenshot ${i + 1}`}
+                    className="h-20 w-auto rounded-lg border border-admin-border object-cover hover:border-primary transition-colors cursor-pointer"
+                  />
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Existing answer */}
         {query.answer && (
           <div className="p-5 border-b border-admin-border">
