@@ -22,12 +22,6 @@ const NOTIF_LABELS = {
   escalation_acked:  'Your escalation was acknowledged',
 };
 
-function TierBadge({ confidence }) {
-  if (confidence >= 10) return <span className="font-label-mono text-label-mono text-amber-600">★ Expert</span>;
-  if (confidence >= 3) return <span className="font-label-mono text-label-mono text-conf-high">Trusted</span>;
-  return <span className="font-label-mono text-label-mono text-ink-400">New</span>;
-}
-
 export default function TopNavBar({ active, user }) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
