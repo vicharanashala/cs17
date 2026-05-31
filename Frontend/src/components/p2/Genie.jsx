@@ -13,10 +13,13 @@ function ConfidenceBadge({ tier }) {
   return null;
 }
 
-function QuestionCard({ entry, onVote, votedIds }) {
+function QuestionCard({ entry, onVote, onNotify, votedIds, user }) {
   const q = entry.queryId;
   if (!q) return null;
   const hasVoted = votedIds.has(entry._id);
+  const hasVotedNotify = votedIds.has(`${entry._id}_notify`);
+  const isAsker = entry.queryId?.submittedBy?._id?.toString() === user?._id?.toString();
+  const isUnanswered = !entry.answer;
 
   return (
     <div className="bg-surface border border-ink-100 rounded-xl p-4 hover:border-outline-variant transition-colors">
@@ -71,10 +74,25 @@ function QuestionCard({ entry, onVote, votedIds }) {
                 ? 'border-primary bg-blue-100 text-primary'
                 : 'border-ink-200 hover:border-primary hover:bg-blue-100 text-ink-400 hover:text-primary'
             }`}
+            title={hasVoted ? 'Remove upvote' : 'Upvote'}
           >
             <span className="material-symbols-outlined text-lg">arrow_upward</span>
             <span className="font-label-mono text-label-mono">{entry.upvotes}</span>
           </button>
+          {/* Notify me — only for unanswered, non-askers */}
+          {isUnanswered && !isAsker && (
+            <button
+              onClick={() => onNotify(entry._id)}
+              className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg border transition-all ${
+                hasVoted || hasVotedNotify
+                  ? 'border-amber-400 bg-amber-50 text-amber-600'
+                  : 'border-ink-200 hover:border-amber-400 hover:bg-amber-50 text-ink-400 hover:text-amber-600'
+              }`}
+              title={hasVotedNotify ? 'Unsubscribe from notifications' : 'Notify me when answered'}
+            >
+              <span className="material-symbols-outlined text-lg">notifications</span>
+            </button>
+          )}
           {/* Flag */}
           <button
             onClick={() => onVote(entry._id, 'flag')}
@@ -89,7 +107,7 @@ function QuestionCard({ entry, onVote, votedIds }) {
   );
 }
 
-export default function Genie({ onSwitchToRaise }) {
+export default function Genie({ user, onSwitchToRaise }) {
   const [top5, setTop5] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -141,7 +159,24 @@ export default function Genie({ onSwitchToRaise }) {
         else next.add(key);
         return next;
       });
-      // Refresh top5
+      const r = await api2.get('/cache/top5');
+      setTop5(r.data);
+    } catch (err) {
+      if (err?.response?.status === 401) setError('Please log in to vote.');
+    }
+  };
+
+  // Register interest only (notify me) — does NOT upvote, only registers for notification
+  const handleNotify = async (cacheId) => {
+    try {
+      await api2.post(`/cache/${cacheId}/vote`, { target: 'question', voteType: 'notify' });
+      setVotedIds((prev) => {
+        const next = new Set(prev);
+        const key = `${cacheId}_notify`;
+        if (next.has(key)) next.delete(key);
+        else next.add(key);
+        return next;
+      });
       const r = await api2.get('/cache/top5');
       setTop5(r.data);
     } catch (err) {
@@ -219,7 +254,9 @@ export default function Genie({ onSwitchToRaise }) {
                 key={entry._id}
                 entry={entry}
                 onVote={handleVote}
+                onNotify={handleNotify}
                 votedIds={votedIds}
+                user={user}
               />
             ))}
           </div>
