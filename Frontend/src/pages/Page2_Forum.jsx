@@ -215,7 +215,7 @@ export default function Page2_Forum() {
 
             {/* Tab content */}
             {activeTab === 'genie' && (
-              <Genie onSwitchToRaise={() => setActiveTab('raise')} />
+              <Genie user={user} onSwitchToRaise={() => setActiveTab('raise')} />
             )}
             {activeTab === 'raise' && (
               <RaiseQuery user={user} />
