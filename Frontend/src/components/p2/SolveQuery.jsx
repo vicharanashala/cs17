@@ -13,6 +13,9 @@ function QuestionRow({ entry, user, onAnswered }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [voted, setVoted] = useState(null); // null | 'upvote' | 'flag'
+  const [localUpvotes, setLocalUpvotes] = useState(entry.upvotes);
+  const [voting, setVoting] = useState(false);
   const q = entry.queryId;
   if (!q) return null;
 
@@ -35,6 +38,31 @@ function QuestionRow({ entry, user, onAnswered }) {
     }
   };
 
+  const handleVote = async (voteType) => {
+    if (voting || isOwn) return;
+    setVoting(true);
+    try {
+      await api2.post(`/cache/${entry._id}/vote`, { target: 'question', voteType });
+      if (voted === voteType) {
+        // Toggle off
+        setVoted(null);
+        setLocalUpvotes((n) => n - 1);
+      } else if (voted === null) {
+        // New vote
+        setVoted(voteType);
+        setLocalUpvotes((n) => n + 1);
+      } else {
+        // Switch: flag->upvote or upvote->flag
+        setVoted(voteType);
+        // upvotes: flag(-1) + upvote(+1) = net 0, handled by backend; don't touch local
+      }
+    } catch (err) {
+      // Silently fail — vote state stays as-is
+    } finally {
+      setVoting(false);
+    }
+  };
+
   return (
     <div className="bg-surface border border-ink-100 rounded-xl overflow-hidden">
       <button
@@ -51,11 +79,33 @@ function QuestionRow({ entry, user, onAnswered }) {
             ))}
           </div>
           <p className="font-body-md text-body-md font-medium text-ink-900">{q.title}</p>
-          <p className="font-label-mono text-label-mono text-ink-400 mt-1">{entry.upvotes} vote{entry.upvotes !== 1 ? 's' : ''}</p>
+          <p className="font-label-mono text-label-mono text-ink-400 mt-1">{localUpvotes} vote{localUpvotes !== 1 ? 's' : ''}</p>
         </div>
-        <span className={`material-symbols-outlined text-ink-400 text-lg shrink-0 mt-0.5 transition-transform ${expanded ? 'rotate-180' : ''}`}>
-          expand_more
-        </span>
+        <div className="flex items-center gap-1 shrink-0 mt-0.5">
+          {!isOwn && (
+            <>
+              <button
+                onClick={(e) => { e.stopPropagation(); handleVote('upvote'); }}
+                disabled={voting}
+                className={`p-1 rounded transition-colors ${voted === 'upvote' ? 'bg-amber-100 text-amber-600' : 'text-ink-300 hover:text-amber-500'}`}
+                title="Upvote"
+              >
+                <span className="material-symbols-outlined text-base">thumb_up</span>
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); handleVote('flag'); }}
+                disabled={voting}
+                className={`p-1 rounded transition-colors ${voted === 'flag' ? 'bg-red-100 text-red-500' : 'text-ink-300 hover:text-red-400'}`}
+                title="Flag"
+              >
+                <span className="material-symbols-outlined text-base">flag</span>
+              </button>
+            </>
+          )}
+          <span className={`material-symbols-outlined text-ink-400 text-lg transition-transform ${expanded ? 'rotate-180' : ''}`}>
+            expand_more
+          </span>
+        </div>
       </button>
 
       {expanded && (
