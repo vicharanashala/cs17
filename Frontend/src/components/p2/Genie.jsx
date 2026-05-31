@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import api2 from '../../lib/axiosP2';
-import { formatDistanceToNow } from 'date-fns';
+
+import { onSocketEvent } from '../../lib/socket';
 
 function ConfidenceBadge({ tier }) {
   if (tier === 'expert') return (
@@ -103,6 +104,15 @@ export default function Genie({ onSwitchToRaise }) {
       .catch(() => setError('Failed to load top questions.'))
       .finally(() => setLoadingTop5(false));
   }, []);
+
+  // Live: refresh top5 when a new query is submitted by anyone
+  useEffect(() => {
+    const cleanup = onSocketEvent('query:new', () => {
+      api2.get('/cache/top5').then((r) => setTop5(r.data)).catch(() => {});
+    });
+    return cleanup;
+  }, []);
+
 
   // Debounced search
   useEffect(() => {

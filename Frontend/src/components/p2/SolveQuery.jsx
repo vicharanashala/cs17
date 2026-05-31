@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api2 from '../../lib/axiosP2';
+import { onSocketEvent } from '../../lib/socket';
 
 function TierBadge({ score }) {
   if (score >= 10) return <span className="font-label-mono text-label-mono text-conf-high bg-surface-container px-2 py-0.5 rounded-full">★★★ Expert</span>;
@@ -30,7 +31,7 @@ function QuestionRow({ entry, user, onAnswered }) {
       const res = await api2.post(`/answers/${q._id}`, { answer: answer.trim() });
       setSuccess(res.data.message);
       setAnswer('');
-      if (res.data.posted) onAnswered(entry._id);
+      if (res.data.posted) onAnswered(entry._id, entry.queryId?._id);
     } catch (err) {
       setError(err?.response?.data?.error || 'Failed to submit. Try again.');
     } finally {
@@ -143,18 +144,29 @@ function QuestionRow({ entry, user, onAnswered }) {
 
 export default function SolveQuery({ user }) {
   const [questions, setQuestions] = useState([]);
+  const queryIdToCacheId = useRef({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     api2.get('/cache/unanswered')
-      .then((r) => setQuestions(r.data))
+      .then((r) => { const data = r.data; data.forEach(e => { if (e.queryId?._id) queryIdToCacheId.current[e.queryId._id] = e._id; }); setQuestions(data); })
       .catch(() => setError('Failed to load questions.'))
       .finally(() => setLoading(false));
   }, []);
 
-  const handleAnswered = (cacheId) => {
+  // Live: remove from unanswered list when a query gets answered
+  useEffect(() => {
+    const cleanup = onSocketEvent('query:answered', ({ _id }) => {
+      const cacheId = queryIdToCacheId.current[_id];
+      if (cacheId) setQuestions(prev => prev.filter(q => q._id !== cacheId));
+    });
+    return cleanup;
+  }, []);
+
+  const handleAnswered = (cacheId, queryId) => {
     setQuestions((prev) => prev.filter((q) => q._id !== cacheId));
+    if (queryId) delete queryIdToCacheId.current[queryId];
   };
 
   return (

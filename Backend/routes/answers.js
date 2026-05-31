@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const Query = require('../models/Query');
@@ -72,6 +72,10 @@ router.post('/:queryId', authStudent, async (req, res) => {
         posted: true,
         isTrustedAnswer: true,
       });
+
+      const io = req.app.get('io');
+      if (io) io.emit('query:answered', { _id: query._id, title: query.title, answer: answer.trim() });
+
     }
 
     // New user: answer pending admin approval

@@ -1,4 +1,6 @@
 const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -152,7 +154,8 @@ mongoose.connect(MONGODB_URI, {
 })
   .then(() => {
     console.log('✅ MongoDB connected securely');
-    app.listen(PORT, () => {
+    const httpServer = http.createServer(app);
+    httpServer.listen(PORT, () => {
       console.log(`✅ Unified backend running on port ${PORT}`);
       console.log(`🔒 Environment: ${process.env.NODE_ENV || 'development'}`);
 
@@ -177,6 +180,24 @@ mongoose.connect(MONGODB_URI, {
       console.log('[digest] Admin digest cron scheduled for 08:00 IST daily');
 
     });
+
+    const io = new Server(httpServer, {
+      cors: {
+        origin: (process.env.CLIENT_URL || 'http://localhost:5173').split(',').map(u => u.trim()),
+        credentials: true,
+      },
+    });
+
+    app.set('io', io);
+
+    const authSocket = require('./middleware/authSocket');
+    io.use(authSocket);
+
+    io.on('connection', (socket) => {
+      const userLabel = socket.user ? ' - ' + socket.user.email : ' (anonymous)';
+      console.log('[socket] client connected' + userLabel);
+    });
+
   })
   .catch((err) => {
     console.error('❌ MongoDB connection error:', err.message);

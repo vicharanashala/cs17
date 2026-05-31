@@ -128,6 +128,11 @@ router.post('/', authStudent, async (req, res) => {
       },
     });
 
+    // Emit to all connected clients so Genie/search results update live
+    const io = req.app.get('io');
+    if (io) io.emit('query:new', { _id: newQuery._id, title: newQuery.title, status: newQuery.status, createdAt: newQuery.createdAt });
+
+
     // Generate and store MiniLM embedding after response sent (non-blocking)
     generateEmbedding(trimmedTitle)
       .then((embedding) => {
