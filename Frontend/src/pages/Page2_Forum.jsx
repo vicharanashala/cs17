@@ -82,7 +82,7 @@ function ChangePasswordModal({ onDone }) {
 export default function Page2_Forum() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user, loading, checkAuth, logout } = useAuthStore();
+  const { user, loading, checkAuth, logout, sessionExpired } = useAuthStore();
   const [activeTab, setActiveTab] = useState('genie');
   const [showInactivityWarning, setShowInactivityWarning] = useState(false);
   const [showPasswordReset, setShowPasswordReset] = useState(false);
@@ -100,8 +100,10 @@ export default function Page2_Forum() {
 
   // Redirect to login if not authenticated
   useEffect(() => {
-    if (!loading && !user) navigate('/login');
-  }, [loading, user]);
+    if (!loading && !user) {
+      navigate(sessionExpired ? '/login?timeout=1' : '/login');
+    }
+  }, [loading, user, sessionExpired]);
 
   // Inactivity timer — 8min warning + 10min logout
   useEffect(() => {

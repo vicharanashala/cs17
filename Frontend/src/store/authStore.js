@@ -5,14 +5,16 @@ const useAuthStore = create((set, get) => ({
   user: null,
   admin: null,
   loading: true, // true on initial load while we check /me
+  sessionExpired: false, // true when server returns TOKEN_EXPIRED code
 
   // ── Student ─────────────────────────────────────────────────────────────
   checkAuth: async () => {
     try {
       const res = await api2.get('/auth/me');
-      set({ user: res.data, loading: false });
-    } catch {
-      set({ user: null, loading: false });
+      set({ user: res.data, loading: false, sessionExpired: false });
+    } catch (err) {
+      const isExpired = err?.response?.data?.code === 'TOKEN_EXPIRED';
+      set({ user: null, loading: false, sessionExpired: isExpired });
     }
   },
 

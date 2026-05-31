@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
 
 export default function Login() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const login = useAuthStore((s) => s.login);
+  const showTimeout = searchParams.get('timeout') === '1';
 
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
@@ -50,6 +52,14 @@ export default function Login() {
                 Access the community query forum
               </p>
             </div>
+
+            {showTimeout && (
+              <div className="mb-4 px-3 py-2.5 bg-amber-50 rounded-lg border border-amber-200">
+                <p className="font-body-sm text-body-sm text-amber-700">
+                  <span className="font-medium">Session expired</span> — you were logged out due to 10 minutes of inactivity. Please sign in again.
+                </p>
+              </div>
+            )}
 
             {error && (
               <div className="mb-4 px-3 py-2 bg-error-container rounded-lg border border-error/20">
