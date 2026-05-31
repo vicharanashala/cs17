@@ -7,6 +7,7 @@ const QueryVote = require('../models/QueryVote');
 const Notification = require('../models/Notification');
 const User = require('../models/User');
 const authStudent = require('../middleware/authStudent');
+const { isSimilar, generateEmbedding } = require('../services/similarity');
 
 // ─── GET /api/cache/top5 — Genie: top 5 most upvoted from 15-day cache ──────
 // Public: students see this before they submit
@@ -24,24 +25,32 @@ router.get('/top5', authStudent, async (req, res) => {
   }
 });
 
-// ─── GET /api/cache/search?q= — Genie search (cache only, not FAQ) ──────────
+// ─── GET /api/cache/search?q= — Genie search with 3-layer semantic similarity ─────
 router.get('/search', authStudent, async (req, res) => {
   try {
     const { q } = req.query;
     if (!q || q.trim().length < 2) return res.json([]);
 
-    const regex = new RegExp(q.trim().split(/\s+/).join('.*'), 'i');
-    const results = await QueryCache.find({
-      title: regex,
-      isHidden: false,
-    })
-      .sort({ upvotes: -1 })
-      .limit(10)
-      .populate({ path: 'queryId', select: 'title category tags status answer', populate: { path: 'category', select: 'name' } })
+    const trimmed = q.trim();
+    const queryEmbedding = await generateEmbedding(trimmed);
+
+    const entries = await QueryCache.find({ isHidden: false })
+      .populate({ path: 'queryId', select: 'title embedding category tags status answer', populate: { path: 'category', select: 'name' } })
       .lean();
 
-    res.json(results);
+    const scored = [];
+    for (const entry of entries) {
+      const title = entry.queryId?.title || entry.title;
+      const result = isSimilar(trimmed, title, queryEmbedding, entry.queryId?.embedding || null);
+      if (result.similar) {
+        scored.push({ ...entry, _similarity: result });
+      }
+    }
+
+    scored.sort((a, b) => b._similarity.score - a._similarity.score);
+    res.json(scored.slice(0, 10));
   } catch (err) {
+    console.error('Search error:', err);
     res.status(500).json({ error: 'Search failed.' });
   }
 });
