@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import api2 from '../lib/axiosP2';
 import TopNavBar from '../components/TopNavBar';
 import Genie from '../components/p2/Genie';
 import RaiseQuery from '../components/p2/RaiseQuery';
@@ -12,15 +13,90 @@ const TABS = [
   { key: 'solve',   label: 'Solve a Query',  icon: 'lightbulb' },
 ];
 
+function ChangePasswordModal({ onDone }) {
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setError('');
+    if (!newPassword || !confirm) { setError('All fields are required.'); return; }
+    if (newPassword.length < 8) { setError('New password must be at least 8 characters.'); return; }
+    if (newPassword !== confirm) { setError('Passwords do not match.'); return; }
+    if (newPassword === currentPassword) { setError('New password must be different from current.'); return; }
+    setLoading(true);
+    try {
+      await api2.post('/auth/change-password', { currentPassword, newPassword });
+      onDone();
+    } catch (err) {
+      setError(err?.response?.data?.error || 'Failed to change password.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-ink-900/60 flex items-center justify-center z-50 p-4">
+      <div className="bg-surface border border-ink-100 rounded-xl p-8 w-full max-w-sm shadow-xl">
+        <div className="mb-6">
+          <h2 className="font-headline-md text-headline-md text-ink-900 mb-1">Change Password</h2>
+          <p className="font-body-sm text-body-sm text-ink-400">Set a new password to access the forum.</p>
+        </div>
+        {error && (
+          <div className="mb-4 px-3 py-2 bg-error-container rounded-lg border border-error/20">
+            <p className="font-body-sm text-body-sm text-error">{error}</p>
+          </div>
+        )}
+        <form onSubmit={submit} className="flex flex-col gap-4">
+          <div>
+            <label className="block font-label-mono text-label-mono text-ink-400 uppercase mb-1.5">Current Password</label>
+            <input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)}
+              autoFocus
+              className="w-full px-3 py-2.5 bg-surface-bright border border-ink-200 rounded-lg font-body-md text-body-md text-ink-900 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-colors" />
+          </div>
+          <div>
+            <label className="block font-label-mono text-label-mono text-ink-400 uppercase mb-1.5">New Password</label>
+            <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="At least 8 characters"
+              className="w-full px-3 py-2.5 bg-surface-bright border border-ink-200 rounded-lg font-body-md text-body-md text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-colors" />
+          </div>
+          <div>
+            <label className="block font-label-mono text-label-mono text-ink-400 uppercase mb-1.5">Confirm New Password</label>
+            <input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)}
+              placeholder="Repeat new password"
+              className="w-full px-3 py-2.5 bg-surface-bright border border-ink-200 rounded-lg font-body-md text-body-md text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-colors" />
+          </div>
+          <button type="submit" disabled={loading}
+            className="w-full bg-primary text-on-primary py-2.5 rounded-lg font-body-sm text-body-sm font-medium hover:bg-blue-600 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-1">
+            {loading ? 'Saving…' : 'Set Password'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export default function Page2_Forum() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, loading, checkAuth, logout } = useAuthStore();
   const [activeTab, setActiveTab] = useState('genie');
   const [showInactivityWarning, setShowInactivityWarning] = useState(false);
+  const [showPasswordReset, setShowPasswordReset] = useState(false);
   const inactivityRef = { warning: null, logout: null };
 
   // Check auth on mount
   useEffect(() => { checkAuth(); }, []);
+
+  // Detect first-login password reset redirect
+  useEffect(() => {
+    if (searchParams.get('change-password') === '1') {
+      setShowPasswordReset(true);
+    }
+  }, [searchParams]);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -59,6 +135,24 @@ export default function Page2_Forum() {
   }
 
   if (!user) return null; // redirecting
+
+  if (showPasswordReset) {
+    return (
+      <div className="min-h-screen bg-surface-bright flex flex-col">
+        <TopNavBar active="forum" user={user} />
+        <ChangePasswordModal
+          onDone={async () => {
+            await checkAuth();
+            setShowPasswordReset(false);
+            // Clear query param without reload
+            const url = new URL(window.location.href);
+            url.searchParams.delete('change-password');
+            window.history.replaceState({}, '', url.pathname);
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-surface-bright flex flex-col">
