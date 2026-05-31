@@ -241,6 +241,7 @@ const STATUS_TABS = [
   { key: 'in_progress', label: 'In Progress',  color: 'text-status-verifying' },
   { key: 'answered',    label: 'Answered',     color: 'text-conf-high' },
   { key: 'rejected',    label: 'Rejected',     color: 'text-error' },
+  { key: 'deleted',     label: 'Deleted',      color: 'text-ink-400' },
   { key: 'all',         label: 'All',          color: 'text-ink-400' },
 ];
 
