@@ -258,6 +258,23 @@ router.patch('/queries/:id/mark-seen', authAdmin, async (req, res) => {
   }
 });
 
+// ─── PATCH /api/admin/queries/:id/unhide — Restore auto-hidden cache entry ────
+router.patch('/queries/:id/unhide', authAdmin, async (req, res) => {
+  try {
+    const query = await Query.findById(req.params.id).populate('cacheEntry');
+    if (!query) return res.status(404).json({ error: 'Query not found.' });
+
+    if (query.cacheEntry && query.cacheEntry.isHidden) {
+      query.cacheEntry.isHidden = false;
+      await query.cacheEntry.save();
+    }
+
+    res.json({ message: 'Query restored to forum.' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to restore query.' });
+  }
+});
+
 // ─── PATCH /api/admin/queries/:id/soft-delete — Remove from Answered folder ─
 router.patch('/queries/:id/soft-delete', authAdmin, async (req, res) => {
   try {

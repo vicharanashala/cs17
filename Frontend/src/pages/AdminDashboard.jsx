@@ -191,6 +191,12 @@ function QueryDrawer({ query, onClose, onRefresh }) {
               ↩ Restore to Answered
             </button>
           )}
+          {query.cacheEntry?.isHidden === true && (
+            <button onClick={() => act('unhide')} disabled={loading}
+              className="px-3 py-1.5 bg-admin-bg border border-admin-border text-amber-400 font-body-sm text-body-sm rounded-lg hover:border-amber-400 transition-colors">
+              ↩ Restore to Forum
+            </button>
+          )}
         </div>
 
         {/* Answer form */}
