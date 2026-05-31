@@ -175,6 +175,18 @@ function QueryDrawer({ query, onClose, onRefresh }) {
             className={`px-3 py-1.5 font-body-sm text-body-sm rounded-lg border transition-colors ${mode === 'reject' ? 'bg-error text-on-error border-error' : 'bg-admin-bg border-admin-border text-ink-200 hover:border-error hover:text-error'}`}>
             Reject
           </button>
+          {query.adminStatus === 'answered' && !query.adminDeleted && (
+            <button onClick={() => act('soft-delete')} disabled={loading}
+              className="px-3 py-1.5 bg-admin-bg border border-admin-border text-ink-400 font-body-sm text-body-sm rounded-lg hover:border-error hover:text-error transition-colors">
+              ✕ Remove from Answered
+            </button>
+          )}
+          {query.adminDeleted && (
+            <button onClick={() => act('restore')} disabled={loading}
+              className="px-3 py-1.5 bg-admin-bg border border-admin-border text-conf-high font-body-sm text-body-sm rounded-lg hover:border-conf-high transition-colors">
+              ↩ Restore to Answered
+            </button>
+          )}
         </div>
 
         {/* Answer form */}
