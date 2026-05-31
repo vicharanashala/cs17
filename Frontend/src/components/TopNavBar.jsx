@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect, useRef } from 'react';
+import ProfilePopup from './p2/ProfilePopup';
 import { Link } from 'react-router-dom';
 import api2 from '../lib/axiosP2';
 import { formatDistanceToNow } from 'date-fns';
@@ -180,47 +181,7 @@ export default function TopNavBar({ active, user }) {
           </button>
 
           {profileOpen && user && (
-            <div className="absolute right-0 top-full mt-2 w-64 bg-surface border border-ink-200 rounded-xl shadow-lg z-50 overflow-hidden">
-              {/* User info */}
-              <div className="px-4 py-3 border-b border-ink-100">
-                <p className="font-body-md text-body-md font-medium text-ink-900 truncate">{user.name || 'Student'}</p>
-                <p className="font-label-mono text-label-mono text-ink-400 truncate mt-0.5">{user.email}</p>
-                <div className="flex items-center gap-2 mt-2">
-                  <span className="font-label-mono text-label-mono text-ink-500">
-                    {user.confidence ?? 0} confidence
-                  </span>
-                  <span className="font-label-mono text-label-mono text-ink-400">·</span>
-                  <TierBadge confidence={user.confidence ?? 0} />
-                </div>
-              </div>
-
-              {/* Links */}
-              <div className="py-1">
-                <Link
-                  to="/forum"
-                  onClick={() => setProfileOpen(false)}
-                  className="flex items-center gap-3 px-4 py-2.5 hover:bg-surface-container-low transition-colors"
-                >
-                  <span className="material-symbols-outlined text-ink-500 text-lg">inbox</span>
-                  <span className="font-body-sm text-body-sm text-ink-700">My Queries</span>
-                </Link>
-              </div>
-
-              {/* Logout */}
-              <div className="border-t border-ink-100 py-1">
-                <button
-                  onClick={async () => {
-                    setProfileOpen(false);
-                    await fetch('/api/auth/logout', { method: 'POST' });
-                    window.location.href = '/login';
-                  }}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-surface-container-low transition-colors text-left"
-                >
-                  <span className="material-symbols-outlined text-ink-500 text-lg">logout</span>
-                  <span className="font-body-sm text-body-sm text-ink-700">Log out</span>
-                </button>
-              </div>
-            </div>
+            <ProfilePopup onClose={() => setProfileOpen(false)} />
           )}
         </div>
       </div>
