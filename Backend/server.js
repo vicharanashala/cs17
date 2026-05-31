@@ -111,6 +111,7 @@ app.use('/uploads',                              express.static(path.join(__dirn
 app.use('/api/queries',                        require('./routes/queries'));
 app.use('/api/similarity',  similarityLimiter, require('./routes/similarity'));
 app.use('/api/cache',                          require('./routes/cache'));
+app.use('/api/stats',                            require('./routes/stats'));
 app.use('/api/drafts',                         require('./routes/drafts'));
 app.use('/api/answers',                        require('./routes/answers'));
 app.use('/api/admin',                          require('./routes/admin.queries'));
