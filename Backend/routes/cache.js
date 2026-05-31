@@ -83,8 +83,8 @@ router.post('/:cacheId/vote', authStudent, async (req, res) => {
     if (!['question', 'answer'].includes(target)) {
       return res.status(400).json({ error: "target must be 'question' or 'answer'" });
     }
-    if (!['upvote', 'flag'].includes(voteType)) {
-      return res.status(400).json({ error: "voteType must be 'upvote' or 'flag'" });
+    if (!['upvote', 'flag', 'notify'].includes(voteType)) {
+      return res.status(400).json({ error: "voteType must be 'upvote', 'flag', or 'notify'" });
     }
 
     if (!mongoose.Types.ObjectId.isValid(req.params.cacheId)) {
@@ -144,6 +144,15 @@ router.post('/:cacheId/vote', authStudent, async (req, res) => {
             { upsert: true }
           );
         }
+      }
+      // 'notify' — register interest WITHOUT upvoting
+      if (voteType === 'notify') {
+        await QueryVote.findOneAndUpdate(
+          { userId: req.user._id, queryId: entry.queryId },
+          { notifyEmail: req.user?.notifyEmail ?? true, registeredInterest: true },
+          { upsert: true }
+        );
+        return res.json({ message: 'Notification preference saved.' });
       }
       if (voteType === 'flag') {
         const updated = await QueryCache.findByIdAndUpdate(
