@@ -257,7 +257,16 @@ export default function AdminDashboard() {
   const [page, setPage] = useState(1);
   const [loadingQ, setLoadingQ] = useState(false);
   const [selected, setSelected] = useState(null);
-  const [activeSection, setActiveSection] = useState('queries'); // queries | users
+  const [activeSection, setActiveSection] = useState('queries'); // queries | users | faq
+  const [faqList, setFaqList] = useState([]);
+  const [faqTotal, setFaqTotal] = useState(0);
+  const [faqPage, setFaqPage] = useState(1);
+  const [faqSearch, setFaqSearch] = useState('');
+  const [faqLoading, setFaqLoading] = useState(false);
+  const [faqForm, setFaqForm] = useState({ question: '', answer: '', category: '', moduleNumber: '', questionNumber: '', sectionId: '', displayNumber: '' });
+  const [faqEditId, setFaqEditId] = useState(null);
+  const [faqMsg, setFaqMsg] = useState('');
+  const [faqShowForm, setFaqShowForm] = useState(false);
   const [users, setUsers] = useState([]);
   const [userForm, setUserForm] = useState({ name: '', email: '', password: '' });
   const [userMsg, setUserMsg] = useState('');
@@ -289,6 +298,47 @@ export default function AdminDashboard() {
     setUsers(r.data);
   };
   useEffect(() => { if (admin && activeSection === 'users') fetchUsers(); }, [admin, activeSection]);
+
+  const fetchFaqs = async () => {
+    setFaqLoading(true);
+    try {
+      const params = new URLSearchParams({ page: faqPage, limit: 20, search: faqSearch });
+      const r = await api2.get(`/faqs/all?${params}`);
+      setFaqList(r.data.faqs);
+      setFaqTotal(r.data.total);
+    } catch { setFaqList([]); }
+    finally { setFaqLoading(false); }
+  };
+  useEffect(() => { if (admin && activeSection === 'faq') fetchFaqs(); }, [admin, activeSection, faqPage, faqSearch]);
+
+  const saveFaq = async (e) => {
+    e.preventDefault();
+    setFaqMsg('');
+    try {
+      if (faqEditId) {
+        await api2.put(`/faqs/${faqEditId}`, faqForm);
+        setFaqMsg('FAQ updated.');
+      } else {
+        await api2.post('/faqs', faqForm);
+        setFaqMsg('FAQ created.');
+        setFaqForm({ question: '', answer: '', category: '', moduleNumber: '', questionNumber: '', sectionId: '', displayNumber: '' });
+      }
+      setFaqEditId(null);
+      fetchFaqs();
+    } catch (err) {
+      setFaqMsg(err?.response?.data?.error || 'Failed to save FAQ.');
+    }
+  };
+
+  const deleteFaq = async (id) => {
+    if (!confirm('Delete this FAQ entry?')) return;
+    try {
+      await api2.delete(`/faqs/${id}`);
+      fetchFaqs();
+    } catch (err) {
+      alert(err?.response?.data?.error || 'Failed to delete FAQ.');
+    }
+  };
 
   const createUser = async (e) => {
     e.preventDefault();
@@ -325,7 +375,7 @@ export default function AdminDashboard() {
         <div className="flex items-center gap-6">
           <span className="font-headline-md text-headline-md text-ink-50 font-black">Admin · Yaksha</span>
           <nav className="flex gap-1">
-            {['queries', 'users'].map((s) => (
+            {['queries', 'faq', 'users'].map((s) => (
               <button key={s} onClick={() => setActiveSection(s)}
                 className={`px-3 py-1.5 rounded-lg font-body-sm text-body-sm capitalize transition-colors ${activeSection === s ? 'bg-primary text-on-primary' : 'text-ink-400 hover:text-ink-50 hover:bg-admin-bg'}`}>
                 {s}
@@ -424,6 +474,99 @@ export default function AdminDashboard() {
                   className="px-3 py-1.5 bg-admin-surface border border-admin-border text-ink-400 rounded-lg font-body-sm text-body-sm hover:text-ink-50 disabled:opacity-30 transition-colors">
                   Next →
                 </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── FAQ section ───────────────────────────────────────────────── */}
+        {activeSection === 'faq' && (
+          <div className="flex flex-col gap-6">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <h2 className="font-headline-md text-headline-md text-ink-50">FAQ Management</h2>
+              <button onClick={() => { setFaqEditId(null); setFaqForm({ question: '', answer: '', category: '', moduleNumber: '', questionNumber: '', sectionId: '', displayNumber: '' }); setFaqMsg(''); setFaqShowForm(true); }}
+                className="bg-primary text-white px-4 py-2 rounded-lg font-body-sm text-body-sm font-medium hover:opacity-90 transition-all">
+                + New FAQ Entry
+              </button>
+            </div>
+
+            {/* Search */}
+            <input value={faqSearch} onChange={(e) => { setFaqSearch(e.target.value); setFaqPage(1); }}
+              placeholder="Search FAQs…"
+              className="w-full max-w-md px-3 py-2.5 bg-admin-surface border border-admin-border rounded-xl font-body-sm text-body-sm text-ink-50 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-primary/40" />
+
+            {/* Form drawer */}
+            {faqShowForm && (
+              <div className="bg-admin-surface border border-admin-border rounded-xl p-5">
+                <h3 className="font-headline-md text-headline-md text-ink-50 mb-4">{faqEditId ? 'Edit FAQ Entry' : 'Create FAQ Entry'}</h3>
+                {faqMsg && <p className="mb-3 font-body-sm text-body-sm text-conf-high">{faqMsg}</p>}
+                <form onSubmit={saveFaq} className="flex flex-col gap-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <input value={faqForm.category} onChange={(e) => setFaqForm((f) => ({ ...f, category: e.target.value }))}
+                      placeholder="Category (e.g. ABOUT THE INTERNSHIP)" required
+                      className="px-3 py-2.5 bg-admin-bg border border-admin-border rounded-xl font-body-sm text-body-sm text-ink-50 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-primary/40" />
+                    <input value={faqForm.moduleNumber} onChange={(e) => setFaqForm((f) => ({ ...f, moduleNumber: e.target.value }))}
+                      placeholder="Module number (1-13)" type="number" min="1" required
+                      className="px-3 py-2.5 bg-admin-bg border border-admin-border rounded-xl font-body-sm text-body-sm text-ink-50 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-primary/40" />
+                    <input value={faqForm.questionNumber} onChange={(e) => setFaqForm((f) => ({ ...f, questionNumber: e.target.value }))}
+                      placeholder="Question number in module" type="number" min="1" required
+                      className="px-3 py-2.5 bg-admin-bg border border-admin-border rounded-xl font-body-sm text-body-sm text-ink-50 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-primary/40" />
+                    <input value={faqForm.sectionId} onChange={(e) => setFaqForm((f) => ({ ...f, sectionId: e.target.value }))}
+                      placeholder="sectionId (e.g. q-1-1, auto-generated if blank)"
+                      className="px-3 py-2.5 bg-admin-bg border border-admin-border rounded-xl font-body-sm text-body-sm text-ink-50 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-primary/40" />
+                  </div>
+                  <input value={faqForm.question} onChange={(e) => setFaqForm((f) => ({ ...f, question: e.target.value }))}
+                    placeholder="Question text" required
+                    className="w-full px-3 py-2.5 bg-admin-bg border border-admin-border rounded-xl font-body-sm text-body-sm text-ink-50 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-primary/40" />
+                  <textarea value={faqForm.answer} onChange={(e) => setFaqForm((f) => ({ ...f, answer: e.target.value }))} rows={4}
+                    placeholder="Official answer"
+                    className="w-full px-3 py-2.5 bg-admin-bg border border-admin-border rounded-xl font-body-sm text-body-sm text-ink-50 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-primary/40 resize-none" />
+                  <div className="flex gap-2 justify-end">
+                    <button type="button" onClick={() => setFaqShowForm(false)}
+                      className="px-4 py-2 bg-admin-bg border border-admin-border text-ink-400 rounded-lg font-body-sm text-body-sm hover:text-ink-50 transition-colors">Cancel</button>
+                    <button type="submit"
+                      className="bg-conf-high text-white px-4 py-2 rounded-lg font-body-sm text-body-sm font-medium hover:opacity-90 transition-all">
+                      {faqEditId ? 'Update FAQ' : 'Create FAQ'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* FAQ list */}
+            {faqLoading ? (
+              <p className="text-ink-400 font-body-sm">Loading…</p>
+            ) : faqList.length === 0 ? (
+              <p className="text-ink-400 font-body-sm">No FAQ entries found.</p>
+            ) : (
+              <div className="flex flex-col gap-2">
+                {faqList.map((f) => (
+                  <div key={f._id} className="bg-admin-surface border border-admin-border rounded-xl p-4 flex items-start justify-between gap-4">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-label-mono text-label-mono text-ink-400 uppercase mb-1">{f.category} · {f.displayNumber}</p>
+                      <p className="font-body-sm text-body-sm text-ink-50 font-medium">{f.question}</p>
+                      <p className="font-body-sm text-body-sm text-ink-400 mt-1 line-clamp-2">{f.answer}</p>
+                    </div>
+                    <div className="flex gap-2 shrink-0">
+                      <button onClick={() => { setFaqEditId(f._id); setFaqForm({ question: f.question, answer: f.answer, category: f.category, moduleNumber: f.moduleNumber, questionNumber: f.questionNumber, sectionId: f.sectionId || '', displayNumber: f.displayNumber || '' }); setFaqMsg(''); setFaqShowForm(true); }}
+                        className="px-3 py-1.5 bg-admin-bg border border-admin-border text-ink-400 rounded-lg font-body-sm text-body-sm hover:text-ink-50 hover:border-primary transition-colors">Edit</button>
+                      <button onClick={() => deleteFaq(f._id)}
+                        className="px-3 py-1.5 bg-admin-bg border border-admin-border text-ink-400 rounded-lg font-body-sm text-body-sm hover:text-error hover:border-error transition-colors">Delete</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Pagination */}
+            {faqTotal > 20 && (
+              <div className="flex items-center gap-3">
+                <button onClick={() => setFaqPage((p) => Math.max(1, p - 1))} disabled={faqPage === 1}
+                  className="px-3 py-1.5 bg-admin-surface border border-admin-border text-ink-400 rounded-lg font-body-sm text-body-sm hover:text-ink-50 disabled:opacity-30 transition-colors">← Previous</button>
+                <span className="font-label-mono text-label-mono text-ink-400">Page {faqPage} of {Math.ceil(faqTotal / 20)}</span>
+                <button onClick={() => setFaqPage((p) => p + 1)} disabled={faqPage >= Math.ceil(faqTotal / 20)}
+                  className="px-3 py-1.5 bg-admin-surface border border-admin-border text-ink-400 rounded-lg font-body-sm text-body-sm hover:text-ink-50 disabled:opacity-30 transition-colors">Next →</button>
               </div>
             )}
           </div>
