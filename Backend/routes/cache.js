@@ -6,8 +6,17 @@ const CacheVote = require('../models/CacheVote');
 const QueryVote = require('../models/QueryVote');
 const Notification = require('../models/Notification');
 const User = require('../models/User');
+const Query = require('../models/Query');
 const authStudent = require('../middleware/authStudent');
 const { isSimilar, generateEmbedding } = require('../services/similarity');
+
+// ─── Helper: keep Query.flagCount in sync with QueryCache.flags ─────────────
+async function syncQueryFlagCount(cacheEntry) {
+  if (!cacheEntry?.queryId) return;
+  try {
+    await Query.findByIdAndUpdate(cacheEntry.queryId, { flagCount: cacheEntry.flags || 0 });
+  } catch (_) {}
+}
 
 // ─── GET /api/cache/top5 — Genie: top 5 most upvoted from 15-day cache ──────
 // Public: students see this before they submit
@@ -116,16 +125,21 @@ router.post('/:cacheId/vote', authStudent, async (req, res) => {
         // Toggle off (remove vote)
         await existing.deleteOne();
         if (voteType === 'upvote') await QueryCache.findByIdAndUpdate(entry._id, { $inc: { upvotes: -1 } });
-        if (voteType === 'flag')   await QueryCache.findByIdAndUpdate(entry._id, { $inc: { flags: -1 } });
+        if (voteType === 'flag') {
+          const toggled = await QueryCache.findByIdAndUpdate(entry._id, { $inc: { flags: -1 } }, { new: true });
+          await syncQueryFlagCount(toggled);
+        }
         return res.json({ message: 'Vote removed.' });
       }
       // Switching vote type — update
       existing.voteType = voteType;
       await existing.save();
       if (voteType === 'upvote') {
-        await QueryCache.findByIdAndUpdate(entry._id, { $inc: { upvotes: 1, flags: -1 } });
+        const up = await QueryCache.findByIdAndUpdate(entry._id, { $inc: { upvotes: 1, flags: -1 } }, { new: true });
+        await syncQueryFlagCount(up);
       } else {
-        await QueryCache.findByIdAndUpdate(entry._id, { $inc: { flags: 1, upvotes: -1 } });
+        const fl = await QueryCache.findByIdAndUpdate(entry._id, { $inc: { flags: 1, upvotes: -1 } }, { new: true });
+        await syncQueryFlagCount(fl);
       }
     } else {
       await CacheVote.create({
@@ -155,13 +169,14 @@ router.post('/:cacheId/vote', authStudent, async (req, res) => {
         return res.json({ message: 'Notification preference saved.' });
       }
       if (voteType === 'flag') {
-        const updated = await QueryCache.findByIdAndUpdate(
+        const flagged = await QueryCache.findByIdAndUpdate(
           entry._id,
           { $inc: { flags: 1 } },
           { new: true }
         );
+        await syncQueryFlagCount(flagged);
         // Auto-hide if flags exceed threshold
-        if (updated.flags > 3) {
+        if (flagged.flags > 3) {
           await QueryCache.findByIdAndUpdate(entry._id, { isHidden: true });
 
           // Penalise answerer: -1 confidence, notify answerer
