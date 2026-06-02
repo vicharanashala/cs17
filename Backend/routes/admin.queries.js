@@ -562,20 +562,29 @@ router.post('/users', authAdmin, async (req, res) => {
   }
 });
 
-// PATCH /api/admin/users/:id — Activate or deactivate account
+// PATCH /api/admin/users/:id — Update account status and/or confidence score
 router.patch('/users/:id', authAdmin, async (req, res) => {
   try {
-    const { active } = req.body;
-    if (typeof active !== 'boolean') {
-      return res.status(400).json({ error: '"active" (boolean) is required.' });
+    const { active, confidenceScore } = req.body;
+    const updates = {};
+    if (active !== undefined) updates.active = active;
+    if (confidenceScore !== undefined) {
+      const parsed = parseInt(confidenceScore);
+      if (isNaN(parsed) || parsed < 0) {
+        return res.status(400).json({ error: 'confidenceScore must be a non-negative integer.' });
+      }
+      updates.confidenceScore = parsed;
+    }
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ error: 'Provide at least one of: active (boolean) or confidenceScore (integer).' });
     }
     const user = await User.findByIdAndUpdate(
       req.params.id,
-      { active },
+      updates,
       { new: true, select: '-passwordHash' }
     );
     if (!user) return res.status(404).json({ error: 'User not found.' });
-    res.json({ message: `Account ${active ? 'activated' : 'deactivated'}.`, user });
+    res.json({ message: 'User updated.', user });
   } catch (err) {
     res.status(500).json({ error: 'Failed to update user.' });
   }
