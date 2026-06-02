@@ -50,6 +50,17 @@ router.post('/:queryId', authStudent, async (req, res) => {
 
       await query.save();
 
+      // Award +1 confidence to trusted answerer
+      await User.findByIdAndUpdate(req.user._id, { $inc: { confidenceScore: 1 } });
+
+      // Send trusted_confirmed notification to the answerer
+      await Notification.create({
+        notifiedUser: req.user._id,
+        type: 'trusted_confirmed',
+        queryId: query._id,
+        message: 'Your answer was posted directly to the community — +1 confidence awarded!',
+      });
+
       // Create in-app notification for the asker
       await Notification.create({
         notifiedUser: query.submittedBy,
