@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import api2 from '../../lib/axiosP2';
 import { onSocketEvent } from '../../lib/socket';
 
@@ -187,14 +187,6 @@ export default function SolveQuery({ user }) {
         )}
       </div>
 
-      {/* Trust system explainer */}
-      <div className="bg-surface-container-low border border-outline-variant rounded-xl p-4 flex flex-col gap-1">
-        <p className="font-label-mono text-label-mono text-ink-400 uppercase mb-1">How trust works</p>
-        <p className="font-body-sm text-body-sm text-ink-700">★ New (0–2 pts) — your answer is reviewed by admin before going live</p>
-        <p className="font-body-sm text-body-sm text-ink-700">★★ Trusted (3–9 pts) — your answer posts immediately</p>
-        <p className="font-body-sm text-body-sm text-ink-700">★★★ Expert (10+ pts) — trusted + badge</p>
-        <p className="font-body-sm text-body-sm text-ink-400 mt-1">+1 point when admin approves your answer as correct</p>
-      </div>
 
       {error && <p className="font-body-sm text-body-sm text-error">{error}</p>}
 
