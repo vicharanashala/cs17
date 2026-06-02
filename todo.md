@@ -98,7 +98,7 @@
 - [ ] **FAQ Management backend routes** — `POST /api/admin/faqs`, `PUT /api/admin/faqs/:id`, `DELETE /api/admin/faqs/:id` return 404; AdminDashboard has the full CRUD UI but no working endpoints
 - [ ] **Admin cache/Genie management routes** — no `GET /api/admin/cache`, `PATCH /api/admin/cache/:id` routes mounted; `unhide` only works via query drawer, no standalone cache management
 - [ ] **Admin dedicated Genie page** — no `/admin/genie` route, no `AdminGenie.jsx` or `AdminCache.jsx`; admin sees no separate Genie tab (correctly absent)
-- [ ] **Trusted user direct-answer auto reward** — `approve-trusted` ✅ correctly awards +1 confidence; BUT trusted path in `answers.js` (trusted user auto-posts without admin) does NOT award +1 confidence or `trusted_confirmed` notification
+- [x] **Trusted user direct-answer auto reward** — `approve-trusted` ✅ correctly awards +1 confidence; trusted path in `answers.js` now also awards `+1 confidence` and sends `trusted_confirmed` notification — FIXED 2026-06-02
 - [x] **Admin user PATCH requires `active` boolean** — cannot set `confidenceScore` alone; must pass `{ active: true, confidenceScore: N }` — FIXED 2026-06-02 (either field works independently; validation added)
 
 
