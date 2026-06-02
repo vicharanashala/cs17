@@ -76,6 +76,22 @@ router.get('/queries', authAdmin, async (req, res) => {
       .populate('answeredBy', 'name email')
       .lean();
 
+    // Populate pendingAnswers and comments author names for admin drawer display
+    for (const q of queries) {
+      if (q.pendingAnswers) {
+        for (const pa of q.pendingAnswers) {
+          const user = await User.findById(pa.author).select('name').lean();
+          if (user) pa.authorName = user.name;
+        }
+      }
+      if (q.comments) {
+        for (const c of q.comments) {
+          const user = await User.findById(c.author).select('name').lean();
+          if (user) c.authorName = user.name;
+        }
+      }
+    }
+
     res.json({ queries, total, page: parseInt(page), pages: Math.ceil(total / parseInt(limit)) });
   } catch (err) {
     console.error('Admin query list error:', err);

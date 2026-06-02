@@ -147,6 +147,54 @@ function QueryDrawer({ query, onClose, onRefresh }) {
           </div>
         )}
 
+        {/* Pending student answers */}
+        {query.pendingAnswers?.length > 0 && (
+          <div className="p-5 border-b border-admin-border">
+            <p className="font-label-mono text-label-mono text-amber-400 uppercase mb-3">
+              ⏳ Pending Student Answers ({query.pendingAnswers.length})
+            </p>
+            <div className="flex flex-col gap-3">
+              {query.pendingAnswers.map((pa, i) => (
+                <div key={i} className="p-3 bg-admin-bg border border-admin-border rounded-lg">
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="font-label-mono text-label-mono text-ink-400">
+                      {pa.authorName || pa.author || 'Unknown'} ·{' '}
+                      {pa.isTrustedAuthor ? '★ Trusted' : 'New'}
+                    </p>
+                    <button
+                      onClick={() => act('approve-pending-answer', { pendingIndex: i })}
+                      disabled={loading}
+                      className="px-2 py-1 bg-conf-high/20 border border-conf-high/40 text-conf-high font-label-mono text-label-mono rounded hover:bg-conf-high/30 transition-colors disabled:opacity-50"
+                    >
+                      ✓ Approve
+                    </button>
+                  </div>
+                  <p className="font-body-sm text-body-sm text-ink-200">{pa.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Comments (approved student answers shown as community discussion) */}
+        {query.comments?.length > 0 && (
+          <div className="p-5 border-b border-admin-border">
+            <p className="font-label-mono text-label-mono text-ink-400 uppercase mb-3">
+              💬 Community Comments ({query.comments.length})
+            </p>
+            <div className="flex flex-col gap-3">
+              {query.comments.map((c, i) => (
+                <div key={i} className="p-3 bg-admin-bg border border-admin-border rounded-lg">
+                  <p className="font-label-mono text-label-mono text-ink-400 mb-1">
+                    {c.authorName || c.author} · {c.isTrustedAuthor ? '★ Trusted' : 'New'}
+                  </p>
+                  <p className="font-body-sm text-body-sm text-ink-200">{c.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Action buttons */}
         <div className="p-5 border-b border-admin-border flex gap-2 flex-wrap">
           {query.adminStatus === 'pending' && (
