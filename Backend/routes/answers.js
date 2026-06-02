@@ -67,14 +67,14 @@ router.post('/:queryId', authStudent, async (req, res) => {
         }
       }
 
+      const io = req.app.get('io');
+      if (io) io.emit('query:answered', { _id: query._id, title: query.title, answer: answer.trim() });
+
       return res.status(201).json({
         message: 'Answer posted. (Community answer — trusted user)',
         posted: true,
         isTrustedAnswer: true,
       });
-
-      const io = req.app.get('io');
-      if (io) io.emit('query:answered', { _id: query._id, title: query.title, answer: answer.trim() });
 
     }
 

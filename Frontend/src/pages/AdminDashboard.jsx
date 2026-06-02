@@ -90,7 +90,7 @@ function QueryDrawer({ query, onClose, onRefresh }) {
             <p className="font-label-mono text-label-mono text-ink-400 uppercase mb-1">{query.category?.name}</p>
             <p className="font-body-md text-body-md font-medium text-ink-50">{query.title}</p>
             <p className="font-label-mono text-label-mono text-ink-400 mt-1">
-              {query.submittedBy?.name} · {formatDistanceToNow(new Date(query.createdAt), { addSuffix: true })} · {query.voteCount} vote{query.voteCount !== 1 ? 's' : ''}
+              {query.submittedBy?.name} · {formatDistanceToNow(new Date(query.createdAt), { addSuffix: true })} · {query.voteCount} vote{query.voteCount !== 1 ? 's' : ''}{' · '}{query.flagCount > 0 && <span className="text-error">{query.flagCount} flag{query.flagCount !== 1 ? 's' : ''}</span>}
             </p>
           </div>
           <button onClick={onClose} className="text-ink-400 hover:text-ink-50 transition-colors shrink-0">
@@ -161,10 +161,12 @@ function QueryDrawer({ query, onClose, onRefresh }) {
               Mark In Progress
             </button>
           )}
-          <button onClick={() => setMode(mode === 'answer' ? 'view' : 'answer')}
-            className={`px-3 py-1.5 font-body-sm text-body-sm rounded-lg border transition-colors ${mode === 'answer' ? 'bg-primary text-on-primary border-primary' : 'bg-admin-bg border-admin-border text-ink-200 hover:border-primary hover:text-primary'}`}>
-            {query.isTrustedAnswer && query.askerSatisfied === false ? 'Override Answer' : 'Answer'}
-          </button>
+          {query.adminStatus !== 'answered' && query.adminStatus !== 'rejected' && (
+            <button onClick={() => setMode(mode === 'answer' ? 'view' : 'answer')}
+              className={`px-3 py-1.5 font-body-sm text-body-sm rounded-lg border transition-colors ${mode === 'answer' ? 'bg-primary text-on-primary border-primary' : 'bg-admin-bg border-admin-border text-ink-200 hover:border-primary hover:text-primary'}`}>
+              {query.isTrustedAnswer && query.askerSatisfied === false ? 'Override Answer' : 'Answer'}
+            </button>
+          )}
           {query.isTrustedAnswer && query.adminStatus !== 'answered' && (
             <button onClick={() => act('approve-trusted')} disabled={loading}
               className="px-3 py-1.5 bg-admin-bg border border-conf-high/40 text-conf-high font-body-sm text-body-sm rounded-lg hover:bg-conf-high/10 transition-colors">
@@ -175,10 +177,12 @@ function QueryDrawer({ query, onClose, onRefresh }) {
             className={`px-3 py-1.5 font-body-sm text-body-sm rounded-lg border transition-colors ${mode === 'faq' ? 'bg-primary text-on-primary border-primary' : 'bg-admin-bg border-admin-border text-ink-200 hover:border-primary hover:text-primary'}`}>
             Promote to FAQ
           </button>
-          <button onClick={() => setMode(mode === 'reject' ? 'view' : 'reject')}
-            className={`px-3 py-1.5 font-body-sm text-body-sm rounded-lg border transition-colors ${mode === 'reject' ? 'bg-error text-on-error border-error' : 'bg-admin-bg border-admin-border text-ink-200 hover:border-error hover:text-error'}`}>
-            Reject
-          </button>
+          {query.adminStatus !== 'answered' && query.adminStatus !== 'rejected' && (
+            <button onClick={() => setMode(mode === 'reject' ? 'view' : 'reject')}
+              className={`px-3 py-1.5 font-body-sm text-body-sm rounded-lg border transition-colors ${mode === 'reject' ? 'bg-error text-on-error border-error' : 'bg-admin-bg border-admin-border text-ink-200 hover:border-error hover:text-error'}`}>
+              Reject
+            </button>
+          )}
           {query.adminStatus === 'answered' && !query.adminDeleted && (
             <button onClick={() => act('soft-delete')} disabled={loading}
               className="px-3 py-1.5 bg-admin-bg border border-admin-border text-ink-400 font-body-sm text-body-sm rounded-lg hover:border-error hover:text-error transition-colors">
