@@ -33,6 +33,14 @@ router.post('/:queryId', authStudent, async (req, res) => {
 
     if (isTrusted) {
       // Trusted / Expert: post directly, no admin approval needed
+      // Push to comments so it shows under the answer section immediately
+      query.comments.push({
+        body: answer.trim(),
+        author: req.user._id,
+        authorModel: 'User',
+        isTrustedAuthor: true,
+      });
+
       query.answer = answer.trim();
       query.answeredBy = req.user._id;
       query.answeredByModel = 'User';
@@ -40,7 +48,7 @@ router.post('/:queryId', authStudent, async (req, res) => {
       query.status = 'answered';
       query.adminStatus = 'answered';
 
-            await query.save();
+      await query.save();
 
       // Create in-app notification for the asker
       await Notification.create({
@@ -75,22 +83,22 @@ router.post('/:queryId', authStudent, async (req, res) => {
         posted: true,
         isTrustedAnswer: true,
       });
-
     }
 
     // New user: answer pending admin approval
-    // Store as pending answer on the query (overwrite any prior pending answer from same user)
-    // For simplicity, pending answers are stored as a flag; admin sees them in queue
-    query.answer = answer.trim(); // stored but not yet "official"
-    query.answeredBy = req.user._id;
-    query.answeredByModel = 'User';
-    query.isTrustedAnswer = false;
-    query.adminStatus = 'pending'; // admin needs to approve
+    // Accumulate all pending answers — no overwrite, each user's answer is preserved
+    query.pendingAnswers.push({
+      body: answer.trim(),
+      author: req.user._id,
+      authorModel: 'User',
+      isTrustedAuthor: false,
+    });
+    query.adminStatus = 'pending';
 
     await query.save();
 
     return res.status(201).json({
-      message: 'Answer submitted. It will be reviewed by an admin before posting.',
+      message: 'Your answer has been submitted for admin review.',
       posted: false,
       isTrustedAnswer: false,
     });

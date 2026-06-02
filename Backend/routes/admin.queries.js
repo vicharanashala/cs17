@@ -115,6 +115,13 @@ router.patch('/queries/:id/answer', authAdmin, async (req, res) => {
     query.isTrustedAnswer = false;
     query.status = 'answered';
     query.adminStatus = 'answered';
+
+    // Move all pending student answers to comments before saving
+    if (query.pendingAnswers?.length > 0) {
+      query.comments.push(...query.pendingAnswers);
+      query.pendingAnswers = [];
+    }
+
     await query.save();
 
     // Update cache
@@ -229,6 +236,92 @@ router.patch('/queries/:id/approve-trusted', authAdmin, async (req, res) => {
     res.status(500).json({ error: 'Failed to approve answer.' });
   }
 });
+
+// ─── PATCH /api/admin/queries/:id/approve-pending-answer — Approve a pending student answer ─
+router.patch('/queries/:id/approve-pending-answer', authAdmin, async (req, res) => {
+  try {
+    const { pendingIndex } = req.body;
+    if (pendingIndex === undefined || pendingIndex === null) {
+      return res.status(400).json({ error: 'pendingIndex is required.' });
+    }
+
+    const query = await Query.findById(req.params.id);
+    if (!query) return res.status(404).json({ error: 'Query not found.' });
+    if (!query.pendingAnswers || query.pendingAnswers.length === 0) {
+      return res.status(400).json({ error: 'No pending answers to approve.' });
+    }
+    if (pendingIndex < 0 || pendingIndex >= query.pendingAnswers.length) {
+      return res.status(400).json({ error: 'Invalid pendingIndex.' });
+    }
+
+    const selected = query.pendingAnswers[pendingIndex];
+
+    // Set as official answer
+    query.answer = selected.body;
+    query.answeredBy = selected.author;
+    query.answeredByModel = selected.authorModel;
+    query.isTrustedAnswer = false;
+    query.status = 'answered';
+    query.adminStatus = 'answered';
+
+    // Move the approved answer to comments
+    query.comments.push({
+      body: selected.body,
+      author: selected.author,
+      authorModel: selected.authorModel,
+      isTrustedAuthor: selected.isTrustedAuthor,
+    });
+
+    // Move ALL other pending answers to comments (they become community comments)
+    query.pendingAnswers.forEach((pa, i) => {
+      if (i !== pendingIndex) {
+        query.comments.push({
+          body: pa.body,
+          author: pa.author,
+          authorModel: pa.authorModel,
+          isTrustedAuthor: pa.isTrustedAuthor,
+        });
+      }
+    });
+    query.pendingAnswers = [];
+
+    await query.save();
+
+    // Update cache so query disappears from SolveQuery list
+    await QueryCache.findOneAndUpdate(
+      { queryId: query._id },
+      { answer: selected.body, answerStatus: 'answered', answeredBy: selected.author }
+    );
+
+    // Notify asker
+    await Notification.create({
+      notifiedUser: query.submittedBy,
+      type: 'query_answered',
+      queryId: query._id,
+      message: 'Your query was answered by the admin team.',
+    });
+
+    // Notify voters
+    const voters = await QueryVote.find({ queryId: query._id, registeredInterest: true })
+      .populate('userId', 'email name')
+      .lean();
+    for (const v of voters) {
+      if (v.notifyEmail && v.userId?.email) {
+        await sendAnswerNotification(v.userId.email, v.userId.name, query.title, selected.body, true);
+      }
+    }
+
+    // Socket.IO: remove from SolveQuery live list for all clients
+    const io = req.app.get('io');
+    if (io) io.emit('query:answered', { _id: query._id, title: query.title, answer: selected.body });
+
+    res.json({ message: 'Pending answer approved. All pending answers moved to comments.', query });
+  } catch (err) {
+    console.error('Approve pending answer error:', err);
+    res.status(500).json({ error: 'Failed to approve pending answer.' });
+  }
+});
+
 
 // ─── PATCH /api/admin/queries/:id/mark-seen — Mark query as seen ────────────
 router.patch('/queries/:id/mark-seen', authAdmin, async (req, res) => {
