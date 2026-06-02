@@ -47,6 +47,24 @@ const querySchema = new mongoose.Schema(
 
     rejectionReason: { type: String, default: null },
 
+    // ── Multi-user answers: pending admin approval ─────────────────────────
+    pendingAnswers: [{
+      body:            { type: String, required: true },
+      author:          { type: mongoose.Schema.Types.ObjectId, refPath: 'pendingAnswers.authorModel', required: true },
+      authorModel:     { type: String, enum: ['User', 'Admin'], required: true },
+      isTrustedAuthor: { type: Boolean, default: false },
+      createdAt:       { type: Date, default: Date.now },
+    }],
+
+    // ── Approved student answers shown as comments under official answer ───
+    comments: [{
+      body:            { type: String, required: true },
+      author:          { type: mongoose.Schema.Types.ObjectId, refPath: 'comments.authorModel', required: true },
+      authorModel:     { type: String, enum: ['User', 'Admin'], required: true },
+      isTrustedAuthor: { type: Boolean, default: false },
+      createdAt:       { type: Date, default: Date.now },
+    }],
+
     // 384-dim MiniLM vector — populated by similarity service
     // Stored as array of numbers; Atlas Vector Search index defined on this field
     embedding: { type: [Number], default: [] },
