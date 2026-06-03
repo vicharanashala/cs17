@@ -9,7 +9,6 @@ export default function RaiseQuery({ user }) {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
   const [tags, setTags] = useState('');
-  const [notifyEmail, setNotifyEmail] = useState(true);
   const [categories, setCategories] = useState([]);
   const [draft, setDraft] = useState(null);
   const [myQueries, setMyQueries] = useState([]);
@@ -38,21 +37,21 @@ export default function RaiseQuery({ user }) {
   useEffect(() => {
     draftTimerRef.current = setInterval(() => {
       if (!title && !category) return;
-      api2.put('/drafts/mine', { title, category: category || null, tags: tags.split(',').map((t) => t.trim()).filter(Boolean), notifyEmail })
+      api2.put('/drafts/mine', { title, category: category || null, tags: tags.split(',').map((t) => t.trim()).filter(Boolean) })
         .catch(() => {});
     }, 30000);
     return () => clearInterval(draftTimerRef.current);
-  }, [title, category, tags, notifyEmail]);
+  }, [title, category, tags]);
 
   // 2-second debounced draft save after typing stops
   useEffect(() => {
     const t = setTimeout(() => {
       if (!title && !category && !tags) return;
-      api2.put('/drafts/mine', { title, category: category || null, tags: tags.split(',').map((t) => t.trim()).filter(Boolean), notifyEmail })
+      api2.put('/drafts/mine', { title, category: category || null, tags: tags.split(',').map((t) => t.trim()).filter(Boolean) })
         .catch(() => {});
     }, 2000);
     return () => clearTimeout(t);
-  }, [title, category, tags, notifyEmail]);
+  }, [title, category, tags]);
 
   // Real-time similarity scan (debounced 600ms)
   useEffect(() => {
@@ -74,7 +73,6 @@ export default function RaiseQuery({ user }) {
     setTitle(draft.title || '');
     setCategory(draft.category?._id || draft.category || '');
     setTags((draft.tags || []).join(', '));
-    setNotifyEmail(draft.notifyEmail ?? true);
     setDraft(null);
   };
 
@@ -103,12 +101,12 @@ export default function RaiseQuery({ user }) {
     setSubmitting(true);
     try {
       const tagList = tags.split(',').map((t) => t.trim()).filter(Boolean);
-      const res = await api2.post('/queries', { title: title.trim(), category, tags: tagList, notifyEmail, imageUrls: images });
+      const res = await api2.post('/queries', { title: title.trim(), category, tags: tagList, imageUrls: images });
 
       if (res.data.code === 'DUPLICATE_VOTED') {
-        setSuccess('A similar question exists — your vote has been added and you\'ll be notified when it\'s answered.');
+        setSuccess('A similar question exists — your vote has been added.');
       } else {
-        setSuccess('Question submitted! We\'ll notify you when it\'s answered.');
+        setSuccess('Question submitted! You\'ll be notified in-app when it\'s answered.');
         setMyQueries((prev) => [res.data.query, ...prev]);
       }
       setTitle(''); setCategory(''); setTags(''); setImages([]); setSimilarity({ loading: false, selfDuplicate: null, communityMatches: [], faqMatches: [] });
@@ -245,19 +243,6 @@ export default function RaiseQuery({ user }) {
             />
           )}
         </div>
-
-        {/* Notify toggle */}
-        <label className="flex items-center gap-3 cursor-pointer select-none">
-          <div
-            onClick={() => setNotifyEmail((v) => !v)}
-            className={`relative w-10 h-6 rounded-full transition-colors ${notifyEmail ? 'bg-primary' : 'bg-ink-200'}`}
-          >
-            <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${notifyEmail ? 'translate-x-5' : 'translate-x-1'}`} />
-          </div>
-          <span className="font-body-sm text-body-sm text-ink-700">
-            Email me when this is answered
-          </span>
-        </label>
 
         {error && (
           <div className="px-3 py-2 bg-error-container border border-error/20 rounded-lg">
