@@ -17,6 +17,7 @@ const notificationSchema = new mongoose.Schema({
       'answer_flagged',
       'trusted_confirmed',
       'escalation_acked',
+      'genie_query_answered',
     ],
   },
   queryId: {
