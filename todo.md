@@ -186,10 +186,11 @@
 - PATCH /queries/:id: when title is edited, `generateEmbedding(newTitle)` runs non-blocking after response — embedding stays in sync with title
 - Commits: c36229b (feature) → pending (todo)
 
-**[P-M4] `JWT_SECRET` unused**
-- File: `Backend/.env`
-- Impact: Variable defined but not referenced anywhere — confusion
-- Fix: Remove or document its purpose
+**[P-M4] `JWT_SECRET` unused variable** ✅ DONE 2026-06-03
+- Removed dead `JWT_SECRET=...` from `Backend/.env` (local, gitignored)
+- Removed `JWT_SECRET=...` from `Backend/.env.example`
+- `JWT_STUDENT_SECRET` and `JWT_ADMIN_SECRET` remain (the actual secrets used)
+- Commits: 5944474 (feature) → pending (todo)
 
 ---
 
