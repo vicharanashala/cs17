@@ -18,7 +18,7 @@ dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 // ─── Env Validation ────────────────────────────────────────────────────────
 function validateEnv() {
-  const required = ['MONGODB_URI', 'CLIENT_URL', 'JWT_STUDENT_SECRET', 'JWT_ADMIN_SECRET'];
+  const required = ['MONGODB_URI', 'CLIENT_URL', 'JWT_STUDENT_SECRET', 'JWT_ADMIN_SECRET', 'BASE_URL'];
   for (const key of required) {
     if (!process.env[key]) {
       console.error(`❌ Missing required env var: ${key}`);

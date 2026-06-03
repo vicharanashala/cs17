@@ -37,7 +37,10 @@ router.post('/', upload.array('images', 5), (req, res) => {
     return res.status(400).json({ error: 'No files uploaded.' });
   }
 
-  const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 5002}`;
+  if (!process.env.BASE_URL) {
+    return res.status(500).json({ error: 'BASE_URL is not configured. Set BASE_URL in .env (e.g. http://localhost:5002 or https://your-backend.onrender.com)' });
+  }
+  const baseUrl = process.env.BASE_URL;
   const urls = req.files.map(file => `${baseUrl}/uploads/${file.filename}`);
 
   res.json({ urls });
