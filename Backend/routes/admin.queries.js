@@ -4,13 +4,12 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const Query = require('../models/Query');
 const QueryCache = require('../models/QueryCache');
-const QueryVote = require('../models/QueryVote');
 const Notification = require('../models/Notification');
 const User = require('../models/User');
 const Category = require('../models/Category');
 const FAQ = require('../models/FAQ');
 const authAdmin = require('../middleware/authAdmin');
-const { sendAnswerNotification, sendFAQPromotionNotification, sendRejectionNotification } = require('../services/email');
+
 
 // ─── GET /api/admin/queries — List all queries with filters ─────────────────
 router.get('/queries', authAdmin, async (req, res) => {
@@ -155,18 +154,7 @@ router.patch('/queries/:id/answer', authAdmin, async (req, res) => {
       message: 'Your query has been answered by the admin team.',
     });
 
-    // Notify all interested voters
-    const voters = await QueryVote.find({ queryId: query._id, registeredInterest: true })
-      .populate('userId', 'email name')
-      .lean();
-
-    for (const v of voters) {
-      if (v.notifyEmail && v.userId?.email) {
-        await sendAnswerNotification(v.userId.email, v.userId.name, query.title, answer.trim(), true);
-      }
-    }
-
-    res.json({ message: 'Query answered and voters notified.', query });
+    res.json({ message: 'Query answered.', query });
   } catch (err) {
     console.error('Admin answer error:', err);
     res.status(500).json({ error: 'Failed to answer query.' });
@@ -188,17 +176,6 @@ router.patch('/queries/:id/reject', authAdmin, async (req, res) => {
 
     // Remove from cache
     await QueryCache.findOneAndDelete({ queryId: query._id });
-
-    // Notify all voters
-    const voters = await QueryVote.find({ queryId: query._id })
-      .populate('userId', 'email name')
-      .lean();
-
-    for (const v of voters) {
-      if (v.notifyEmail && v.userId?.email) {
-        await sendRejectionNotification(v.userId.email, v.userId.name, query.title, reason);
-      }
-    }
 
     res.json({ message: 'Query rejected.', query });
 
@@ -316,16 +293,6 @@ router.patch('/queries/:id/approve-pending-answer', authAdmin, async (req, res) 
       queryId: query._id,
       message: 'Your query was answered by the admin team.',
     });
-
-    // Notify voters
-    const voters = await QueryVote.find({ queryId: query._id, registeredInterest: true })
-      .populate('userId', 'email name')
-      .lean();
-    for (const v of voters) {
-      if (v.notifyEmail && v.userId?.email) {
-        await sendAnswerNotification(v.userId.email, v.userId.name, query.title, selected.body, true);
-      }
-    }
 
     // Socket.IO: remove from SolveQuery live list for all clients
     const io = req.app.get('io');
@@ -446,16 +413,7 @@ router.patch('/queries/:id/override-answer', authAdmin, async (req, res) => {
       { answer: answer.trim(), answerStatus: 'answered' }
     );
 
-    // Only notify the original asker (spec: community answerer NOT notified)
-    const askerVote = await QueryVote.findOne({ queryId: query._id, userId: query.submittedBy })
-      .populate('userId', 'email name')
-      .lean();
-
-    if (askerVote?.notifyEmail && askerVote.userId?.email) {
-      await sendAnswerNotification(askerVote.userId.email, askerVote.userId.name, query.title, answer.trim(), true);
-    }
-
-    res.json({ message: 'Answer overridden. Only the asker notified.', query });
+    res.json({ message: 'Answer overridden.', query });
   } catch (err) {
     res.status(500).json({ error: 'Failed to override answer.' });
   }
@@ -498,18 +456,7 @@ router.patch('/queries/:id/promote-faq', authAdmin, async (req, res) => {
     // Remove from 15-day cache
     await QueryCache.findOneAndDelete({ queryId: query._id });
 
-    // Notify all voters
-    const voters = await QueryVote.find({ queryId: query._id })
-      .populate('userId', 'email name')
-      .lean();
-
-    for (const v of voters) {
-      if (v.notifyEmail && v.userId?.email) {
-        await sendFAQPromotionNotification(v.userId.email, v.userId.name, query.title);
-      }
-    }
-
-    res.json({ message: 'Query promoted to FAQ. Voters notified.', faqEntry: { question, answer, category, tags } });
+    res.json({ message: 'Query promoted to FAQ.', faqEntry: { question, answer, category, tags } });
   } catch (err) {
     res.status(500).json({ error: 'Failed to promote to FAQ.' });
   }
