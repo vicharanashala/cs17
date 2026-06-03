@@ -196,11 +196,12 @@
 
 ### 🟢 LOW — Nice to have
 
-**[P-L1] Upload route is public (no auth middleware)**
-- File: `Backend/routes/upload.js`
-- Issue: `router.post('/', ...)` has no `authStudent` or rate-limit override
-- Impact: Anyone can flood the disk with image uploads
-- Fix: Add `authStudent` middleware + `postLimiter`
+**[P-L1] Upload route is public** ✅ DONE 2026-06-03
+- `server.js`: added `const authStudent = require('./middleware/authStudent')` + applied to `/api/upload` mount
+- Before: unauthenticated multipart POST — anyone could flood `uploads/`
+- After: requires valid `studentToken` JWT cookie; `generalLimiter` (200 req/15min per IP) still applies
+- Abuse now tied to a real user account — can be traced and deactivated
+- Commits: 336d32e (feature) → pending (todo)
 
 **[P-L2] `BASE_URL` fallback to localhost in upload.js**
 - File: `Backend/routes/upload.js`
