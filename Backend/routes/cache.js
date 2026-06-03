@@ -150,6 +150,14 @@ router.post('/:cacheId/vote', authStudent, async (req, res) => {
       });
       if (voteType === 'upvote') {
         await QueryCache.findByIdAndUpdate(entry._id, { $inc: { upvotes: 1 } });
+        // Sync upvote to parent Query voteCount (for admin dashboard display)
+        if (entry.queryId?._id) {
+          await Query.findByIdAndUpdate(entry.queryId._id, { $inc: { voteCount: 1 } });
+        }
+        // Also track answer upvotes separately (different from question upvotes)
+        if (target === 'answer') {
+          await QueryCache.findByIdAndUpdate(entry._id, { $inc: { answerUpvotes: 1 } });
+        }
         // Also register interest for notification on question upvote
         if (target === 'question') {
           await QueryVote.findOneAndUpdate(
@@ -176,7 +184,7 @@ router.post('/:cacheId/vote', authStudent, async (req, res) => {
         );
         await syncQueryFlagCount(flagged);
         // Auto-hide if flags exceed threshold
-        if (flagged.flags > 3) {
+        if (flagged.flags >= 3) {
           await QueryCache.findByIdAndUpdate(entry._id, { isHidden: true });
 
           // Penalise answerer: -1 confidence, notify answerer

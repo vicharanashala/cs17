@@ -71,6 +71,10 @@ const querySchema = new mongoose.Schema(
     embedding: { type: [Number], default: [] },
 
     notifyEmail: { type: Boolean, default: true }, // submitter email pref at time of submission
+
+    // Back-reference to the QueryCache entry created on submission
+    // Used by admin dashboard to check isHidden status without a separate lookup
+    cacheEntry: { type: mongoose.Schema.Types.ObjectId, ref: 'QueryCache', default: null },
   },
   { timestamps: true }
 );

@@ -7,6 +7,7 @@ const queryCacheSchema = new mongoose.Schema(
     answer: { type: String, default: null },
     answerStatus: { type: String, enum: ['pending', 'answered'], default: 'pending' },
     upvotes: { type: Number, default: 0 },
+    answerUpvotes: { type: Number, default: 0 }, // separate counter for answer upvotes
     flags: { type: Number, default: 0 },
     screenshotUrls: { type: [String], default: [] }, // denormalised from Query at cache creation time
     isHidden: { type: Boolean, default: false }, // auto-hidden when flags > 3

@@ -154,10 +154,6 @@
 - For production: add custom domain or upgrade to paid Resend plan to enable student emails
 - Commits: 78d498e (setup) → 9765038 (test) → 9bd1bd3 (backend) → fb857c5 (frontend) → pending (todo)
 
-**[P-H2] MongoDB Atlas Vector Search index** — DEFERRED (M0 tier doesn't support Vector Search; needs M10+)
-- Collection: `queries` — `embedding` field (384-dim MiniLM) has no Atlas index
-- Impact: Cosine similarity layer inactive; falls back to Jaccard/Levenshtein only
-- Fix: Upgrade to M10+ cluster → create Vector Search index in Atlas UI (field=`embedding`, dim=384, sim=`cosine`)
 
 **[P-H3] Image upload stored locally on disk** — DEFERRED to deploy-time
 - File: `Backend/routes/upload.js` + `server.js`

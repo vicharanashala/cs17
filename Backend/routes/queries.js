@@ -32,7 +32,7 @@ router.post('/', authStudent, async (req, res) => {
     const recentQueries = await Query.find({
       status: { $nin: ['deleted', 'rejected'] },
     })
-      .project({ _id: 1, title: 1, embedding: 1, submittedBy: 1, status: 1, answer: 1, voteCount: 1, createdAt: 1 })
+      .select({ _id: 1, title: 1, embedding: 1, submittedBy: 1, status: 1, answer: 1, voteCount: 1, createdAt: 1 })
       .hint({ status: 1, createdAt: -1 })
       .sort({ createdAt: -1 })
       .limit(500)
@@ -109,15 +109,17 @@ router.post('/', authStudent, async (req, res) => {
       voteCount: 1,
     });
 
-    // Add to 15-day cache
+    // Add to 15-day cache and back-link it on the Query document
     const expiresAt = new Date(Date.now() + CACHE_TTL_DAYS * 24 * 60 * 60 * 1000);
-    await QueryCache.create({
+    const cacheEntry = await QueryCache.create({
       queryId: newQuery._id,
       title: newQuery.title,
       answerStatus: 'pending',
       expiresAt,
       screenshotUrls: screenshotUrls.slice(0, 5),
     });
+    newQuery.cacheEntry = cacheEntry._id;
+    await newQuery.save();
 
     // Register submitter as first voter
     await QueryVote.create({
