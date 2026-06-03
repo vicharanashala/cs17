@@ -11,6 +11,7 @@ const path = require('path');
 const rateLimit = require('express-rate-limit');
 const cron = require('node-cron');
 const { sendAdminDigest } = require('./services/emailDigest');
+const authStudent = require('./middleware/authStudent');
 
 
 dotenv.config({ path: path.resolve(__dirname, '.env') });
@@ -106,7 +107,7 @@ app.use('/api/faqs',        postLimiter,       require('./routes/faq'));
 app.use('/api/auth',                           require('./routes/auth'));
 app.use('/api/admin/auth',                     require('./routes/admin.auth'));
 app.use('/api/categories',                     require('./routes/categories'));
-app.use('/api/upload',                          require('./routes/upload'));
+app.use('/api/upload', authStudent,             require('./routes/upload'));
 app.use('/uploads',                              express.static(path.join(__dirname, 'uploads')));
 app.use('/api/queries',                        require('./routes/queries'));
 app.use('/api/similarity',  similarityLimiter, require('./routes/similarity'));
