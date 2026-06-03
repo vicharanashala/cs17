@@ -142,10 +142,13 @@
 
 ### 🔴 HIGH — Must fix before production
 
-**[P-H1] SMTP not configured**
-- File: `Backend/.env` — placeholder values for `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`
-- Impact: Email notifications silently skipped; students/admins never receive them
-- Fix: Replace with real Mailgun/SendGrid/Resend credentials
+**[P-H1] SMTP — Resend configured** ✅ DONE 2026-06-03
+- Removed nodemailer, added `resend` SDK
+- `Backend/services/email.js` rewritten with Resend HTTP API
+- `Backend/.env` has `RESEND_API_KEY` + `RESEND_FROM_EMAIL` set
+- All 3 email templates tested: `sendAnswerNotification`, `sendFAQPromotionNotification`, `sendRejectionNotification` — all 200 OK
+- Free tier limitation: can only send to verified email addresses (`kiwi61472@gmail.com`); for production add custom domain or upgrade to paid plan
+- Commits: 78d498e (setup) → 9765038 (test) → pending (todo)
 
 **[P-H2] MongoDB Atlas Vector Search index** — DEFERRED (M0 tier doesn't support Vector Search; needs M10+)
 - Collection: `queries` — `embedding` field (384-dim MiniLM) has no Atlas index
