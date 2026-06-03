@@ -2,7 +2,7 @@
 ## `D:\summership IIT Ropar\FAQ_SOFTWARE`
 
 **Maintained by:** Hedwig 🦉
-**Last updated:** 2026-06-02 22:40 GMT+5:30
+**Last updated:** 2026-06-03 15:12 GMT+5:30
 **Backend:** Express 5 · MongoDB Atlas · Socket.IO · MiniLM-L6-v2
 **Frontend:** React 19 · Vite · Zustand · Tailwind CSS
 
@@ -19,8 +19,8 @@
 ## ✅ COMPLETED & VERIFIED
 
 ### Auth & Security
-- [x] Student JWT with httpOnly `student_token` cookie + 10-min sliding window
-- [x] Admin JWT with httpOnly `admin_token` cookie + 4-hour hard session
+- [x] Student JWT with httpOnly `studentToken` cookie + 10-min sliding window
+- [x] Admin JWT with httpOnly `adminToken` cookie + 4-hour hard session
 - [x] Admin user provisioning (create/deactivate accounts)
 - [x] bcrypt hashing (12 rounds)
 - [x] express-rate-limit on auth/general routes (20 req/15min auth, 200 req/15min general)
@@ -85,22 +85,26 @@
 - [x] Query list with status tabs: Pending / Under Review / In Progress / Answered / Rejected / Deleted / All
 - [x] Search + sort (oldest/newest/most-voted/alpha)
 - [x] Query drawer: answer / reject (with reason) / promote-to-FAQ / override / approve-trusted / mark-seen / mark-progress / soft-delete / restore / unhide-from-genie
-- [x] Context-aware action buttons (Answer/Reject hidden when already answered/rejected) — FIXED 2026-06-02
+- [x] Context-aware action buttons (Answer/Reject hidden when already answered/rejected)
 - [x] Screenshot display in drawer
-- [x] Answerer identity shown (answeredBy populated with name + email)
-- [x] Pending answers section with per-item ✓ Approve button (M2 — committed `5a2aa2f`)
-- [x] Comments section showing approved student answers as community discussion (M2 — committed `5a2aa2f`)
+- [x] Answerer identity shown (answeredBy.name + email; trusted badge for trusted users)
+- [x] Pending answers section with per-item ✓ Approve button
+- [x] Comments section showing approved student answers as community discussion
 - [x] `unhide` button appears in drawer when `cacheEntry.isHidden === true`
-- [x] Flag count shown in drawer header (P1 — flagCount synced from QueryCache on every flag vote) — FIXED 2026-06-02
-- [x] `flagCount` stored in Query model, back-populated via `scripts/syncFlagCount.js` — FIXED 2026-06-02
+- [x] Flag count shown in drawer header (`flagCount` synced from QueryCache on every flag vote)
 - [x] User management (create account, deactivate/reactivate)
 - [x] Category CRUD
-- [ ] **FAQ Management backend routes** — `POST /api/admin/faqs`, `PUT /api/admin/faqs/:id`, `DELETE /api/admin/faqs/:id` return 404; AdminDashboard has the full CRUD UI but no working endpoints
-- [ ] **Admin cache/Genie management routes** — no `GET /api/admin/cache`, `PATCH /api/admin/cache/:id` routes mounted; `unhide` only works via query drawer, no standalone cache management
-- [ ] **Admin dedicated Genie page** — no `/admin/genie` route, no `AdminGenie.jsx` or `AdminCache.jsx`; admin sees no separate Genie tab (correctly absent)
-- [x] **Trusted user direct-answer auto reward** — `approve-trusted` ✅ correctly awards +1 confidence; trusted path in `answers.js` now also awards `+1 confidence` and sends `trusted_confirmed` notification — FIXED 2026-06-02
-- [x] **Admin user PATCH requires `active` boolean** — cannot set `confidenceScore` alone; must pass `{ active: true, confidenceScore: N }` — FIXED 2026-06-02 (either field works independently; validation added)
-
+- [x] **FAQ Management** — full CRUD at `/api/faqs` (POST/PUT/DELETE) — tested working end-to-end ✅
+- [x] **Trusted user auto-reward** — `approve-trusted` awards +1 confidence; trusted direct-answer in `answers.js` also awards +1 confidence
+- [x] **Admin Genie (cache management) page** — implemented 2026-06-03
+  - `Backend/routes/admin.cache.js`: GET /api/admin/cache/all, PATCH hide, PATCH unhide, DELETE (cascade CacheVote)
+  - AdminDashboard.jsx: 'genie' tab with paginated table (title, category, upvotes, flags, answer status, hidden status, expiry)
+  - All/Visible/Hidden filter + title search + pagination
+  - Per-row actions: Hide (removes from student Genie), Unhide (restores to Genie), Delete (hard-delete with confirm dialog)
+  - All 4 endpoints tested: 200 OK confirmed via Node.js HTTP
+  - Commits: beee11d (scaffold) → 642e773 (routes) → 3767f8b (UI + test)
+  - Pushed to origin/main ✅
+- [~] **Restore + unhide coordination issue** (low severity): `PATCH /restore` restores `adminDeleted` but does NOT automatically call `unhide` on the cache entry — if a query was both soft-deleted AND later auto-hidden (3+ flags), clicking "Restore to Answered" alone doesn't bring it back to the Genie. Admin must also click "Restore to Forum" (unhide) separately. Not a crash — just a UX gap.
 
 ### Real-time
 - [x] Socket.IO server running with JWT handshake auth
@@ -212,60 +216,23 @@
 
 ---
 
-## 🗺️ FULLY VERIFIED API ROUTES
+## 📁 ROUTE MAP (confirmed from server.js)
 
-| Method | Path | Auth | Status |
-|--------|------|------|--------|
-| POST | `/api/auth/login` | Public | ✅ |
-| POST | `/api/auth/logout` | Student | ✅ |
-| GET | `/api/auth/me` | Student | ✅ |
-| POST | `/api/auth/change-password` | Student | ✅ |
-| POST | `/api/admin/auth/login` | Public | ✅ |
-| POST | `/api/admin/auth/logout` | Admin | ✅ |
-| GET | `/api/admin/auth/me` | Admin | ✅ |
-| GET | `/api/admin/queries` | Admin | ✅ |
-| PATCH | `/api/admin/queries/:id/answer` | Admin | ✅ |
-| PATCH | `/api/admin/queries/:id/reject` | Admin | ✅ |
-| PATCH | `/api/admin/queries/:id/approve-trusted` | Admin | ✅ |
-| PATCH | `/api/admin/queries/:id/override-answer` | Admin | ✅ |
-| PATCH | `/api/admin/queries/:id/promote-faq` | Admin | ✅ |
-| PATCH | `/api/admin/queries/:id/mark-seen` | Admin | ✅ |
-| PATCH | `/api/admin/queries/:id/mark-progress` | Admin | ✅ |
-| PATCH | `/api/admin/queries/:id/soft-delete` | Admin | ✅ |
-| PATCH | `/api/admin/queries/:id/restore` | Admin | ✅ |
-| PATCH | `/api/admin/queries/:id/unhide` | Admin | ✅ |
-| GET | `/api/admin/users` | Admin | ✅ |
-| POST | `/api/admin/users` | Admin | ✅ |
-| PATCH | `/api/admin/users/:id` | Admin | ✅ |
-| POST | `/api/queries` | Student | ✅ |
-| GET | `/api/queries/mine` | Student | ✅ |
-| GET | `/api/queries/:id` | Student | ✅ |
-| PATCH | `/api/queries/:id` | Student | ✅ |
-| DELETE | `/api/queries/:id` | Student | ✅ |
-| POST | `/api/queries/:id/not-satisfied` | Student | ✅ |
-| POST | `/api/answers/:queryId` | Student | ✅ |
-| POST | `/api/similarity/scan` | Student | ✅ |
-| GET | `/api/cache/top5` | Student | ✅ |
-| GET | `/api/cache/unanswered` | Student | ✅ |
-| GET | `/api/cache/search?q=` | Student | ✅ |
-| POST | `/api/cache/:cacheId/vote` | Student | ✅ |
-| GET | `/api/notifications` | Student | ✅ |
-| GET | `/api/notifications/count` | Student | ✅ |
-| PATCH | `/api/notifications/:id/read` | Student | ✅ |
-| POST | `/api/notifications/read-all` | Student | ✅ |
-| GET | `/api/drafts/mine` | Student | ✅ |
-| PUT | `/api/drafts/mine` | Student | ✅ |
-| DELETE | `/api/drafts/mine` | Student | ✅ |
-| GET | `/api/categories` | Public | ✅ |
-| POST | `/api/categories` | Admin | ✅ |
-| PATCH | `/api/categories/:id` | Admin | ✅ |
-| DELETE | `/api/categories/:id` | Admin | ✅ |
-| GET | `/api/stats` | Public | ✅ |
-| POST | `/api/upload` | Public | ⚠️ Needs auth |
-| GET | `/api/faqs/all` | Public | ✅ |
-| GET | `/health` | Public | ✅ |
-
----
+```
+app.use('/api/faqs',          postLimiter,  require('./routes/faq'));        // CRUD + authAdmin
+app.use('/api/auth',                          require('./routes/auth'));       // student auth
+app.use('/api/admin/auth',                    require('./routes/admin.auth')); // admin auth
+app.use('/api/categories',                    require('./routes/categories'));
+app.use('/api/upload',                         require('./routes/upload'));     // ⚠ no auth
+app.use('/api/queries',                       require('./routes/queries'));
+app.use('/api/similarity',  similarityLimiter,require('./routes/similarity'));
+app.use('/api/cache',                          require('./routes/cache'));
+app.use('/api/stats',                          require('./routes/stats'));
+app.use('/api/drafts',                         require('./routes/drafts'));
+app.use('/api/answers',                        require('./routes/answers'));
+app.use('/api/admin',                          require('./routes/admin.queries'));
+app.use('/api/notifications',                  require('./routes/notifications'));
+```
 
 ## 📁 KEY FILES REFERENCE
 
@@ -289,5 +256,5 @@
 
 ---
 
-*Last full inspection: 2026-06-02 19:57 GMT+5:30*
+*Last full inspection: 2026-06-03 15:10 GMT+5:30*
 *Hedwig 🦉 — VINS · Yaksha FAQ Platform*
