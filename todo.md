@@ -169,11 +169,11 @@
 
 ### 🟡 MEDIUM — Polish / correctness
 
-**[P-M1] `similarity.scan` in-memory query fetching**
-- File: `Backend/routes/similarity.js`
-- Issue: `Query.find({...}).limit(500).lean()` fetched on every scan with no index hint
-- Impact: Degrades under load (500 documents scanned per similarity check)
-- Fix: Add covering index on `{status: 1, createdAt: -1}` or add projection `{_id:1, title:1, embedding:1}`
+**[P-M1] `similarity.scan` index + projection** ✅ DONE 2026-06-03
+- `scripts/m1_similarity_index.js`: creates compound index `{ status: 1, createdAt: -1 }` on queries collection (background, non-blocking)
+- `similarity.js`: added `.project({ _id, title, embedding, submittedBy, status, tags, voteCount, answer, category })` — covering projection, cuts data from ~768KB → ~100KB per scan
+- Added `.hint({ status: 1, createdAt: -1 })` — forces compound index usage, avoids collection scan
+- Commits: ed35c30 (migration) → 86ec6f8 (projection+hint) → pending (todo)
 
 **[P-M2] Pending answer overwrite race condition** ✅ DONE
 - File: `Backend/routes/answers.js` + `models/Query.js` + `routes/admin.queries.js`
