@@ -2,7 +2,7 @@
 ## `D:\summership IIT Ropar\FAQ_SOFTWARE`
 
 **Maintained by:** Hedwig 🦉
-**Last updated:** 2026-06-03 15:12 GMT+5:30
+**Last updated:** 2026-06-03 17:24 GMT+5:30
 **Backend:** Express 5 · MongoDB Atlas · Socket.IO · MiniLM-L6-v2
 **Frontend:** React 19 · Vite · Zustand · Tailwind CSS
 
@@ -216,10 +216,11 @@
 - Added all 14 actual fields with descriptions + correct indexes
 - Commits: 8b6ec6a → c90f97a → pending (todo)
 
-**[P-L4] Admin session hard-expiry policy**
-- File: `Backend/middleware/authAdmin.js`
-- Issue: Admin JWT has 4-hour hard session (no sliding window) — active admin still expires in 4h
-- Fix: Consider sliding window for admin if longer sessions desired
+**[P-L4] Admin session hard-expiry policy** ✅ DONE (already correct)
+- `ADMIN_SESSION_HOURS = 4` in `admin.auth.js` — hardcoded, no sliding window
+- `jwt.sign` uses `expiresIn: '4h'` — session dies at the 4-hour mark regardless of activity
+- `GET /me` does NOT reissue token — verified in `admin.auth.js`
+- No code change needed — was already implemented correctly
 
 ---
 
