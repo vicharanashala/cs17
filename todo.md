@@ -75,7 +75,7 @@
 - [x] `query_answered` (admin + trusted answerer)
 - [x] `query_rejected`
 - [x] `added_to_faq`
-- [x] `trusted_confirmed` (+1 confidence awarded) — ✅ implemented in `approve-trusted` route; ❌ NOT sent when trusted user auto-posts directly from `answers.js`
+- [x] `trusted_confirmed` (+1 confidence awarded) — implemented in both `approve-trusted` (admin route) and trusted direct-answer path in `answers.js`
 - [x] `escalation_acked` (triggered on mark-seen after escalation)
 - [x] `answer_flagged` (when 3-flag auto-hide triggers)
 - [x] Email notification service (Nodemailer, skips silently if SMTP not configured)
@@ -108,7 +108,7 @@
   - `PATCH /api/admin/queries/:id/restore` now calls `QueryCache.findOne({ queryId })` and also sets `isHidden=false` if the cache entry was auto-hidden by flags
   - Also fixed `PATCH /queries/:id/unhide` which had the same `populate('cacheEntry')` bug (Query model has no cacheEntry field — was causing CastError 500)
   - Single 'Restore to Answered' click now fully restores to both Answered tab AND Genie
-  - Commits: 1dd5804 (fix) → 172ae45 (test) → pending todo update
+  - Commits: 1dd5804 → 172ae45 → 97e2f68 (all pushed ✅)
 
 ### Real-time
 - [x] Socket.IO server running with JWT handshake auth
