@@ -331,7 +331,7 @@ export default function AdminDashboard() {
   const [page, setPage] = useState(1);
   const [loadingQ, setLoadingQ] = useState(false);
   const [selected, setSelected] = useState(null);
-  const [activeSection, setActiveSection] = useState('queries'); // queries | users | faq
+  const [activeSection, setActiveSection] = useState('queries'); // queries | users | faq | genie
   const [faqList, setFaqList] = useState([]);
   const [faqTotal, setFaqTotal] = useState(0);
   const [faqPage, setFaqPage] = useState(1);
@@ -344,6 +344,15 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [userForm, setUserForm] = useState({ name: '', email: '', password: '' });
   const [userMsg, setUserMsg] = useState('');
+  // ── Genie (Cache) section ───────────────────────────────────────────
+  const [genieList, setGenieList] = useState([]);
+  const [genieTotal, setGenieTotal] = useState(0);
+  const [geniePage, setGeniePage] = useState(1);
+  const [genieFilter, setGenieFilter] = useState('all'); // all | hidden | visible
+  const [genieSearch, setGenieSearch] = useState('');
+  const [genieLoading, setGenieLoading] = useState(false);
+  const [genieDeleting, setGenieDeleting] = useState(null); // id being deleted
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -384,6 +393,43 @@ export default function AdminDashboard() {
     finally { setFaqLoading(false); }
   };
   useEffect(() => { if (admin && activeSection === 'faq') fetchFaqs(); }, [admin, activeSection, faqPage, faqSearch]);
+
+  // ── Genie (QueryCache) fetch + actions ─────────────────────────────────────
+  const fetchGenie = async () => {
+    setGenieLoading(true);
+    try {
+      const params = new URLSearchParams({ page: geniePage, limit: 20, filter: genieFilter, search: genieSearch });
+      const r = await api2.get(`/admin/cache/all?${params}`);
+      setGenieList(r.data.entries);
+      setGenieTotal(r.data.total);
+    } catch { setGenieList([]); }
+    finally { setGenieLoading(false); }
+  };
+  useEffect(() => { if (admin && activeSection === 'genie') fetchGenie(); }, [admin, activeSection, geniePage, genieFilter, genieSearch]);
+
+  const hideGenieEntry = async (cacheId) => {
+    try {
+      await api2.patch(`/admin/cache/${cacheId}/hide`);
+      fetchGenie();
+    } catch (err) { console.error('Failed to hide:', err); }
+  };
+
+  const unhideGenieEntry = async (cacheId) => {
+    try {
+      await api2.patch(`/admin/cache/${cacheId}/unhide`);
+      fetchGenie();
+    } catch (err) { console.error('Failed to unhide:', err); }
+  };
+
+  const deleteGenieEntry = async (cacheId) => {
+    if (!window.confirm('Permanently delete this Genie cache entry? This cannot be undone.')) return;
+    setGenieDeleting(cacheId);
+    try {
+      await api2.delete(`/admin/cache/${cacheId}`);
+      setGenieDeleting(null);
+      fetchGenie();
+    } catch (err) { console.error('Failed to delete:', err); setGenieDeleting(null); }
+  };
 
   const saveFaq = async (e) => {
     e.preventDefault();
@@ -449,7 +495,7 @@ export default function AdminDashboard() {
         <div className="flex items-center gap-6">
           <span className="font-headline-md text-headline-md text-ink-50 font-black">Admin · Yaksha</span>
           <nav className="flex gap-1">
-            {['queries', 'faq', 'users'].map((s) => (
+            {['queries', 'faq', 'users', 'genie'].map((s) => (
               <button key={s} onClick={() => setActiveSection(s)}
                 className={`px-3 py-1.5 rounded-lg font-body-sm text-body-sm capitalize transition-colors ${activeSection === s ? 'bg-primary text-on-primary' : 'text-ink-400 hover:text-ink-50 hover:bg-admin-bg'}`}>
                 {s}
@@ -695,6 +741,150 @@ export default function AdminDashboard() {
                 ))}
               </div>
             </div>
+          </div>
+        )}
+
+        {/* ── Genie section ──────────────────────────────────────────────── */}
+        {activeSection === 'genie' && (
+          <div className="flex flex-col gap-6">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <h2 className="font-headline-md text-headline-md text-ink-50">Genie Cache Management</h2>
+              <p className="font-label-mono text-label-mono text-ink-400">
+                {genieTotal} {genieFilter !== 'all' ? `(${genieFilter})` : ''} cache {genieTotal === 1 ? 'entry' : 'entries'}
+              </p>
+            </div>
+
+            {/* Filters */}
+            <div className="flex items-center gap-3 flex-wrap">
+              <div className="flex gap-1 bg-admin-surface border border-admin-border rounded-xl p-1">
+                {[['all','All'],['hidden','Hidden'],['visible','Visible']].map(([val, label]) => (
+                  <button key={val} onClick={() => { setGenieFilter(val); setGeniePage(1); }}
+                    className={`px-3 py-1.5 rounded-lg font-label-mono text-label-mono transition-colors ${
+                      genieFilter === val ? 'bg-admin-bg text-primary' : 'text-ink-400 hover:text-ink-50'}`}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <div className="relative flex-1 min-w-[200px]">
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-ink-400 text-lg">search</span>
+                <input value={genieSearch} onChange={(e) => { setGenieSearch(e.target.value); setGeniePage(1); }}
+                  placeholder="Search cache entries…"
+                  className="w-full pl-10 pr-4 py-2 bg-admin-surface border border-admin-border rounded-xl font-body-sm text-body-sm text-ink-50 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-primary/40"
+                />
+              </div>
+            </div>
+
+            {/* Table */}
+            {genieLoading ? (
+              <div className="flex flex-col gap-2">
+                {[1,2,3,4,5].map((i) => <div key={i} className="h-16 bg-admin-surface rounded-xl animate-pulse" />)}
+              </div>
+            ) : genieList.length === 0 ? (
+              <div className="bg-admin-surface border border-admin-border rounded-xl p-12 text-center">
+                <span className="material-symbols-outlined text-4xl text-ink-400 mb-2">search_off</span>
+                <p className="font-body-sm text-body-sm text-ink-400">No cache entries found.</p>
+              </div>
+            ) : (
+              <div className="bg-admin-surface border border-admin-border rounded-xl overflow-hidden">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="border-b border-admin-border">
+                      <th className="px-4 py-3 font-label-mono text-label-mono text-ink-400 uppercase">Title</th>
+                      <th className="px-4 py-3 font-label-mono text-label-mono text-ink-400 uppercase">Category</th>
+                      <th className="px-4 py-3 font-label-mono text-label-mono text-ink-400 uppercase text-center">Upvotes</th>
+                      <th className="px-4 py-3 font-label-mono text-label-mono text-ink-400 uppercase text-center">Flags</th>
+                      <th className="px-4 py-3 font-label-mono text-label-mono text-ink-400 uppercase">Answer</th>
+                      <th className="px-4 py-3 font-label-mono text-label-mono text-ink-400 uppercase">Status</th>
+                      <th className="px-4 py-3 font-label-mono text-label-mono text-ink-400 uppercase">Expires</th>
+                      <th className="px-4 py-3 font-label-mono text-label-mono text-ink-400 uppercase">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {genieList.map((entry) => (
+                      <tr key={entry._id} className="border-t border-admin-border hover:bg-admin-bg transition-colors">
+                        <td className="px-4 py-3">
+                          <p className="font-body-sm text-body-sm text-ink-50 max-w-[240px] truncate" title={entry.title}>{entry.title}</p>
+                          {entry.queryId?._id && <p className="font-label-mono text-label-mono text-ink-400 mt-0.5">Q: {entry.queryId._id.slice(-6)}</p>}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="font-label-mono text-label-mono text-ink-400">{entry.queryId?.category?.name || '—'}</span>
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          <span className={`font-label-mono text-label-mono ${entry.upvotes > 0 ? 'text-conf-high' : 'text-ink-400'}`}>
+                            {entry.upvotes}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          <span className={`font-label-mono text-label-mono ${entry.flags > 0 ? 'text-error' : 'text-ink-400'}`}>
+                            {entry.flags}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`font-label-mono text-label-mono ${entry.answerStatus === 'answered' ? 'text-conf-high' : 'text-ink-400'}`}>
+                            {entry.answerStatus}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          {entry.isHidden ? (
+                            <span className="inline-flex items-center gap-1 font-label-mono text-label-mono text-error">
+                              <span className="material-symbols-outlined text-base">visibility_off</span> Hidden
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 font-label-mono text-label-mono text-conf-high">
+                              <span className="material-symbols-outlined text-base">visibility</span> Visible
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="font-label-mono text-label-mono text-ink-400" title={new Date(entry.expiresAt).toLocaleString()}>
+                            {new Date(entry.expiresAt).toLocaleDateString()}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-1">
+                            {entry.isHidden ? (
+                              <button onClick={() => unhideGenieEntry(entry._id)}
+                                className="px-2 py-1 bg-conf-high/10 border border-conf-high/30 text-conf-high rounded-lg font-label-mono text-label-mono hover:bg-conf-high/20 transition-colors"
+                                title="Restore to Genie">
+                                Unhide
+                              </button>
+                            ) : (
+                              <button onClick={() => hideGenieEntry(entry._id)}
+                                className="px-2 py-1 bg-admin-bg border border-admin-border text-ink-400 rounded-lg font-label-mono text-label-mono hover:text-ink-50 hover:border-ink-400 transition-colors"
+                                title="Remove from Genie">
+                                Hide
+                              </button>
+                            )}
+                            <button onClick={() => deleteGenieEntry(entry._id)}
+                              disabled={genieDeleting === entry._id}
+                              className="px-2 py-1 bg-admin-bg border border-error/30 text-error rounded-lg font-label-mono text-label-mono hover:bg-error/10 transition-colors disabled:opacity-30"
+                              title="Permanently delete">
+                              {genieDeleting === entry._id ? '…' : 'Delete'}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* Pagination */}
+            {genieTotal > 20 && (
+              <div className="flex items-center gap-3">
+                <button onClick={() => setGeniePage((p) => Math.max(1, p - 1))} disabled={geniePage === 1}
+                  className="px-3 py-1.5 bg-admin-surface border border-admin-border text-ink-400 rounded-lg font-body-sm text-body-sm hover:text-ink-50 disabled:opacity-30 transition-colors">
+                  ← Previous
+                </button>
+                <span className="font-label-mono text-label-mono text-ink-400">Page {geniePage} of {Math.ceil(genieTotal / 20)}</span>
+                <button onClick={() => setGeniePage((p) => p + 1)} disabled={geniePage >= Math.ceil(genieTotal / 20)}
+                  className="px-3 py-1.5 bg-admin-surface border border-admin-border text-ink-400 rounded-lg font-body-sm text-body-sm hover:text-ink-50 disabled:opacity-30 transition-colors">
+                  Next →
+                </button>
+              </div>
+            )}
           </div>
         )}
       </main>
