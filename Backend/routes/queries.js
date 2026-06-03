@@ -28,10 +28,12 @@ router.post('/', authStudent, async (req, res) => {
 
     const trimmedTitle = title.trim();
 
-    // ── Server-side duplicate check ──────────────────────────────────────
+    // ── Server-side duplicate check (M1 index hint + covering projection) ──
     const recentQueries = await Query.find({
       status: { $nin: ['deleted', 'rejected'] },
     })
+      .project({ _id: 1, title: 1, embedding: 1, submittedBy: 1, status: 1, answer: 1, voteCount: 1, createdAt: 1 })
+      .hint({ status: 1, createdAt: -1 })
       .sort({ createdAt: -1 })
       .limit(500)
       .lean();
@@ -83,9 +85,20 @@ router.post('/', authStudent, async (req, res) => {
       });
     }
 
+    // ── Generate MiniLM embedding BEFORE saving (M3 fix) ───────────────
+    // Await so the query is stored with embedding immediately — duplicate
+    // detection next time hits the vector layer, not just Jaccard/Levenshtein.
+    let embedding = null;
+    try {
+      embedding = await generateEmbedding(trimmedTitle);
+    } catch (err) {
+      console.error('Embedding generation failed on submit:', err.message);
+    }
+
     // ── Create new query ─────────────────────────────────────────────────
     const newQuery = await Query.create({
       title: trimmedTitle,
+      embedding,
       category,
       submittedBy: req.user._id,
       tags: tags.slice(0, 5).map((t) => t.toLowerCase().replace(/\s+/g, '-').replace(/^#/, '')),
@@ -131,17 +144,6 @@ router.post('/', authStudent, async (req, res) => {
     // Emit to all connected clients so Genie/search results update live
     const io = req.app.get('io');
     if (io) io.emit('query:new', { _id: newQuery._id, title: newQuery.title, status: newQuery.status, createdAt: newQuery.createdAt });
-
-
-    // Generate and store MiniLM embedding after response sent (non-blocking)
-    generateEmbedding(trimmedTitle)
-      .then((embedding) => {
-        if (embedding) {
-          newQuery.embedding = embedding;
-          newQuery.save().catch((err) => console.error('Failed to save embedding:', err.message));
-        }
-      })
-      .catch((err) => console.error('Embedding generation failed:', err.message));
   } catch (err) {
     console.error('Submit query error:', err);
     res.status(500).json({ error: 'Failed to submit query.' });
@@ -221,6 +223,20 @@ router.patch('/:id', authStudent, async (req, res) => {
 
     await query.save();
     res.json({ message: 'Query updated.', query });
+
+    // Regenerate embedding after response (non-blocking) if title changed —
+    // the new title's vector is different so the old embedding is stale.
+    if (title) {
+      const updatedTitle = title.trim();
+      generateEmbedding(updatedTitle)
+        .then((embedding) => {
+          if (embedding) {
+            query.embedding = embedding;
+            query.save().catch((err) => console.error('Embedding regeneration failed:', err.message));
+          }
+        })
+        .catch((err) => console.error('Embedding regeneration failed:', err.message));
+    }
   } catch (err) {
     res.status(500).json({ error: 'Failed to update query.' });
   }
