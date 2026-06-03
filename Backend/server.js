@@ -115,6 +115,7 @@ app.use('/api/stats',                            require('./routes/stats'));
 app.use('/api/drafts',                         require('./routes/drafts'));
 app.use('/api/answers',                        require('./routes/answers'));
 app.use('/api/admin',                          require('./routes/admin.queries'));
+app.use('/api/admin/cache',                      require('./routes/admin.cache'));
 app.use('/api/notifications',                    require('./routes/notifications'));
 
 // ─── Health Check ──────────────────────────────────────────────────────────
