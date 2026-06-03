@@ -1013,17 +1013,30 @@ All collections live in a single MongoDB Atlas M0 (free) cluster in a database n
 ```js
 {
   _id: ObjectId,
-  question: String,          // required, max 300 chars
-  answer: String,            // required, supports basic markdown
-  category: ObjectId,        // ref: categories
-  tags: [String],            // array of tag strings
-  promotedFrom: ObjectId,    // ref: queries — null if manually created by admin
-  createdBy: ObjectId,       // ref: admins
-  createdAt: Date,
-  updatedAt: Date
+  question: String,                    // required, max 300 chars
+  answer: String,                      // required, supports basic markdown
+  category: String,                    // e.g. "ABOUT THE INTERNSHIP", "VIBE PLATFORM" — not a DB ref
+  moduleNumber: Number,                // required, module 1-13 for ordering
+  questionNumber: Number,              // required, question number within module
+  sectionId: String,                   // e.g. "q-1-1" for anchor links
+  displayNumber: String,               // e.g. "1.1" for UI display
+  helpfulCount: Number,                // default: 0 — "This answered my question" yes clicks
+  resolvedViaEscalation: Boolean,      // default: false — true if entered FAQ via Page 3 escalation
+  peerFootnote: {                      // optional 200-char community note
+    text: String,
+    authorName: String,
+    approvedByAdmin: Boolean           // default: false
+  },
+  gapScore: Number,                    // default: 0 — computed nightly by gapTracker.js
+  phase: [String],                     // e.g. ["may", "june"] — deadline surfacing tags
+  popularBadge: Boolean,               // default: false — admin-toggled 🔥 badge
+  createdAt: Date,                     // auto
+  updatedAt: Date                      // auto
 }
 ```
-**Indexes:** `{ category: 1 }`, `{ tags: 1 }`
+**Indexes:** `{ moduleNumber: 1, questionNumber: 1 }` unique
+
+**Note:** `promotedFrom`, `createdBy`, and `tags` are not stored as FAQ model fields — promoted entries keep their original `queryId` reference in the queries schema. Use `sectionId` (e.g. "q-1-1") for anchor links.
 
 ---
 
