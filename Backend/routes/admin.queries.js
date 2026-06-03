@@ -370,12 +370,13 @@ router.patch('/queries/:id/mark-seen', authAdmin, async (req, res) => {
 // ─── PATCH /api/admin/queries/:id/unhide — Restore auto-hidden cache entry ────
 router.patch('/queries/:id/unhide', authAdmin, async (req, res) => {
   try {
-    const query = await Query.findById(req.params.id).populate('cacheEntry');
+    const query = await Query.findById(req.params.id);
     if (!query) return res.status(404).json({ error: 'Query not found.' });
 
-    if (query.cacheEntry && query.cacheEntry.isHidden) {
-      query.cacheEntry.isHidden = false;
-      await query.cacheEntry.save();
+    const cacheEntry = await QueryCache.findOne({ queryId: query._id });
+    if (cacheEntry && cacheEntry.isHidden) {
+      cacheEntry.isHidden = false;
+      await cacheEntry.save();
     }
 
     res.json({ message: 'Query restored to forum.' });
@@ -403,20 +404,21 @@ router.patch('/queries/:id/soft-delete', authAdmin, async (req, res) => {
 // ─── PATCH /api/admin/queries/:id/restore — Restore to Answered folder ───────
 router.patch('/queries/:id/restore', authAdmin, async (req, res) => {
   try {
-    const query = await Query.findById(req.params.id).populate('cacheEntry');
+    const query = await Query.findById(req.params.id);
     if (!query) return res.status(404).json({ error: 'Query not found.' });
     query.adminDeleted = false;
     await query.save();
 
     // Also restore to Genie if the cache entry was auto-hidden by flags
-    if (query.cacheEntry && query.cacheEntry.isHidden) {
-      query.cacheEntry.isHidden = false;
-      await query.cacheEntry.save();
+    const cacheEntry = await QueryCache.findOne({ queryId: query._id });
+    if (cacheEntry && cacheEntry.isHidden) {
+      cacheEntry.isHidden = false;
+      await cacheEntry.save();
     }
 
     res.json({ message: 'Query restored to Answered folder.' });
   } catch (err) {
-    res.status(500).json({ error: 'Failed.' });
+    res.status(500).json({ error: 'Restore failed.' });
   }
 });
 
