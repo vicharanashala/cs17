@@ -101,7 +101,7 @@ export default function RaiseQuery({ user }) {
     setSubmitting(true);
     try {
       const tagList = tags.split(',').map((t) => t.trim()).filter(Boolean);
-      const res = await api2.post('/queries', { title: title.trim(), category, tags: tagList, imageUrls: images });
+      const res = await api2.post('/queries', { title: title.trim(), category, tags: tagList, screenshotUrls: images });
 
       if (res.data.code === 'DUPLICATE_VOTED') {
         setSuccess('A similar question exists — your vote has been added.');
