@@ -210,10 +210,11 @@
 - Local `.env`: `BASE_URL=http://localhost:5002` set (gitignored, not in git)
 - Commits: b9195a6 (feature) → pending (todo)
 
-**[P-L3] PRD.md FAQ DB schema truncated**
-- File: `PRD.md`
-- Impact: Specification is incomplete for FAQ collection
-- Fix: Add complete FAQ schema to PRD.md
+**[P-L3] PRD.md FAQ DB schema truncated** ✅ DONE 2026-06-03
+- `PRD.md` section 7.4 rewritten to match actual `FAQ.js` model
+- `category: ObjectId` → `category: String` (type was wrong)
+- Added all 14 actual fields with descriptions + correct indexes
+- Commits: 8b6ec6a → c90f97a → pending (todo)
 
 **[P-L4] Admin session hard-expiry policy**
 - File: `Backend/middleware/authAdmin.js`
