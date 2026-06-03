@@ -180,11 +180,11 @@
 - Fix: `query.pendingAnswers` array accumulates all student answers (no overwrite); admin approves one via `PATCH .../approve-pending-answer` → sets official `answer`, migrates all pending to `comments`
 - Commits: `53501a6` `580d2ed` `5a2aa2f`
 
-**[P-M3] Embedding race on submission**
-- File: `Backend/routes/queries.js`
-- Issue: `generateEmbedding()` runs after `res.json()` → query saved without embedding; duplicate detection next time misses vector layer
-- Impact: Recently submitted queries only use Jaccard/Levenshtein until query is re-saved
-- Fix: `await generateEmbedding()` before saving query, or save with embedding in same call
+**[P-M3] Embedding race on submission** ✅ DONE 2026-06-03
+- POST /queries: `generateEmbedding(title)` now awaited BEFORE `Query.create()` — embedding stored on first save, no race window
+- POST /queries dup-check query: also gets M1 index hint + covering projection (same as similarity.js)
+- PATCH /queries/:id: when title is edited, `generateEmbedding(newTitle)` runs non-blocking after response — embedding stays in sync with title
+- Commits: c36229b (feature) → pending (todo)
 
 **[P-M4] `JWT_SECRET` unused**
 - File: `Backend/.env`
