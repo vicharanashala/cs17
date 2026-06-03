@@ -9,6 +9,28 @@ const User = require('../models/User');
 const Category = require('../models/Category');
 const FAQ = require('../models/FAQ');
 const authAdmin = require('../middleware/authAdmin');
+const QueryVote = require('../models/QueryVote');
+
+
+// ─── Helper: notify users who clicked 'Notify me' via Genie ─
+async function notifyInterestedUsers(queryId, message, type) {
+  try {
+    const votes = await QueryVote.find({ queryId, registeredInterest: true }).populate('userId', 'name email');
+    await Promise.all(
+      votes.map((v) =>
+        Notification.create({
+          notifiedUser: v.userId._id,
+          type,
+          queryId,
+          message,
+        })
+      )
+    );
+  } catch (err) {
+    console.error('[notifyInterestedUsers]', err);
+  }
+}
+
 
 
 // ─── GET /api/admin/queries — List all queries with filters ─────────────────
@@ -73,6 +95,7 @@ router.get('/queries', authAdmin, async (req, res) => {
       .populate('category', 'name slug')
       .populate('submittedBy', 'name email')
       .populate('answeredBy', 'name email')
+      .populate({ path: 'cacheEntry', select: 'isHidden' })
       .lean();
 
     // Populate pendingAnswers and comments author names for admin drawer display
@@ -154,6 +177,13 @@ router.patch('/queries/:id/answer', authAdmin, async (req, res) => {
       message: 'Your query has been answered by the admin team.',
     });
 
+    // Notify users who clicked 'Notify me when answered' on this query
+    await notifyInterestedUsers(
+      query._id,
+      'A query you subscribed to has been answered.',
+      'genie_query_answered'
+    );
+
     res.json({ message: 'Query answered.', query });
   } catch (err) {
     console.error('Admin answer error:', err);
@@ -210,6 +240,13 @@ router.patch('/queries/:id/approve-trusted', authAdmin, async (req, res) => {
       queryId: query._id,
       message: 'Your community answer was confirmed by an admin.',
     });
+
+    // Notify users who clicked 'Notify me' on this query
+    await notifyInterestedUsers(
+      query._id,
+      'A query you subscribed to has been answered.',
+      'genie_query_answered'
+    );
 
     // Award +1 confidence point to answerer
     if (query.answeredByModel === 'User' && query.answeredBy) {
@@ -293,6 +330,13 @@ router.patch('/queries/:id/approve-pending-answer', authAdmin, async (req, res) 
       queryId: query._id,
       message: 'Your query was answered by the admin team.',
     });
+
+    // Notify users who clicked 'Notify me' on this query
+    await notifyInterestedUsers(
+      query._id,
+      'A query you subscribed to has been answered.',
+      'genie_query_answered'
+    );
 
     // Socket.IO: remove from SolveQuery live list for all clients
     const io = req.app.get('io');
@@ -455,6 +499,13 @@ router.patch('/queries/:id/promote-faq', authAdmin, async (req, res) => {
 
     // Remove from 15-day cache
     await QueryCache.findOneAndDelete({ queryId: query._id });
+
+    // Notify users who clicked 'Notify me' on this query
+    await notifyInterestedUsers(
+      query._id,
+      'A query you subscribed to was promoted to the official FAQ.',
+      'genie_query_answered'
+    );
 
     res.json({ message: 'Query promoted to FAQ.', faqEntry: { question, answer, category, tags } });
   } catch (err) {

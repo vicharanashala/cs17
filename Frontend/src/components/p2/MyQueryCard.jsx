@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import QueryStatusTracker from './QueryStatusTracker';
 import EditQueryModal from './EditQueryModal';
@@ -72,6 +72,11 @@ export default function MyQueryCard({ query, onDelete, onUpdated }) {
             <p className="font-label-mono text-label-mono text-ink-400 uppercase mt-1">
               {query.category?.name} · {formatDistanceToNow(new Date(query.createdAt), { addSuffix: true })}
             </p>
+            {query.tags?.length > 0 && (
+              <p className="font-label-mono text-label-mono text-ink-400 mt-0.5">
+                {query.tags.join(" ")}
+              </p>
+            )}
           </div>
           <span className={`material-symbols-outlined text-ink-400 text-lg shrink-0 mt-0.5 transition-transform ${expanded ? 'rotate-180' : ''}`}>
             expand_more
@@ -83,6 +88,17 @@ export default function MyQueryCard({ query, onDelete, onUpdated }) {
             <div className="mt-3">
               <QueryStatusTracker status={query.status} rejectionReason={query.rejectionReason} />
             </div>
+
+
+            {query.tags?.length > 0 && (
+              <div className="mt-2 flex gap-1 flex-wrap">
+                {query.tags.map((t) => (
+                  <span key={t} className="font-label-mono text-label-mono text-ink-400 bg-surface-container px-2 py-0.5 rounded-full">
+                    #{t}
+                  </span>
+                ))}
+              </div>
+            )}
             {isPending && etr && (
               <p className="mt-2 font-body-sm text-body-sm text-ink-400 flex items-center gap-1">
                 <span className="material-symbols-outlined text-base">schedule</span>

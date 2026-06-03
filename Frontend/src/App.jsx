@@ -1,9 +1,10 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+﻿import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Page0_Overview from './pages/Page0_Overview';
 import Page1_FAQ from './pages/Page1_FAQ';
 import Page2_Forum from './pages/Page2_Forum';
 import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
+import MyQueriesPage from './pages/MyQueriesPage';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path='/faq' element={<Page1_FAQ />} />
         <Route path='/forum' element={<Page2_Forum />} />
         <Route path='/login' element={<Login />} />
+        <Route path='/my-queries' element={<MyQueriesPage />} />
         <Route path='/admin' element={<AdminDashboard />} />
       </Routes>
     </BrowserRouter>
