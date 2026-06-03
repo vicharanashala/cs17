@@ -1,30 +1,33 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
-// Lazy-init transporter so missing env vars don't crash the server
-let _transporter = null;
+// Lazy-init so missing env vars don't crash the server
+let _client = null;
 
-function getTransporter() {
-  if (_transporter) return _transporter;
-  if (!process.env.SMTP_HOST || !process.env.SMTP_USER) {
-    console.warn('⚠️  Email not configured — SMTP env vars missing. Emails will be skipped.');
+function getClient() {
+  if (_client) return _client;
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('⚠️  Email not configured — RESEND_API_KEY missing. Emails will be skipped.');
     return null;
   }
-  _transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: parseInt(process.env.SMTP_PORT) || 587,
-    secure: false,
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-  });
-  return _transporter;
+  _client = new Resend(process.env.RESEND_API_KEY);
+  return _client;
+}
+
+// Resend free tier: from address must be onboarding@resend.dev OR a verified domain email.
+// For MVP with free account, default to onboarding@resend.dev (sandbox — sends to verified emails only).
+function fromAddress() {
+  return process.env.RESEND_FROM_EMAIL
+    ? process.env.RESEND_FROM_EMAIL
+    : 'onboarding@resend.dev';
 }
 
 async function sendMail(to, subject, html) {
-  const transporter = getTransporter();
-  if (!transporter) return; // silently skip if not configured
+  const client = getClient();
+  if (!client) return; // silently skip if not configured
   try {
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM || 'noreply@platform.ac.in',
-      to,
+    await client.emails.send({
+      from: fromAddress(),
+      to: Array.isArray(to) ? to : [to],
       subject,
       html,
     });
@@ -73,4 +76,5 @@ module.exports = {
   sendAnswerNotification,
   sendFAQPromotionNotification,
   sendRejectionNotification,
+  sendMail, // used by emailDigest.js
 };
