@@ -104,7 +104,11 @@
   - All 4 endpoints tested: 200 OK confirmed via Node.js HTTP
   - Commits: beee11d (scaffold) → 642e773 (routes) → 3767f8b (UI + test)
   - Pushed to origin/main ✅
-- [~] **Restore + unhide coordination issue** (low severity): `PATCH /restore` restores `adminDeleted` but does NOT automatically call `unhide` on the cache entry — if a query was both soft-deleted AND later auto-hidden (3+ flags), clicking "Restore to Answered" alone doesn't bring it back to the Genie. Admin must also click "Restore to Forum" (unhide) separately. Not a crash — just a UX gap.
+- [x] **Restore + unhide coordination issue** — fixed 2026-06-03
+  - `PATCH /api/admin/queries/:id/restore` now calls `QueryCache.findOne({ queryId })` and also sets `isHidden=false` if the cache entry was auto-hidden by flags
+  - Also fixed `PATCH /queries/:id/unhide` which had the same `populate('cacheEntry')` bug (Query model has no cacheEntry field — was causing CastError 500)
+  - Single 'Restore to Answered' click now fully restores to both Answered tab AND Genie
+  - Commits: 1dd5804 (fix) → 172ae45 (test) → pending todo update
 
 ### Real-time
 - [x] Socket.IO server running with JWT handshake auth
