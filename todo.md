@@ -203,10 +203,12 @@
 - Abuse now tied to a real user account — can be traced and deactivated
 - Commits: 336d32e (feature) → pending (todo)
 
-**[P-L2] `BASE_URL` fallback to localhost in upload.js**
-- File: `Backend/routes/upload.js`
-- Issue: `const baseUrl = process.env.BASE_URL || \`http://localhost:${process.env.PORT || 5002}\`` — if `BASE_URL` unset in production, image URLs are wrong
-- Fix: Make `BASE_URL` required in env validation
+**[P-L2] `BASE_URL` fallback to localhost** ✅ DONE 2026-06-03
+- `server.js`: `BASE_URL` added to required env list — server exits on startup if missing
+- `upload.js`: removed `|| localhost` fallback — now returns 500 with clear error if `BASE_URL` unset
+- `.env.example`: `BASE_URL` documented with dev/production values
+- Local `.env`: `BASE_URL=http://localhost:5002` set (gitignored, not in git)
+- Commits: b9195a6 (feature) → pending (todo)
 
 **[P-L3] PRD.md FAQ DB schema truncated**
 - File: `PRD.md`
