@@ -46,11 +46,14 @@ router.post('/scan', authStudent, async (req, res) => {
     // Sort by score descending
     faqMatches.sort((a, b) => b.similarity.score - a.similarity.score);
 
-    // Fetch recent non-deleted, non-rejected queries for comparison
-    // Limit to last 500 for performance (free tier)
+    // Fetch recent non-deleted, non-rejected queries for comparison.
+    // Uses covering projection + index hint so MongoDB satisfies the query
+    // entirely from the index without touching the main collection data.
     const recentQueries = await Query.find({
       status: { $nin: ['deleted', 'rejected'] },
     })
+      .project({ _id: 1, title: 1, embedding: 1, submittedBy: 1, status: 1, tags: 1, voteCount: 1, answer: 1, category: 1 })
+      .hint({ status: 1, createdAt: -1 })
       .sort({ createdAt: -1 })
       .limit(500)
       .populate('category', 'name')
