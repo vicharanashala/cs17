@@ -14,7 +14,10 @@ const { isSimilar, generateEmbedding } = require('../services/similarity');
 async function syncQueryFlagCount(cacheEntry) {
   if (!cacheEntry?.queryId) return;
   try {
-    await Query.findByIdAndUpdate(cacheEntry.queryId, { flagCount: cacheEntry.flags || 0 });
+    await Query.findByIdAndUpdate(cacheEntry.queryId, {
+      flagCount: cacheEntry.flags || 0,
+      answerFlagCount: cacheEntry.answerFlags || 0,
+    });
   } catch (_) {}
 }
 
@@ -126,7 +129,8 @@ router.post('/:cacheId/vote', authStudent, async (req, res) => {
         await existing.deleteOne();
         if (voteType === 'upvote') await QueryCache.findByIdAndUpdate(entry._id, { $inc: { upvotes: -1 } });
         if (voteType === 'flag') {
-          const toggled = await QueryCache.findByIdAndUpdate(entry._id, { $inc: { flags: -1 } }, { new: true });
+          const flagField = target === 'answer' ? 'answerFlags' : 'flags';
+          const toggled = await QueryCache.findByIdAndUpdate(entry._id, { $inc: { [flagField]: -1 } }, { new: true });
           await syncQueryFlagCount(toggled);
         }
         return res.json({ message: 'Vote removed.' });
@@ -135,10 +139,10 @@ router.post('/:cacheId/vote', authStudent, async (req, res) => {
       existing.voteType = voteType;
       await existing.save();
       if (voteType === 'upvote') {
-        const up = await QueryCache.findByIdAndUpdate(entry._id, { $inc: { upvotes: 1, flags: -1 } }, { new: true });
+        const up = await QueryCache.findByIdAndUpdate(entry._id, { $inc: { upvotes: 1, [target === 'answer' ? 'answerFlags' : 'flags']: -1 } }, { new: true });
         await syncQueryFlagCount(up);
       } else {
-        const fl = await QueryCache.findByIdAndUpdate(entry._id, { $inc: { flags: 1, upvotes: -1 } }, { new: true });
+        const fl = await QueryCache.findByIdAndUpdate(entry._id, { $inc: { [target === 'answer' ? 'answerFlags' : 'flags']: 1, upvotes: -1 } }, { new: true });
         await syncQueryFlagCount(fl);
       }
     } else {
@@ -177,14 +181,16 @@ router.post('/:cacheId/vote', authStudent, async (req, res) => {
         return res.json({ message: 'Notification preference saved.' });
       }
       if (voteType === 'flag') {
+        const flagField = target === 'answer' ? 'answerFlags' : 'flags';
         const flagged = await QueryCache.findByIdAndUpdate(
           entry._id,
-          { $inc: { flags: 1 } },
+          { $inc: { [flagField]: 1 } },
           { new: true }
         );
         await syncQueryFlagCount(flagged);
-        // Auto-hide if flags exceed threshold
-        if (flagged.flags >= 3) {
+        // Auto-hide if the relevant flag count exceeds threshold
+        const relevantFlags = target === 'answer' ? flagged.answerFlags : flagged.flags;
+        if (relevantFlags >= 3) {
           await QueryCache.findByIdAndUpdate(entry._id, { isHidden: true });
 
           // Penalise answerer: -1 confidence, notify answerer
