@@ -233,7 +233,11 @@ router.patch('/queries/:id/approve-trusted', authAdmin, async (req, res) => {
     query.adminStatus = 'answered';
     await query.save();
 
-    
+    // Award +1 confidence point to answerer (idempotent — already awarded on submit)
+    if (query.answeredByModel === 'User' && query.answeredBy) {
+      await User.findByIdAndUpdate(query.answeredBy._id, { $inc: { confidenceScore: 1 } });
+    }
+
     // Notify asker: trusted answer confirmed by admin
     await Notification.create({
       notifiedUser: query.submittedBy,
@@ -338,6 +342,17 @@ router.patch('/queries/:id/approve-pending-answer', authAdmin, async (req, res) 
       'A query you subscribed to has been answered.',
       'genie_query_answered'
     );
+
+    // Award +1 confidence point to User answerer
+    if (selected.authorModel === 'User') {
+      await User.findByIdAndUpdate(selected.author, { $inc: { confidenceScore: 1 } });
+      await Notification.create({
+        notifiedUser: selected.author,
+        type: 'trusted_confirmed',
+        queryId: query._id,
+        message: 'Your answer was approved by an admin — +1 confidence awarded!',
+      });
+    }
 
     // Socket.IO: remove from SolveQuery live list for all clients
     const io = req.app.get('io');

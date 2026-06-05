@@ -294,4 +294,40 @@ router.post('/:id/not-satisfied', authStudent, async (req, res) => {
   }
 });
 
+
+// POST /api/queries/:id/satisfied — Asker confirms answer is satisfactory
+router.post('/:id/satisfied', authStudent, async (req, res) => {
+  try {
+    const query = await Query.findById(req.params.id);
+    if (!query) return res.status(404).json({ error: 'Query not found.' });
+    if (query.submittedBy.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ error: 'Not your query.' });
+    }
+    if (!query.isTrustedAnswer) {
+      return res.status(400).json({ error: 'Only community answers can be confirmed.' });
+    }
+    if (query.askerSatisfied === true) {
+      return res.status(200).json({ message: 'Already confirmed.' });
+    }
+
+    if (query.answeredByModel === 'User' && query.answeredBy) {
+      await User.findByIdAndUpdate(query.answeredBy, { $inc: { confidenceScore: 1 } });
+      await Notification.create({
+        notifiedUser: query.answeredBy,
+        type: 'trusted_confirmed',
+        queryId: query._id,
+        message: 'The asker confirmed your answer was helpful — +1 confidence awarded!',
+      });
+    }
+
+    query.askerSatisfied = true;
+    query.adminStatus = 'answered';
+    await query.save();
+
+    res.json({ message: 'Answer confirmed. Confidence point awarded to answerer.' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to confirm answer.' });
+  }
+});
+
 module.exports = router;
