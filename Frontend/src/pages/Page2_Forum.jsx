@@ -3,13 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import api2 from '../lib/axiosP2';
 import TopNavBar from '../components/TopNavBar';
-import Genie from '../components/p2/Genie';
+import Samvaad from '../components/p2/Samvaad';
 import RaiseQuery from '../components/p2/RaiseQuery';
 import SolveQuery from '../components/p2/SolveQuery';
 import useAuthStore from '../store/authStore';
 
 const TABS = [
-  { key: 'genie',   label: 'Genie',         icon: 'auto_awesome' },
+  { key: 'samvaad', label: 'Samvaad',       icon: 'auto_awesome' },
   { key: 'raise',   label: 'Raise a Query',  icon: 'add_circle' },
   { key: 'solve',   label: 'Solve a Query',  icon: 'lightbulb' },
 ];
@@ -84,7 +84,7 @@ export default function Page2_Forum() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user, loading, checkAuth, logout, sessionExpired } = useAuthStore();
-  const [activeTab, setActiveTab] = useState('genie');
+  const [activeTab, setActiveTab] = useState('samvaad');
   const [showInactivityWarning, setShowInactivityWarning] = useState(false);
   const [showPasswordReset, setShowPasswordReset] = useState(false);
   const inactivityRef = { warning: null, logout: null };
@@ -220,8 +220,8 @@ export default function Page2_Forum() {
             </div>
 
             {/* Tab content */}
-            {activeTab === 'genie' && (
-              <Genie user={user} onSwitchToRaise={() => setActiveTab('raise')} />
+            {activeTab === 'samvaad' && (
+              <Samvaad user={user} onSwitchToRaise={() => setActiveTab('raise')} />
             )}
             {activeTab === 'raise' && (
               <RaiseQuery user={user} />

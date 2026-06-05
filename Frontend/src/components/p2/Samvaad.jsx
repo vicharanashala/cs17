@@ -120,7 +120,7 @@ function QuestionCard({ entry, onVote, onNotify, votedIds, user }) {
   );
 }
 
-export default function Genie({ user, onSwitchToRaise }) {
+export default function Samvaad({ user, onSwitchToRaise }) {
   const [top5, setTop5] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -199,7 +199,7 @@ export default function Genie({ user, onSwitchToRaise }) {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h2 className="font-headline-md text-headline-md text-ink-900 mb-1">Genie</h2>
+        <h2 className="font-headline-md text-headline-md text-ink-900 mb-1">Samvaad</h2>
         <p className="font-body-sm text-body-sm text-ink-400">
           Browse the last 15 days of community questions. Search, upvote, or{' '}
           <button onClick={onSwitchToRaise} className="text-primary hover:underline">raise a new one</button>.

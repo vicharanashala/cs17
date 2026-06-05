@@ -11,7 +11,7 @@ const NOTIF_ICONS = {
   answer_flagged:    'flag',
   trusted_confirmed: 'verified',
   escalation_acked:  'redo',
-  genie_query_answered: 'notifications_active',
+  samvaad_query_answered: 'notifications_active',
 };
 
 const NOTIF_LABELS = {
@@ -21,7 +21,7 @@ const NOTIF_LABELS = {
   answer_flagged:    'Your answer was flagged',
   trusted_confirmed: 'Your answer was confirmed by admin',
   escalation_acked:  'Your escalation was acknowledged',
-  genie_query_answered: 'A query you subscribed to was answered',
+  samvaad_query_answered: 'A query you subscribed to was answered',
 };
 
 export default function TopNavBar({ active, user }) {
@@ -88,7 +88,7 @@ export default function TopNavBar({ active, user }) {
             to="/forum"
             className={`font-bold border-b-2 h-full flex items-center px-2 transition-colors hover:bg-ink-50 dark:hover:bg-admin-surface hover:text-primary ${active === 'forum' ? 'text-primary dark:text-primary-fixed-dim border-primary' : 'text-ink-400 dark:text-ink-400 border-transparent'}`}
           >
-            Genie
+            Samvaad
           </Link>
 <a href="https://samagama.in" target="_blank" rel="noopener noreferrer" className="text-ink-400 dark:text-ink-400 font-normal hover:bg-ink-50 dark:hover:bg-admin-surface hover:text-primary transition-colors h-full flex items-center px-2">samagama</a>
         </nav>
