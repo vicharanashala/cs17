@@ -56,7 +56,7 @@ router.get('/queries', authAdmin, async (req, res) => {
         in_progress: { adminStatus: 'in_progress' },
         answered:    { adminStatus: 'answered', adminDeleted: false },
         rejected:    { status: 'rejected' },
-        deleted:     { status: 'deleted' },
+        deleted:     { adminDeleted: true },
       };
       Object.assign(filter, statusMap[status] || {});
     }
