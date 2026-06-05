@@ -3,7 +3,7 @@ import api2 from '../../lib/axiosP2';
 import SimilarityPanel from './SimilarityPanel';
 import MyQueryCard from './MyQueryCard';
 import DraftBanner from './DraftBanner';
-import ImagePreview from './ImagePreview';
+import FileDropZone from './FileDropZone';
 
 export default function RaiseQuery({ user }) {
   const [title, setTitle] = useState('');
@@ -17,7 +17,6 @@ export default function RaiseQuery({ user }) {
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
   const [images, setImages] = useState([]);
-  const [uploading, setUploading] = useState(false);
   const [stats, setStats] = useState({ label: '' });
   const draftTimerRef = useRef(null);
 
@@ -212,36 +211,7 @@ export default function RaiseQuery({ user }) {
           <label className="block font-label-mono text-label-mono text-ink-400 uppercase mb-1.5">
             Screenshots <span className="text-ink-400 normal-case">(optional, up to 5)</span>
           </label>
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={async (e) => {
-              const files = Array.from(e.target.files);
-              if (!files.length) return;
-              setUploading(true);
-              try {
-                const formData = new FormData();
-                files.forEach((f) => formData.append('images', f));
-                const { data } = await api2.post('/upload', formData, {
-                  headers: { 'Content-Type': 'multipart/form-data' },
-                });
-                setImages((prev) => [...prev, ...data.urls].slice(0, 5));
-              } catch {
-                setError('Screenshot upload failed. Try again.');
-              } finally {
-                setUploading(false);
-              }
-            }}
-            className="w-full text-body-sm text-ink-300 file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:bg-primary/10 file:text-primary file:font-body-sm file:font-medium file:cursor-pointer hover:file:bg-primary/20"
-          />
-          {uploading && <p className="font-label-mono text-label-mono text-ink-400 mt-1">Uploading…</p>}
-          {images.length > 0 && (
-            <ImagePreview
-              urls={images}
-              onRemove={(i) => setImages((prev) => prev.filter((_, idx) => idx !== i))}
-            />
-          )}
+          <FileDropZone images={images} onImagesChange={setImages} maxFiles={5} />
         </div>
 
         {error && (
