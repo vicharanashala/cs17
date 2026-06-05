@@ -50,13 +50,7 @@ function QuestionCard({ entry, onVote, onNotify, votedIds, user }) {
                   <span className="material-symbols-outlined text-base">thumb_up</span>
                   <span>{entry.answerUpvotes || 0}</span>
                 </button>
-                <button
-                  onClick={() => onVote(entry._id, 'flag', 'answer')}
-                  className="flex items-center gap-1 text-sm text-ink-400 hover:text-red-500 transition-colors"
-                  title="Flag this answer"
-                >
-                  <span className="material-symbols-outlined text-base">flag</span>
-                </button>
+
               </div>
             </div>
           )}
@@ -93,14 +87,7 @@ function QuestionCard({ entry, onVote, onNotify, votedIds, user }) {
               <span className="material-symbols-outlined text-lg">notifications</span>
             </button>
           )}
-          {/* Flag */}
-          <button
-            onClick={() => onVote(entry._id, 'flag')}
-            className="w-full flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg border border-ink-200 hover:border-error hover:bg-red-50 text-ink-400 hover:text-error transition-all"
-            title="Flag as inappropriate"
-          >
-            <span className="material-symbols-outlined text-lg">flag</span>
-          </button>
+
         </div>
       </div>
     </div>
