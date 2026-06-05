@@ -90,7 +90,7 @@ export default function TopNavBar({ active, user }) {
           >
             Genie
           </Link>
-<a href="#" className="text-ink-400 dark:text-ink-400 font-normal hover:bg-ink-50 dark:hover:bg-admin-surface hover:text-primary transition-colors h-full flex items-center px-2">samagama</a>
+<a href="https://samagama.in" target="_blank" rel="noopener noreferrer" className="text-ink-400 dark:text-ink-400 font-normal hover:bg-ink-50 dark:hover:bg-admin-surface hover:text-primary transition-colors h-full flex items-center px-2">samagama</a>
         </nav>
       </div>
 
