@@ -93,8 +93,7 @@ export default function TopNavBar({ active, user }) {
           >
             Genie
           </Link>
-          <Link to="/my-queries" className={`font-bold border-b-2 h-full flex items-center px-2 transition-colors hover:bg-ink-50 dark:hover:bg-admin-surface hover:text-primary ${active === 'my-queries' ? 'text-primary dark:text-primary-fixed-dim border-primary' : 'text-ink-400 dark:text-ink-400 border-transparent'}`}>My Queries</Link>
-          <a href="#" className="text-ink-400 dark:text-ink-400 font-normal hover:bg-ink-50 dark:hover:bg-admin-surface hover:text-primary transition-colors h-full flex items-center px-2">samagama</a>
+<a href="#" className="text-ink-400 dark:text-ink-400 font-normal hover:bg-ink-50 dark:hover:bg-admin-surface hover:text-primary transition-colors h-full flex items-center px-2">samagama</a>
         </nav>
       </div>
 
