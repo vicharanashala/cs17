@@ -41,7 +41,7 @@ router.post('/login', async (req, res) => {
         name: user.name,
         email: user.email,
         confidenceScore: user.confidenceScore,
-        confidenceTier: user.confidenceScore >= 10 ? 'expert' : user.confidenceScore >= 3 ? 'trusted' : 'new',
+        confidenceTier: user.confidenceScore >= 10 ? 'expert' : user.confidenceScore >= 5 ? 'trusted' : 'new',
         requirePasswordReset: user.requirePasswordReset,
       },
     });
@@ -65,7 +65,7 @@ router.get('/me', authStudent, (req, res) => {
     name: u.name,
     email: u.email,
     confidenceScore: u.confidenceScore,
-    confidenceTier: u.confidenceScore >= 10 ? 'expert' : u.confidenceScore >= 3 ? 'trusted' : 'new',
+    confidenceTier: u.confidenceScore >= 10 ? 'expert' : u.confidenceScore >= 5 ? 'trusted' : 'new',
     requirePasswordReset: u.requirePasswordReset,
   });
 });

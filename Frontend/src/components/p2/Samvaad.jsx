@@ -23,7 +23,7 @@ function QuestionCard({ entry, onVote, onNotify, votedIds, user }) {
 
   // Determine confidence tier from submitter score
   const submitterScore = q.submittedBy?.confidenceScore ?? 0;
-  const tier = submitterScore >= 10 ? 'expert' : submitterScore >= 3 ? 'trusted' : null;
+  const tier = submitterScore >= 10 ? 'expert' : submitterScore >= 5 ? 'trusted' : null;
 
   return (
     <motion.div
