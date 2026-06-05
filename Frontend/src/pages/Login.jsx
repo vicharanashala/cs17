@@ -38,7 +38,7 @@ export default function Login() {
       {/* Minimal header */}
       <header className="h-header-height border-b border-ink-100 flex items-center px-container-margin">
         <Link to="/faq" className="font-headline-md text-headline-md font-black tracking-tight text-ink-900 hover:text-primary transition-colors">
-          VINS · Yaksha
+          Samvaad
         </Link>
       </header>
 
