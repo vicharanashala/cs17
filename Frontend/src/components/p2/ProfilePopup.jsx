@@ -5,15 +5,15 @@ import useAuthStore from '../../store/authStore';
 
 function TrustMilestone({ score }) {
   const tiers = [
-    { label: 'New',     range: '0–2' },
-    { label: 'Trusted', range: '3–9' },
+    { label: 'New',     range: '0–4' },
+    { label: 'Trusted', range: '5–9' },
     { label: 'Expert',  range: '10+' },
   ];
-  const activeIndex = score >= 10 ? 2 : score >= 3 ? 1 : 0;
+  const activeIndex = score >= 10 ? 2 : score >= 5 ? 1 : 0;
   const progress = activeIndex === 0
-    ? (score / 2) * 33
+    ? (score / 4) * 50
     : activeIndex === 1
-    ? 33 + ((score - 3) / 7) * 34
+    ? 50 + ((score - 5) / 5) * 50
     : 100;
 
   return (
@@ -98,6 +98,16 @@ export default function ProfilePopup({ onClose }) {
         <div className="min-w-0">
           <p className="font-body-sm text-body-sm font-semibold text-ink-900 truncate">{user?.name}</p>
           <p className="font-label-mono text-label-mono text-ink-400 truncate">{user?.email}</p>
+          {/* Confidence badge */}
+          {user?.confidenceTier !== 'new' && (
+            <span className={`font-label-mono text-label-mono px-2 py-0.5 rounded-full mt-1 inline-block ${
+              user?.confidenceTier === 'expert'
+                ? 'text-conf-high bg-surface-container'
+                : 'text-status-verifying bg-surface-container'
+            }`}>
+              {user?.confidenceTier === 'expert' ? '★★★ Expert' : '★★ Trusted'}
+            </span>
+          )}
         </div>
       </div>
 
