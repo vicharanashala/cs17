@@ -1,6 +1,6 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import api2 from '../../lib/axiosP2';
-
 import { onSocketEvent } from '../../lib/socket';
 
 function ConfidenceBadge({ tier }) {
@@ -21,10 +21,18 @@ function QuestionCard({ entry, onVote, onNotify, votedIds, user }) {
   const isAsker = entry.queryId?.submittedBy?._id?.toString() === user?._id?.toString();
   const isUnanswered = !entry.answer;
 
+  // Determine confidence tier from submitter score
+  const submitterScore = q.submittedBy?.confidenceScore ?? 0;
+  const tier = submitterScore >= 10 ? 'expert' : submitterScore >= 3 ? 'trusted' : null;
+
   return (
-    <div className="bg-surface border border-ink-100 rounded-xl p-4 hover:border-outline-variant transition-colors">
+    <motion.div
+      layout
+      className="bg-surface border border-ink-100 rounded-xl p-4 hover:border-outline-variant transition-colors"
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
+          {/* Meta tags row */}
           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
             {q.category?.name && (
               <span className="font-label-mono text-label-mono text-ink-400 uppercase">{q.category.name}</span>
@@ -35,38 +43,52 @@ function QuestionCard({ entry, onVote, onNotify, votedIds, user }) {
             {entry.answer && (
               <span className="font-label-mono text-label-mono text-conf-high bg-surface-container px-2 py-0.5 rounded-full">✓ Answered</span>
             )}
+            {tier && <ConfidenceBadge tier={tier} />}
           </div>
+
+          {/* Title */}
           <p className="font-body-md text-body-md font-medium text-ink-900">{q.title}</p>
-          {entry.answer && (
-            <div className="mt-2 pt-2 border-t border-ink-100">
-              <p className="font-label-mono text-label-mono text-conf-high uppercase mb-1">Answer</p>
-              <p className="font-body-sm text-body-sm text-ink-700 line-clamp-2">{entry.answer}</p>
-              {/* Answer vote buttons */}
-              <div className="flex items-center gap-3 mt-2">
-                <button
-                  onClick={() => onVote(entry._id, 'upvote', 'answer')}
-                  className="flex items-center gap-1 text-sm text-ink-400 hover:text-amber-600 transition-colors"
-                >
-                  <span className="material-symbols-outlined text-base">thumb_up</span>
-                  <span>{entry.answerUpvotes || 0}</span>
-                </button>
-                <button
-                  onClick={() => onVote(entry._id, 'flag', 'answer')}
-                  className="flex items-center gap-1 text-sm text-ink-400 hover:text-red-500 transition-colors"
-                  title="Flag this answer"
-                >
-                  <span className="material-symbols-outlined text-base">flag</span>
-                </button>
-              </div>
-            </div>
-          )}
+
+          {/* Animated answer section */}
+          <AnimatePresence>
+            {entry.answer && (
+              <motion.div
+                initial={{ opacity: 0, maxHeight: 0 }}
+                animate={{ opacity: 1, maxHeight: 300 }}
+                exit={{ opacity: 0, maxHeight: 0 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                className="mt-2 pt-2 border-t border-ink-100 overflow-hidden"
+              >
+                <p className="font-label-mono text-label-mono text-conf-high uppercase mb-1">Answer</p>
+                <p className="font-body-sm text-body-sm text-ink-700 line-clamp-2">{entry.answer}</p>
+                {/* Answer vote buttons */}
+                <div className="flex items-center gap-3 mt-2">
+                  <button
+                    onClick={() => onVote(entry._id, 'upvote', 'answer')}
+                    className="flex items-center gap-1 text-sm text-ink-400 hover:text-amber-600 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-base">thumb_up</span>
+                    <span>{entry.answerUpvotes || 0}</span>
+                  </button>
+                  <button
+                    onClick={() => onVote(entry._id, 'flag', 'answer')}
+                    className="flex items-center gap-1 text-sm text-ink-400 hover:text-red-500 transition-colors"
+                    title="Flag this answer"
+                  >
+                    <span className="material-symbols-outlined text-base">flag</span>
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {!entry.answer && (
             <p className="mt-2 font-label-mono text-label-mono text-ink-400">Awaiting answer</p>
           )}
         </div>
+
         {/* Vote actions */}
         <div className="flex flex-col items-center gap-1 shrink-0">
-          {/* Upvote */}
           <button
             onClick={() => onVote(entry._id, 'upvote')}
             className={`flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg border transition-all ${
@@ -79,7 +101,6 @@ function QuestionCard({ entry, onVote, onNotify, votedIds, user }) {
             <span className="material-symbols-outlined text-lg">arrow_upward</span>
             <span className="font-label-mono text-label-mono">{entry.upvotes}</span>
           </button>
-          {/* Notify me — only for unanswered, non-askers */}
           {isUnanswered && !isAsker && (
             <button
               onClick={() => onNotify(entry._id)}
@@ -93,10 +114,9 @@ function QuestionCard({ entry, onVote, onNotify, votedIds, user }) {
               <span className="material-symbols-outlined text-lg">notifications</span>
             </button>
           )}
-
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -116,7 +136,6 @@ export default function Genie({ user, onSwitchToRaise }) {
       .finally(() => setLoadingTop5(false));
   }, []);
 
-  // Live: refresh top5 when a new query is submitted by anyone
   useEffect(() => {
     const cleanup = onSocketEvent('query:new', () => {
       api2.get('/cache/top5').then((r) => setTop5(r.data)).catch(() => {});
@@ -124,8 +143,6 @@ export default function Genie({ user, onSwitchToRaise }) {
     return cleanup;
   }, []);
 
-
-  // Debounced search
   useEffect(() => {
     if (!searchQuery.trim()) { setSearchResults([]); return; }
     const t = setTimeout(async () => {
@@ -159,7 +176,6 @@ export default function Genie({ user, onSwitchToRaise }) {
     }
   };
 
-  // Register interest only (notify me) — does NOT upvote, only registers for notification
   const handleNotify = async (cacheId) => {
     try {
       await api2.post(`/cache/${cacheId}/vote`, { target: 'question', voteType: 'notify' });
@@ -182,7 +198,6 @@ export default function Genie({ user, onSwitchToRaise }) {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Header */}
       <div>
         <h2 className="font-headline-md text-headline-md text-ink-900 mb-1">Genie</h2>
         <p className="font-body-sm text-body-sm text-ink-400">
@@ -210,7 +225,6 @@ export default function Genie({ user, onSwitchToRaise }) {
         <p className="font-body-sm text-body-sm text-error">{error}</p>
       )}
 
-      {/* Section label */}
       <div>
         <h3 className="font-label-mono text-label-mono text-ink-400 uppercase mb-3 flex items-center gap-2">
           {isSearching ? (
