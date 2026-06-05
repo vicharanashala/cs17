@@ -199,7 +199,7 @@ export default function Genie({ user, onSwitchToRaise }) {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search community questions…"
-          className="w-full pl-10 pr-4 py-2.5 bg-surface border border-ink-200 rounded-xl font-body-md text-body-md text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-colors"
+          className="w-full pl-10 pr-4 py-3.5 bg-surface border border-ink-200 rounded-xl font-body-lg text-body-lg text-ink-900 placeholder:text-ink-400 focus:outline-none focus:bg-surface-container-low focus:shadow-[inset_0_1px_3px_rgba(0,0,0,0.08),0_0_0_3px_rgba(0,50,196,0.12)] focus:border-primary transition-all"
         />
         {loadingSearch && (
           <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-ink-400 text-lg animate-spin">refresh</span>
