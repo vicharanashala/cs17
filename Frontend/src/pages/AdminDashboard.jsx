@@ -29,7 +29,7 @@ function AdminLogin({ onLogin }) {
     <div className="min-h-screen bg-admin-bg flex items-center justify-center px-4">
       <div className="w-full max-w-sm bg-admin-surface border border-admin-border rounded-xl p-8">
         <h1 className="font-headline-md text-headline-md text-ink-50 mb-1">Admin Portal</h1>
-        <p className="font-body-sm text-body-sm text-ink-400 mb-6">VINS · Yaksha</p>
+        
         {error && (
           <div className="mb-4 px-3 py-2 bg-error-container rounded-lg">
             <p className="font-body-sm text-body-sm text-error">{error}</p>
@@ -493,7 +493,7 @@ export default function AdminDashboard() {
       {/* Admin top bar */}
       <header className="h-header-height border-b border-admin-border flex items-center justify-between px-container-margin bg-admin-surface">
         <div className="flex items-center gap-6">
-          <span className="font-headline-md text-headline-md text-ink-50 font-black">Admin · Yaksha</span>
+          <span className="font-headline-md text-headline-md text-ink-50 font-black">Admin</span>
           <nav className="flex gap-1">
             {['queries', 'faq', 'users', 'samvaad'].map((s) => (
               <button key={s} onClick={() => setActiveSection(s)}
