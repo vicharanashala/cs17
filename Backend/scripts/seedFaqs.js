@@ -55,7 +55,10 @@ async function seedDatabase() {
                         question: currentQuestion,
                         answer: answerText,
                         category: currentCategory,
-                        sectionId: currentSectionId
+                        sectionId: currentSectionId,
+                        displayNumber: currentQuestionNum,
+                        moduleNumber: parseInt(currentQuestionNum.split('.')[0]),
+                        questionNumber: parseInt(currentQuestionNum.split('.')[1])
                     });
                 }
             }
@@ -65,6 +68,7 @@ async function seedDatabase() {
             currentQuestion = null;
             currentAnswerLines = [];
             currentSectionId = null;
+            currentQuestionNum = null;
 
         } else if (questionMatch) {
             // Save the previous question if it exists
@@ -75,7 +79,10 @@ async function seedDatabase() {
                         question: currentQuestion,
                         answer: answerText,
                         category: currentCategory,
-                        sectionId: currentSectionId
+                        sectionId: currentSectionId,
+                        displayNumber: currentQuestionNum,
+                        moduleNumber: parseInt(currentQuestionNum.split('.')[0]),
+                        questionNumber: parseInt(currentQuestionNum.split('.')[1])
                     });
                 }
             }
@@ -84,6 +91,7 @@ async function seedDatabase() {
             const questionNum = questionMatch[1];
             currentSectionId = `q-${questionNum.replace('.', '-')}`;
             currentQuestion = questionMatch[2].trim();
+            currentQuestionNum = questionNum;
             currentAnswerLines = [];
 
         } else if (currentQuestion && trimmedLine.length > 0) {
@@ -100,7 +108,10 @@ async function seedDatabase() {
                 question: currentQuestion,
                 answer: answerText,
                 category: currentCategory,
-                sectionId: currentSectionId
+                sectionId: currentSectionId,
+                displayNumber: currentQuestionNum,
+                moduleNumber: parseInt(currentQuestionNum.split('.')[0]),
+                questionNumber: parseInt(currentQuestionNum.split('.')[1])
             });
         }
     }
