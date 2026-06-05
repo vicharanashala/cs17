@@ -14,7 +14,7 @@ function formatCountdown(ms) {
   return `${min}:${sec.toString().padStart(2, '0')}`;
 }
 
-export default function MyQueryCard({ query, onDelete, onUpdated }) {
+export default function MyQueryCard({ query, onDelete, onUpdated, onRefresh }) {
   const [expanded, setExpanded] = useState(false);
   const [countdown, setCountdown] = useState(null);
   const [editOpen, setEditOpen] = useState(false);
@@ -115,12 +115,23 @@ export default function MyQueryCard({ query, onDelete, onUpdated }) {
                     <p className="font-body-sm text-body-sm text-ink-400">Was this helpful?</p>
                     <button
                       onClick={async () => {
+                        try {
+                          await api2.post(`/queries/${query._id}/satisfied`);
+                          onRefresh && onRefresh();
+                        } catch { /* handled silently */ }
+                      }}
+                      className="font-body-sm text-body-sm text-conf-high hover:underline"
+                    >
+                      ✅ Yes, satisfied
+                    </button>
+                    <button
+                      onClick={async () => {
                         try { await api2.post(`/queries/${query._id}/not-satisfied`); }
                         catch { /* handled silently */ }
                       }}
                       className="font-body-sm text-body-sm text-error hover:underline"
                     >
-                      Not satisfied — escalate to admin
+                      Not satisfied — escalate
                     </button>
                   </div>
                 )}
