@@ -28,6 +28,7 @@ async function seedDatabase() {
     const lines = rawData.split('\n');
 
     let currentCategory = 'General';
+    let currentQuestionNum = null;
     let currentQuestion = null;
     let currentAnswerLines = [];
     let currentSectionId = null;
