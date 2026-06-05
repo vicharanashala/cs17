@@ -90,7 +90,7 @@ function QueryDrawer({ query, onClose, onRefresh }) {
             <p className="font-label-mono text-label-mono text-ink-400 uppercase mb-1">{query.category?.name}</p>
             <p className="font-body-md text-body-md font-medium text-ink-50">{query.title}</p>
             <p className="font-label-mono text-label-mono text-ink-400 mt-1">
-              {query.submittedBy?.name} · {formatDistanceToNow(new Date(query.createdAt), { addSuffix: true })} · {query.voteCount} vote{query.voteCount !== 1 ? 's' : ''}{' · '}{query.flagCount > 0 && <span className="text-error">{query.flagCount} flag{query.flagCount !== 1 ? 's' : ''}</span>}
+              {query.submittedBy?.name} · {formatDistanceToNow(new Date(query.createdAt), { addSuffix: true })} · {query.voteCount} vote{query.voteCount !== 1 ? 's' : ''}{' · '}{query.flagCount > 0 && <span className="text-error">{query.flagCount} flag{query.flagCount !== 1 ? 's' : ''}</span>}{' · '}{query.answerFlagCount > 0 && <span className="text-error">{query.answerFlagCount} ans. flag{query.answerFlagCount !== 1 ? 's' : ''}</span>}
             </p>
           </div>
           <button onClick={onClose} className="text-ink-400 hover:text-ink-50 transition-colors shrink-0">
@@ -794,6 +794,8 @@ export default function AdminDashboard() {
                       <th className="px-4 py-3 font-label-mono text-label-mono text-ink-400 uppercase">Category</th>
                       <th className="px-4 py-3 font-label-mono text-label-mono text-ink-400 uppercase text-center">Upvotes</th>
                       <th className="px-4 py-3 font-label-mono text-label-mono text-ink-400 uppercase text-center">Flags</th>
+                      <th className="px-4 py-3 font-label-mono text-label-mono text-ink-400 uppercase text-center">Ans. Upvotes</th>
+                      <th className="px-4 py-3 font-label-mono text-label-mono text-ink-400 uppercase text-center">Ans. Flags</th>
                       <th className="px-4 py-3 font-label-mono text-label-mono text-ink-400 uppercase">Answer</th>
                       <th className="px-4 py-3 font-label-mono text-label-mono text-ink-400 uppercase">Status</th>
                       <th className="px-4 py-3 font-label-mono text-label-mono text-ink-400 uppercase">Expires</th>
@@ -818,6 +820,16 @@ export default function AdminDashboard() {
                         <td className="px-4 py-3 text-center">
                           <span className={`font-label-mono text-label-mono ${entry.flags > 0 ? 'text-error' : 'text-ink-400'}`}>
                             {entry.flags}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          <span className={`font-label-mono text-label-mono ${entry.answerUpvotes > 0 ? 'text-conf-high' : 'text-ink-400'}`}>
+                            {entry.answerUpvotes || 0}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          <span className={`font-label-mono text-label-mono ${entry.answerFlags > 0 ? 'text-error' : 'text-ink-400'}`}>
+                            {entry.answerFlags || 0}
                           </span>
                         </td>
                         <td className="px-4 py-3">

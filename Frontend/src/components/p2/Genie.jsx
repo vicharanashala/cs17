@@ -50,7 +50,13 @@ function QuestionCard({ entry, onVote, onNotify, votedIds, user }) {
                   <span className="material-symbols-outlined text-base">thumb_up</span>
                   <span>{entry.answerUpvotes || 0}</span>
                 </button>
-
+                <button
+                  onClick={() => onVote(entry._id, 'flag', 'answer')}
+                  className="flex items-center gap-1 text-sm text-ink-400 hover:text-red-500 transition-colors"
+                  title="Flag this answer"
+                >
+                  <span className="material-symbols-outlined text-base">flag</span>
+                </button>
               </div>
             </div>
           )}
