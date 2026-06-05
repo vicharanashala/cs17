@@ -6,6 +6,8 @@ const QueryCache = require('../models/QueryCache');
 const { generateEmbedding } = require('../services/similarity');
 const QueryVote = require('../models/QueryVote');
 const Draft = require('../models/Draft');
+const User = require('../models/User');
+const Notification = require('../models/Notification');
 const authStudent = require('../middleware/authStudent');
 const { isSimilar } = require('../services/similarity');
 
@@ -314,7 +316,7 @@ router.post('/:id/satisfied', authStudent, async (req, res) => {
       await User.findByIdAndUpdate(query.answeredBy, { $inc: { confidenceScore: 1 } });
       await Notification.create({
         notifiedUser: query.answeredBy,
-        type: 'trusted_confirmed',
+        type: 'asker_confirmed',
         queryId: query._id,
         message: 'The asker confirmed your answer was helpful — +1 confidence awarded!',
       });
