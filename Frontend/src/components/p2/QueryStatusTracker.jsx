@@ -1,4 +1,5 @@
 // 3-stage status tracker: Posted → In Progress → Answered / Rejected
+import { motion } from 'framer-motion';
 
 const STAGES = [
   { key: 'posted',      label: 'Posted',      icon: 'radio_button_checked' },
@@ -54,8 +55,17 @@ export default function QueryStatusTracker({ status, rejectionReason }) {
             <div key={stage.key} className="flex items-center flex-1 last:flex-none">
               {/* Step */}
               <div className="flex flex-col items-center gap-1 min-w-[56px]">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${dotColor} transition-colors`}>
-                  <span className="material-symbols-outlined text-base">{icon}</span>
+                <div className={`relative w-8 h-8 flex items-center justify-center ${isActive ? '' : dotColor} transition-colors`}>
+                  {isActive && (
+                    <motion.div
+                      animate={{ scale: [1, 1.6, 1], opacity: [0.6, 0, 0.6] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: 'easeOut' }}
+                      className={`absolute inset-0 rounded-full ${dotColor}`}
+                    />
+                  )}
+                  <div className={`relative w-8 h-8 rounded-full flex items-center justify-center ${dotColor} transition-colors`}>
+                    <span className="material-symbols-outlined text-base">{icon}</span>
+                  </div>
                 </div>
                 <span className={`font-label-mono text-label-mono ${labelColor} transition-colors text-center leading-tight`}>
                   {displayLabel}
