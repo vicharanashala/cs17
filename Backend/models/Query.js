@@ -35,7 +35,8 @@ const querySchema = new mongoose.Schema(
     adminDeleted: { type: Boolean, default: false }, // soft-delete from admin answered folder
 
     voteCount: { type: Number, default: 1 }, // submitter counts as first vote
-    flagCount: { type: Number, default: 0 }, // synced from QueryCache.flags on every flag event
+    flagCount: { type: Number, default: 0 },
+  answerFlagCount: { type: Number, default: 0 }, // flag count for the community answer (distinct from question flags) // synced from QueryCache.flags on every flag event
 
     answer: { type: String, default: null },
     answeredBy: { type: mongoose.Schema.Types.ObjectId, refPath: 'answeredByModel', default: null },
