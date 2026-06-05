@@ -57,6 +57,7 @@ router.get('/queries', authAdmin, async (req, res) => {
         answered:    { adminStatus: 'answered', adminDeleted: false },
         rejected:    { status: 'rejected' },
         deleted:     { adminDeleted: true },
+        faq_promoted: { status: 'faq_promoted' },
       };
       Object.assign(filter, statusMap[status] || {});
     }
