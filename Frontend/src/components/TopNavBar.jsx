@@ -81,10 +81,7 @@ export default function TopNavBar({ active, user }) {
   return (
     <header className="backdrop-blur-md bg-surface/80 dark:bg-admin-bg/80 font-headline-md text-headline-md font-body-md text-body-md docked full-width top-0 h-header-height border-b-[1.5px] border-ink-100 dark:border-admin-border flat no shadows flex justify-between items-center w-full px-container-margin max-w-full mx-auto z-50 sticky">
       <div className="flex items-center gap-8">
-        <div className="font-headline-md text-headline-md font-black tracking-tight text-ink-900 dark:text-ink-50 cursor-pointer hover:text-primary transition-colors">
-          VINS Â· Yaksha
-        </div>
-        <nav className="hidden md:flex gap-6 items-center h-full">
+<nav className="hidden md:flex gap-6 items-center h-full">
           <Link to="/overview" className={`font-bold border-b-2 h-full flex items-center px-2 transition-colors hover:bg-ink-50 dark:hover:bg-admin-surface hover:text-primary ${active === 'overview' ? 'text-primary dark:text-primary-fixed-dim border-primary' : 'text-ink-400 dark:text-ink-400 border-transparent'}`}>Overview</Link>
           <Link to="/faq" className={`font-bold border-b-2 h-full flex items-center px-2 transition-colors hover:bg-ink-50 dark:hover:bg-admin-surface hover:text-primary ${active === 'faq' ? 'text-primary dark:text-primary-fixed-dim border-primary' : 'text-ink-400 dark:text-ink-400 border-transparent'}`}>FAQ</Link>
           <Link
