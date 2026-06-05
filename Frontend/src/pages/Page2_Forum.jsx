@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import api2 from '../lib/axiosP2';
 import TopNavBar from '../components/TopNavBar';
@@ -196,15 +197,20 @@ export default function Page2_Forum() {
             </div>
 
             {/* Tab switcher */}
-            <div className="flex items-center gap-1 p-1 bg-surface-container rounded-xl mb-6 w-fit">
+            <div className="flex items-center gap-1 p-1 bg-surface-container rounded-xl mb-6 w-fit relative">
+              {/* Sliding indicator */}
+              <motion.div
+                layoutId="tab-indicator"
+                className="absolute top-1 bottom-1 bg-surface shadow-sm"
+                style={{ borderRadius: '8px' }}
+                transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+              />
               {TABS.map((tab) => (
                 <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-body-sm text-body-sm font-medium transition-all ${
-                    activeTab === tab.key
-                      ? 'bg-surface text-primary shadow-sm'
-                      : 'text-ink-400 hover:text-ink-700 hover:bg-surface-container-high'
+                  className={`relative z-10 flex items-center gap-2 px-4 py-2 rounded-lg font-body-sm text-body-sm font-medium transition-colors ${
+                    activeTab === tab.key ? 'text-primary' : 'text-ink-400 hover:text-ink-700'
                   }`}
                 >
                   <span className="material-symbols-outlined text-base">{tab.icon}</span>

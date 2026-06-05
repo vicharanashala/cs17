@@ -79,7 +79,7 @@ export default function TopNavBar({ active, user }) {
   };
 
   return (
-    <header className="bg-surface-bright dark:bg-admin-bg font-headline-md text-headline-md font-body-md text-body-md docked full-width top-0 h-header-height border-b-[1.5px] border-ink-100 dark:border-admin-border flat no shadows flex justify-between items-center w-full px-container-margin max-w-full mx-auto z-50 sticky">
+    <header className="backdrop-blur-md bg-surface/80 dark:bg-admin-bg/80 font-headline-md text-headline-md font-body-md text-body-md docked full-width top-0 h-header-height border-b-[1.5px] border-ink-100 dark:border-admin-border flat no shadows flex justify-between items-center w-full px-container-margin max-w-full mx-auto z-50 sticky">
       <div className="flex items-center gap-8">
         <div className="font-headline-md text-headline-md font-black tracking-tight text-ink-900 dark:text-ink-50 cursor-pointer hover:text-primary transition-colors">
           VINS Â· Yaksha
