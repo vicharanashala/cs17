@@ -65,10 +65,10 @@ function QuestionRow({ entry, user, onAnswered }) {
   };
 
   return (
-    <div className="bg-surface border border-ink-100 rounded-xl overflow-hidden">
+    <div className="bg-surface-container-low dark:bg-admin-surface border-l-4 border-l-primary border border-ink-100 dark:border-admin-border rounded-xl overflow-hidden hover:border-primary/40 dark:hover:border-primary transition-colors">
       <button
         onClick={() => setExpanded((v) => !v)}
-        className="w-full flex items-start justify-between gap-3 p-4 text-left hover:bg-surface-container-low transition-colors"
+        className="w-full flex items-start justify-between gap-3 p-4 text-left hover:bg-surface-container transition-colors"
       >
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 mb-1 flex-wrap">

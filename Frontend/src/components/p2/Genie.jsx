@@ -28,7 +28,7 @@ function QuestionCard({ entry, onVote, onNotify, votedIds, user }) {
   return (
     <motion.div
       layout
-      className="bg-surface border border-ink-100 rounded-xl p-4 hover:border-outline-variant transition-colors"
+      className="bg-surface border border-ink-100 dark:bg-admin-surface dark:border-admin-border rounded-xl p-4 hover:border-outline-variant dark:hover:border-primary transition-colors"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
