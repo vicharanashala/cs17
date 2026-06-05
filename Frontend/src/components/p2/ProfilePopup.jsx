@@ -48,17 +48,19 @@ function TrustMilestone({ score }) {
 export default function ProfilePopup({ onClose }) {
   const ref = useRef(null);
   const navigate = useNavigate();
-  const { user, logout } = useAuthStore();
+  const { user, logout, checkAuth } = useAuthStore();
   const [queries, setQueries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(null);
 
   useEffect(() => {
+    // Re-fetch /auth/me so confidenceScore is always current when popup opens
+    checkAuth();
     api2.get('/queries/mine')
       .then(r => setQueries(r.data))
       .catch(() => setQueries([]))
       .finally(() => setLoading(false));
-  }, []);
+  }, [checkAuth]);
 
   // Close on outside click
   useEffect(() => {
